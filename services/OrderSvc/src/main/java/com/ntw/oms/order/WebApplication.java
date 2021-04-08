@@ -17,7 +17,6 @@
 package com.ntw.oms.order;
 
 import com.ntw.common.config.*;
-import com.ntw.common.security.AuthenticationFilter;
 import com.ntw.common.security.CORSFilter;
 import com.ntw.oms.cart.dao.CartDaoFactory;
 import com.ntw.oms.order.dao.OrderDaoFactory;
@@ -82,20 +81,10 @@ public class WebApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public FilterRegistrationBean authenticationFilterBean() {
-        FilterRegistrationBean bean = new FilterRegistrationBean();
-        bean.addUrlPatterns(AppConfig.ORDERS_RESOURCE_PATH +"/*");
-        bean.addUrlPatterns(AppConfig.CARTS_RESOURCE_PATH +"/*");
-        bean.setFilter(new AuthenticationFilter());
-        bean.setOrder(1);
-        return bean;
-    }
-
-    @Bean
     public FilterRegistrationBean loggingFilterBean() {
         FilterRegistrationBean bean = new FilterRegistrationBean();
         bean.setFilter(new LoggingFilter());
-        bean.setOrder(2);
+        bean.setOrder(1);
         return bean;
     }
 
@@ -103,7 +92,7 @@ public class WebApplication extends SpringBootServletInitializer {
     public FilterRegistrationBean corsFilterBean() {
         FilterRegistrationBean bean = new FilterRegistrationBean();
         bean.setFilter(new CORSFilter());
-        bean.setOrder(3);
+        bean.setOrder(2);
         return bean;
     }
 

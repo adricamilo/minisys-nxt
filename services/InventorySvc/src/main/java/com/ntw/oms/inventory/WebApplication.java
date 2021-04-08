@@ -17,7 +17,6 @@
 package com.ntw.oms.inventory;
 
 import com.ntw.common.config.*;
-import com.ntw.common.security.AuthenticationFilter;
 import com.ntw.common.security.CORSFilter;
 import com.ntw.oms.inventory.dao.InventoryDaoFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -77,19 +76,10 @@ public class WebApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public FilterRegistrationBean authenticationFilterBean() {
-        FilterRegistrationBean bean = new FilterRegistrationBean();
-        bean.addUrlPatterns(AppConfig.INVENTORY_RESOURCE_PATH +"/*");
-        bean.setFilter(new AuthenticationFilter());
-        bean.setOrder(1);
-        return bean;
-    }
-
-    @Bean
     public FilterRegistrationBean loggingFilterBean() {
         FilterRegistrationBean bean = new FilterRegistrationBean();
         bean.setFilter(new LoggingFilter());
-        bean.setOrder(2);
+        bean.setOrder(1);
         return bean;
     }
 
@@ -97,7 +87,7 @@ public class WebApplication extends SpringBootServletInitializer {
     public FilterRegistrationBean corsFilterBean() {
         FilterRegistrationBean bean = new FilterRegistrationBean();
         bean.setFilter(new CORSFilter());
-        bean.setOrder(3);
+        bean.setOrder(2);
         return bean;
     }
 
