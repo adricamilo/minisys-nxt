@@ -1,0 +1,47 @@
+{% extends "app/base.html" %}
+{% block content %}
+
+<style>
+  pre{
+      white-space: pre-wrap;
+  }
+  </style>
+
+<div class="container">
+    <h3 style="text-align:center;margin: 1em 0 2em 0;">System Setup</h3>
+
+    <div class="row">
+
+        <div class="col-md-3">
+
+            <div>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <a href="/serviceStatus?page=setup">Service Status</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/registry">Registry Status</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/userAuthTable">User Auth Data</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="col-md-9 well">
+            <div style="width:100%; min-height:405px">
+                <div>
+                    {% if message %}
+                    {{message|safe}}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+{% endblock %}

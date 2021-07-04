@@ -7,6 +7,7 @@ urlpatterns = [
   url(r'^loginForm$', views.login_form),
   url(r'^login$', views.login),
   url(r'^admin$', views.admin_page),
+  url(r'^bootstrap$', views.setup_page),
   url(r'^logout$', views.logout),
   url(r'^profile$', views.profile),
   url(r'^home$', views.home),

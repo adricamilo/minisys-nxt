@@ -14,11 +14,12 @@
     <jdk.version>1.8</jdk.version>
     <servletapi.version>4.0.1</servletapi.version>
     <spring.version>5.1.6.RELEASE</spring.version>
-    <httpclient.version>4.5.8</httpclient.version>
+    <httpclient.version>4.5.13</httpclient.version>
     <slf4j.version>1.7.26</slf4j.version>
     <log4j.version>2.12.0</log4j.version>
     <jjwt.version>0.10.5</jjwt.version>
     <jjwt.jackson.version>2.9.8</jjwt.jackson.version>
+    <jaegar.version>3.3.1</jaegar.version>
     <junit.version>3.8.1</junit.version>
   </properties>
 
@@ -103,15 +104,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-zipkin</artifactId>
-      <version>2.1.2.RELEASE</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.aspectj</groupId>
-          <artifactId>aspectjrt</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>io.opentracing.contrib</groupId>
+      <artifactId>opentracing-spring-jaeger-cloud-starter</artifactId>
+      <version>${jaegar.version}</version>
     </dependency>
 
     <dependency>

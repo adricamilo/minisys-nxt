@@ -244,7 +244,14 @@ def logout(request):
 
 
 def admin_page(request):
-    return render(request, 'app/admin.html')
+    access_token = get_access_token(request)
+    if access_token:
+        return render(request, 'app/admin.html', {'message': ''})
+    return render(request, 'app/error.html',
+                  {'message': 'Please login as Admin to access this page'})
+
+def setup_page(request):
+    return render(request, 'app/setup.html', {'message': ''})
 
 
 def profile(request):
@@ -516,8 +523,12 @@ def get_service_status(request):
     else:
         # if my_req.status_code == 200:
         my_res += my_req.content.decode()
+        if request.GET['page'] == 'setup':
+            return render(request, 'app/setup.html', {'message': '<pre>'+my_res+'</pre>'})
         return render(request, 'app/admin.html',{'message': '<pre>'+my_res+'</pre>'})
     my_res = my_res + '<br/><strong>' + res_error + '</strong>'
+    if request.GET['page'] == 'setup':
+        return render(request, 'app/setup.html', {'message': my_res})
     return render(request, 'app/admin.html', {'message': my_res})
 
 

@@ -16,12 +16,13 @@
 
 package com.ntw.oms.order.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
-import com.ntw.common.http.HttpClient;
-import com.ntw.common.http.HttpClientResponse;
 import com.ntw.oms.order.entity.InventoryReservation;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,30 +30,38 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.netflix.ribbon.RibbonClient;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by anurag on 22/05/19.
  */
+
 @Component
 @RibbonClient(name = "InventoryClient")
 public class InventoryClientImpl implements InventoryClient {
 
+    // Unused with OkHttp connection
     @Value("${InventorySvc.client.cp.size:10}")
     private int httpClientPoolSize;
 
     @Autowired
     private LoadBalancerClient loadBalancer;
 
-    private static HttpClient client;
+    @Autowired
+    private Tracer tracer;
+
+    //private static HttpClient client;
+    private static OkHttpClient client;
 
     @PostConstruct
     public void postConstruct() {
-        client = new HttpClient(httpClientPoolSize);
+        // Each client has its own connection pool. Need one instance per class.
+        client = new OkHttpClient();
     }
 
     private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
@@ -67,27 +76,57 @@ public class InventoryClientImpl implements InventoryClient {
 
     @Override
     public boolean reserveInventory(InventoryReservation inventoryReservation, String authHeader) throws IOException {
-        HttpClientResponse response;
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            ServiceInstance instance = getLoadBalancer().choose(ServiceID.InventorySvc.toString());
-            String host = instance.getHost();
-            int port = instance.getPort();
-            String uri = new StringBuilder()
-                    .append(AppConfig.INVENTORY_RESOURCE_PATH).append("/")
-                    .append(AppConfig.INVENTORY_RESERVATION_PATH).toString();
-            response = client.sendPost(host, port, uri,
-                    authHeader, MediaType.APPLICATION_JSON_VALUE, mapper.writeValueAsString(inventoryReservation));
+        ServiceInstance instance = getLoadBalancer().choose(ServiceID.InventorySvc.toString());
+        StringBuilder url = new StringBuilder()
+                .append("http://").append(instance.getHost())
+                .append(":").append(instance.getPort())
+                .append(AppConfig.INVENTORY_RESOURCE_PATH)
+                .append(AppConfig.INVENTORY_RESERVATION_PATH);
+        String invResJson = (new Gson()).toJson(inventoryReservation);
+        RequestBody body = RequestBody.create(invResJson, okhttp3.MediaType.parse("application/json; charset=utf-8"));
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(url.toString())
+                .post(body);
+        requestBuilder.addHeader("Authorization", authHeader);
+        // tracer bean is created by the spring jaeger cloud library itself
+        tracer.inject(
+                tracer.activeSpan().context(),
+                Format.Builtin.HTTP_HEADERS,
+                new RequestBuilderCarrier(requestBuilder)
+
+        );
+        Request request = requestBuilder.build();
+        try (Response response = client.newCall(request).execute()) {
+            if (response.code() == 200) {
+                logger.debug("Reserved inventory successfully; context={}", inventoryReservation);
+                return true;
+            }
+            logger.debug("Unable to reserve inventory, got error; errorCode={}, message={} context={}",
+                        response.code(), response.message(), inventoryReservation);
+            return false;
         } catch (IOException e) {
             logger.error("Error calling InventorySvc while reserving inventory; context={}", inventoryReservation);
             logger.error(e.getMessage(), e);
             throw e;
         }
-        if (response.getBody().equals("SUCCESS")) {
-            logger.debug("Reserved inventory successfully; context={}", inventoryReservation);
-            return true;
-        }
-        logger.debug("Unable to reserve inventory; context={}", inventoryReservation);
-        return false;
     }
 }
+
+class RequestBuilderCarrier implements io.opentracing.propagation.TextMap {
+    private final Request.Builder builder;
+
+    RequestBuilderCarrier(Request.Builder builder) {
+        this.builder = builder;
+    }
+
+    @Override
+    public Iterator<Map.Entry<String, String>> iterator() {
+        throw new UnsupportedOperationException("carrier is write-only");
+    }
+
+    @Override
+    public void put(String key, String value) {
+        builder.addHeader(key, value);
+    }
+}
+

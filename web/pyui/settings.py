@@ -145,12 +145,14 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
+        'json': {"()": "pythonjsonlogger.jsonlogger.JsonFormatter"},
         'verbose': {
-            'format': 'time=%(asctime)s | level=%(levelname)s | hostname=%(hostname)s | service=PyUI | '
-                      'class=%(module)s | pid=%(process)d | threadId=%(thread)d | message=%(message)s'
+            'format': 'time=%(asctime)s.%(msecs)03d  GMT+05:30 level=%(levelname)s hostname=%(hostname)s '
+                      'service=PyUI threadId=%(thread)d class=%(module)s pid=%(process)d message=%(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         },
         'simple': {
-            'format': '%(asctime)s %(levelname)s %(message)s'
+            'format': '%(asctime)s.%(msecs)03d %(levelname)s %(message)s'
         },
     },
     'filters': {

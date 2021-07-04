@@ -5,13 +5,13 @@
     </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="time=%d{yyy-MM-dd HH:mm:ss.SSS zzz} | level=%-5level | hostname=${sys:hostName} |
- threadId=%t | service=OrderSvc | class=%logger{36} | remotehost=%X{remoteIP} | userId=%X{userId} | message=%msg%n" />
+            <PatternLayout pattern="time=%d{yyy-MM-dd HH:mm:ss.SSS zzz}{GMT+0530} level=%-5level hostname=${sys:hostName}
+ service=OrderSvc threadId=%t class=%logger{36} remotehost=%X{remoteIP} userId=%X{userId} message=%msg%n" />
         </Console>
         <RollingFile name="RollingFile" fileName="${log-path}/OrderSvc-${sys:hostName}.log"
                      filePattern="${log-path}/OrderSvc-${sys:hostName}-%d{yyyy-MM-dd}-%i.log" >
-            <PatternLayout pattern="time=%d{yyy-MM-dd HH:mm:ss.SSS zzz} | level=%-5level | hostname=${sys:hostName} |
- threadId=%t | service=OrderSvc | class=%logger{36} | remotehost=%X{remoteIP} | userId=%X{userId} | message=%msg%n" />
+            <PatternLayout pattern="time=%d{yyy-MM-dd HH:mm:ss.SSS zzz}{GMT+0530} level=%-5level hostname=${sys:hostName}
+ service=OrderSvc threadId=%t class=%logger{36} remotehost=%X{remoteIP} userId=%X{userId} message=%msg%n" />
             <Policies>
                 <SizeBasedTriggeringPolicy size="10 MB" />
             </Policies>

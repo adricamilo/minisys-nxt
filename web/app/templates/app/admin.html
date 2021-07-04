@@ -17,7 +17,7 @@
             <div>
                 <ul class="list-group">
                     <li class="list-group-item">
-                        <a href="/serviceStatus">Service Status</a>
+                        <a href="/serviceStatus?page=admin">Service Status</a>
                     </li>
                     <li class="list-group-item">
                         <a href="/registry">Registry Status</a>
@@ -60,14 +60,6 @@
         <div class="col-md-9 well">
             <div style="width:100%; min-height:405px">
                 <div>{{message|safe}}</div>
-                <div class="container">
-                {% for auth in authList %}
-                    <div class="caption">
-                        <p><span>{{auth.id}}</span>,&nbsp<span>{{auth.name}},&nbsp<span>{{auth.password}}</span></p>
-                    </div>
-                {% endfor %}
-                </div>
-
             </div>
         </div>
 
