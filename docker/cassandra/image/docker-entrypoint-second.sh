@@ -5,8 +5,13 @@ if [ -z "${REPLICATION_FACTOR}" ]; then
 fi
 
 function create_schema {
+    COUNTER=0
     until cat /create-schema.cql | cqlsh; do
 	echo "cqlsh: Cassandra is unavailable - retry later"
+	(( COUNTER++ ))
+	if (( COUNTER >  50 )); then
+	    exit -1
+	fi
 	sleep 2
     done
 }

@@ -10,12 +10,39 @@ echo "-- Start --"
 function do_start {
     echo "-- Run Containers --"
     cd $OMS_ROOT/docker
-    docker-compose up -d
+    do_start_infra
+    do_start_app
+    echo "-- Done --"
+}
+
+function do_start_infra {
+    echo "-- Run Infra Containers --"
+    declare -a arr=("elasticsearch" "kibana" "jaeger-collector" "jaeger-query" "jaeger-agent" "fluentd" "es-exporter" "pg-exporter" "prometheus")
+    for container in "${arr[@]}"
+    do
+	do_start_one $container
+	sleep 5s
+    done    
+    echo "-- Done --"
+}
+
+function do_start_app {
+    echo "-- Run App Containers --"
+    declare -a arr=("web" "lb-web" "eureka" "gateway-svc" "lb-rest" "cassandra" "postgres" "admin-svc" "auth-svc" "product-svc" "order-svc" "inventory-svc" "user-profile-svc")
+    for container in "${arr[@]}"
+    do
+	do_start_one $container
+	sleep 10s
+    done    
+    echo "-- Done --"
+}
+
+function do_start_one {
+    docker-compose up -d $1
     if [ $? != 0 ]; then
-	echo "Build failed - Run containers failed"
+	echo "Build failed - Run $1 container failed"
 	exit -1;
     fi
-    echo "-- Done --"
 }
 
 function do_test {
