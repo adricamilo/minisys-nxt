@@ -3,10 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ntw.oms.inventory</groupId>
-  <artifactId>InventorySvc</artifactId>
+  <artifactId>inventory</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
-  <name>InventorySvc Maven Webapp</name>
+  <name>Inventory Service</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -110,7 +110,7 @@
   </dependencies>
 
   <build>
-    <finalName>InventorySvc</finalName>
+    <finalName>inventory</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>

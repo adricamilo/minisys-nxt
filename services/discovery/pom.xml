@@ -4,10 +4,10 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ntw.discovery</groupId>
-  <artifactId>DiscoverySvc</artifactId>
+  <artifactId>discovery</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>DiscoverySvc Maven App</name>
+  <name>Discovery Service Jar</name>
   <description>Demo project for Spring Boot</description>
 
   <properties>
@@ -62,7 +62,7 @@
   </dependencyManagement>
 
   <build>
-    <finalName>DiscoverySvc</finalName>
+    <finalName>discovery</finalName>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>

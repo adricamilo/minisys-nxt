@@ -8,6 +8,8 @@ TARGET=$1
 
 echo "-- Start --"
 
+############################## Clean ####################################
+
 function do_clean {
     echo "-- Clean --"
     cd $OMS_ROOT/services
@@ -56,14 +58,12 @@ function do_clean {
 }
 
 
+############################## Build ####################################
+
 function do_build {
+
     echo "-- Build --"
-    cd $OMS_ROOT/services
-    mvn package
-    if [ $? != 0 ]; then
-	echo "Build failed - Build Services failed"
-	exit -1;
-    fi
+    do_build_services $1 $2
 
     cd $OMS_ROOT/tests/jmeter
     ./create-data.sh
@@ -88,6 +88,28 @@ function do_build {
     echo "-- Done --"
 }
 
+function do_build_services {
+    cd $OMS_ROOT/services
+    mvn package
+    if [ $? != 0 ]; then
+	echo "Build failed - Build Services failed"
+	exit -1;
+    fi
+}
+
+function do_build_service {
+    cd $OMS_ROOT/services/$1
+    mvn package
+    if [ $? != 0 ]; then
+	echo "Build failed - Build Services failed"
+	exit -1;
+    fi
+    cp ./target/*.war ../target
+}
+
+
+############################## Staging ####################################
+
 function do_stage {
     echo "-- Pull artifacts to Staging --"
     cd $OMS_ROOT/staging/bin
@@ -98,6 +120,10 @@ function do_stage {
     fi
     echo "-- Done --"
 }
+
+
+
+############################## Images ####################################
 
 function do_images {
     echo "-- Pull artifacts from Staging to Docker images dir --"
@@ -127,11 +153,9 @@ function do_images {
 }
 
 if [ "$TARGET" == "clean" ]; then
-    do_clean
-elif [ "$TARGET" == "clean_all" ]; then
-    do_clean all
+    do_clean $2
 elif [ "$TARGET" == "build" ]; then
-    do_build
+    do_build $2 $3
 elif [ "$TARGET" == "stage" ]; then
     do_stage
 elif [ "$TARGET" == "images" ]; then

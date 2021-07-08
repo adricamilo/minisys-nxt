@@ -317,7 +317,7 @@ services:
       - server.threadPool.threads.maximum=20
     volumes:
       - ./logs/rest-1:/var/log/oms
-    entrypoint: /usr/bin/docker-entrypoint.sh GatewaySvc
+    entrypoint: /usr/bin/docker-entrypoint.sh gateway
     logging:
       driver: "fluentd"
       options:
@@ -338,7 +338,7 @@ services:
       - eureka.instance.hostname=admin-svc-1
     volumes:
       - ./logs/rest-1:/var/log/oms
-    entrypoint: /usr/bin/docker-entrypoint.sh AdminSvc
+    entrypoint: /usr/bin/docker-entrypoint.sh admin
     logging:
       driver: "fluentd"
       options:
@@ -359,7 +359,7 @@ services:
       - eureka.instance.hostname=auth-svc-1
     volumes:
       - ./logs/rest-1:/var/log/oms
-    entrypoint: /usr/bin/docker-entrypoint.sh AuthSvc
+    entrypoint: /usr/bin/docker-entrypoint.sh auth
     logging:
       driver: "fluentd"
       options:
@@ -380,7 +380,7 @@ services:
       - eureka.instance.hostname=product-svc-1
     volumes:
       - ./logs/rest-1:/var/log/oms
-    entrypoint: /usr/bin/docker-entrypoint.sh ProductSvc
+    entrypoint: /usr/bin/docker-entrypoint.sh product
     logging:
       driver: "fluentd"
       options:
@@ -401,7 +401,7 @@ services:
       - eureka.instance.hostname=order-svc-1
     volumes:
       - ./logs/rest-1:/var/log/oms
-    entrypoint: /usr/bin/docker-entrypoint.sh OrderSvc
+    entrypoint: /usr/bin/docker-entrypoint.sh order
     logging:
       driver: "fluentd"
       options:
@@ -422,7 +422,7 @@ services:
       - eureka.instance.hostname=inventory-svc-1
     volumes:
       - ./logs/rest-1:/var/log/oms
-    entrypoint: /usr/bin/docker-entrypoint.sh InventorySvc
+    entrypoint: /usr/bin/docker-entrypoint.sh inventory
     logging:
       driver: "fluentd"
       options:

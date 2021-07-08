@@ -1,24 +1,26 @@
 <?xml version="1.0"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.ntw.oms.gateway</groupId>
-  <artifactId>GatewaySvc</artifactId>
+  <groupId>com.ntw.oms.product</groupId>
+  <artifactId>product</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
-  <name>GatewaySvc Maven Webapp</name>
+  <name>Product Service</name>
   <url>http://maven.apache.org</url>
+
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <oms.version>1.0-SNAPSHOT</oms.version>
     <servletapi.version>4.0.1</servletapi.version>
     <spring.jdbc.version>5.1.8.RELEASE</spring.jdbc.version>
+    <postgres.version>42.2.2</postgres.version>
     <dbcp2.version>2.6.0</dbcp2.version>
     <disruptor.version>3.4.2</disruptor.version>
-    <apache.commons-io.version>2.6</apache.commons-io.version>
     <junit.version>3.8.1</junit.version>
-    <start-class>com.ntw.oms.gateway.WebApplication</start-class>
+    <start-class>com.ntw.oms.product.WebApplication</start-class>
   </properties>
 
   <parent>
@@ -26,7 +28,7 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.1.6.RELEASE</version>
   </parent>
-
+  
   <dependencies>
 
     <dependency>
@@ -62,25 +64,30 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
-      <version>2.1.2.RELEASE</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.security</groupId>
-          <artifactId>spring-security-crypto</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.google.code.findbugs</groupId>
-          <artifactId>annotations</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>${spring.jdbc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-cassandra</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.dropwizard.metrics</groupId>
+      <artifactId>metrics-core</artifactId>
+      <version>3.2.2</version>
     </dependency>
 
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>${apache.commons-io.version}</version>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgres.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-dbcp2</artifactId>
+      <version>${dbcp2.version}</version>
     </dependency>
 
     <dependency>
@@ -100,16 +107,10 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.8.5</version>
-    </dependency>
-
   </dependencies>
-
+  
   <build>
-    <finalName>GatewaySvc</finalName>
+    <finalName>product</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>

@@ -35,19 +35,16 @@ RUN apt-get install -y software-properties-common \
 
 RUN apt-get clean
 
-COPY ./image/war/AuthSvc.war \
-     ./image/war/AdminSvc.war \
-     ./image/war/InventorySvc.war \
-     ./image/war/ProductSvc.war \
-     ./image/war/OrderSvc.war \
-     ./image/war/UserProfileSvc.war \
-     ./image/war/GatewaySvc.war \
+COPY ./image/war/auth.war \
+     ./image/war/admin.war \
+     ./image/war/inventory.war \
+     ./image/war/product.war \
+     ./image/war/order.war \
+     ./image/war/gateway.war \
      /usr/war/
 
 # Create mount point for log files
 VOLUME ["/var/log/oms"]
-
-WORKDIR /usr/share/jetty9
 
 COPY ./image/jstatd.policy /usr/jstatd.policy
 COPY ./image/docker-entrypoint.sh /usr/bin/docker-entrypoint.sh

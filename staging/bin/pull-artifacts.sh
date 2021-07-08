@@ -18,7 +18,7 @@ echo Copy Services war files
 cp $OMS_ROOT/services/target/*.war $OMS_STAGING/services
 
 echo Copy eureka.jar file
-cp -r $OMS_ROOT/services/target/DiscoverySvc.jar $OMS_STAGING/registry
+cp -r $OMS_ROOT/services/target/discovery.jar $OMS_STAGING/registry
 
 echo Copy Jmeter tests files
 cp -r $OMS_ROOT/tests/jmeter/* $OMS_STAGING/tests

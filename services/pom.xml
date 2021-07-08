@@ -13,14 +13,14 @@
     </properties>
     
     <modules>
-      <module>CommonLib</module>
-      <module>AdminSvc</module>
-      <module>AuthSvc</module>
-      <module>GatewaySvc</module>
-      <module>ProductSvc</module>
-      <module>OrderSvc</module>
-      <module>InventorySvc</module>
-	  <module>DiscoverySvc</module>
+      <module>common</module>
+      <module>admin</module>
+      <module>auth</module>
+      <module>gateway</module>
+      <module>product</module>
+      <module>order</module>
+      <module>inventory</module>
+	  <module>discovery</module>
   </modules>
 
     <build>
@@ -48,13 +48,13 @@
 		</goals>
 		<configuration>
 		  <tasks>
-            <copy file="AdminSvc/target/AdminSvc.war" todir="target/"/>
-		    <copy file="AuthSvc/target/AuthSvc.war" todir="target/"/>
-		    <copy file="GatewaySvc/target/GatewaySvc.war" todir="target/"/>
-		    <copy file="ProductSvc/target/ProductSvc.war" todir="target/"/>
-		    <copy file="OrderSvc/target/OrderSvc.war" todir="target/"/>
-            <copy file="InventorySvc/target/InventorySvc.war" todir="target/"/>
-			<copy file="DiscoverySvc/target/DiscoverySvc.jar" todir="target/"/>
+            <copy file="admin/target/admin.war" todir="target/"/>
+		    <copy file="auth/target/auth.war" todir="target/"/>
+		    <copy file="gateway/target/gateway.war" todir="target/"/>
+		    <copy file="product/target/product.war" todir="target/"/>
+		    <copy file="order/target/order.war" todir="target/"/>
+            <copy file="inventory/target/inventory.war" todir="target/"/>
+			<copy file="discovery/target/discovery.jar" todir="target/"/>
 		  </tasks>
 		</configuration>
 	      </execution>
@@ -66,13 +66,13 @@
 		</goals>
 		<configuration>
 		  <tasks>
-            <copy file="AdminSvc/target/AdminSvc.war" todir="${install.dir}/webapps/"/>
-		    <copy file="AuthSvc/target/AuthSvc.war" todir="${install.dir}/webapps/"/>
-		    <copy file="GatewaySvc/target/GatewaySvc.war" todir="${install.dir}/webapps/"/>
-		    <copy file="ProductSvc/target/ProductSvc.war" todir="${install.dir}/webapps/"/>
-		    <copy file="OrderSvc/target/OrderSvc.war" todir="${install.dir}/webapps/"/>
-            <copy file="InventorySvc/target/InventorySvc.war" todir="${install.dir}/webapps/"/>
-			<copy file="DiscoverySvc/target/DiscoverySvc.jar" todir="${install.dir}/webapps/"/>
+            <copy file="admin/target/admin.war" todir="${install.dir}/webapps/"/>
+		    <copy file="auth/target/auth.war" todir="${install.dir}/webapps/"/>
+		    <copy file="gateway/target/gateway.war" todir="${install.dir}/webapps/"/>
+		    <copy file="product/target/product.war" todir="${install.dir}/webapps/"/>
+		    <copy file="order/target/order.war" todir="${install.dir}/webapps/"/>
+            <copy file="inventory/target/inventory.war" todir="${install.dir}/webapps/"/>
+			<copy file="discovery/target/discovery.jar" todir="${install.dir}/webapps/"/>
 		  </tasks>
 		</configuration>
 	      </execution>
