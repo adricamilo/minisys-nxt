@@ -14,29 +14,30 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.oms.user;
-
-import com.ntw.common.config.AppConfig;
-import com.ntw.common.security.AuthenticationInterceptor;
-import com.ntw.common.security.AuthorizationInterceptor;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+package com.ntw.oms.admin.api;
 
 /**
- * Created by anurag on 08/08/19.
+ * Created by anurag on 22/05/19.
  */
-@Configuration
-public class WebConfiguration implements WebMvcConfigurer {
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthenticationInterceptor())
-                .order(1)
-                .addPathPatterns(AppConfig.USERS_PROFILE_RESOURCE_PATH)
-                .addPathPatterns(AppConfig.USERS_PROFILE_RESOURCE_PATH +"/**");
+public class HttpClientResponse {
+    private int status;
+    private String body;
 
-        registry.addInterceptor(new AuthorizationInterceptor())
-                .order(2)
-                .addPathPatterns(AppConfig.USERS_PROFILE_RESOURCE_PATH +"/**");
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 }
+
+

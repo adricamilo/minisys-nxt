@@ -5,7 +5,6 @@ export OMS_ROOT=`pwd`
 #cd $OMS_ROOT
 
 TARGET=$1
-SCOPE=$2
 
 echo "-- Start --"
 
@@ -32,7 +31,7 @@ function do_clean {
 	exit -1;
     fi
 
-    if [ "$SCOPE" == "all" ]; then
+    if [ "$1" == "all" ]; then
 	cd $OMS_ROOT/staging
 	rm -rf services web analytics registry tests
 	if [ $? != 0 ]; then
@@ -127,25 +126,16 @@ function do_images {
     echo "-- Done --"
 }
 
-function do_run {
-    cd $OMS_ROOT/bin
-    ./run.sh $1
-}
-
 if [ "$TARGET" == "clean" ]; then
     do_clean
+elif [ "$TARGET" == "clean_all" ]; then
+    do_clean all
 elif [ "$TARGET" == "build" ]; then
     do_build
 elif [ "$TARGET" == "stage" ]; then
     do_stage
 elif [ "$TARGET" == "images" ]; then
     do_images
-elif [ "$TARGET" == "run" ]; then
-    do_run run
-elif [ "$TARGET" == "start" ] ||
-	 [ "$TARGET" == "test" ] ||
-	 [ "$TARGET" == "stop" ]; then
-    do_run $TARGET
 else
     do_clean
     do_build

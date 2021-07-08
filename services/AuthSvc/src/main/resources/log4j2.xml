@@ -23,6 +23,10 @@
             <AppenderRef ref="Console" />
             <AppenderRef ref="RollingFile" />
         </AsyncLogger>
+        <AsyncLogger name="com.ntw.oms.user" level="${env:server.log.level:-INFO}" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="RollingFile" />
+        </AsyncLogger>
         <AsyncLogger name="com.ntw.common" level="${env:server.log.level:-INFO}" additivity="false">
             <AppenderRef ref="Console" />
             <AppenderRef ref="RollingFile" />

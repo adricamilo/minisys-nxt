@@ -20,8 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
-import com.ntw.common.http.HttpClient;
-import com.ntw.common.http.HttpClientResponse;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

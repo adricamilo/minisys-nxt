@@ -1,24 +1,33 @@
 #!/bin/bash
 
-OMS_ROOT=`pwd`/..
+OMS_ROOT=`pwd`
 cd $OMS_ROOT
 
 TARGET=$1
+SUB_TARGET=$2
+
+declare -a app_containers=("web" "lb-web" "eureka" "gateway-svc" "lb-rest" "cassandra" "postgres" "admin-svc" "auth-svc" "product-svc" "order-svc" "inventory-svc")
+declare -a infra_containers=("elasticsearch" "kibana" "jaeger-collector" "jaeger-query" "jaeger-agent" "fluentd" "es-exporter" "pg-exporter" "prometheus")
 
 echo "-- Start --"
 
 function do_start {
     echo "-- Run Containers --"
     cd $OMS_ROOT/docker
-    do_start_infra
-    do_start_app
+    if [ "$1" == "infra" ]; then
+	do_start_infra
+    elif [ "$1" == "app" ]; then
+	do_start_app
+    else
+	do_start_infra
+	do_start_app
+    fi
     echo "-- Done --"
 }
 
 function do_start_infra {
     echo "-- Run Infra Containers --"
-    declare -a arr=("elasticsearch" "kibana" "jaeger-collector" "jaeger-query" "jaeger-agent" "fluentd" "es-exporter" "pg-exporter" "prometheus")
-    for container in "${arr[@]}"
+    for container in "${infra_containers[@]}"
     do
 	do_start_one $container
 	sleep 5s
@@ -28,8 +37,7 @@ function do_start_infra {
 
 function do_start_app {
     echo "-- Run App Containers --"
-    declare -a arr=("web" "lb-web" "eureka" "gateway-svc" "lb-rest" "cassandra" "postgres" "admin-svc" "auth-svc" "product-svc" "order-svc" "inventory-svc" "user-profile-svc")
-    for container in "${arr[@]}"
+    for container in "${app_containers[@]}"
     do
 	do_start_one $container
 	sleep 10s
@@ -60,22 +68,53 @@ function do_test {
 function do_stop {
     echo "-- Stop containers --"
     cd $OMS_ROOT/docker
-    docker-compose stop
-    if [ $? != 0 ]; then
-	echo "Build failed - Cannot stop containers"
-	exit -1;
+    if [ "$1" == "infra" ]; then
+	do_stop_infra
+    elif [ "$1" == "app" ]; then
+	do_stop_app
+    else
+	do_stop_infra
+	do_stop_app
     fi
+    docker-compose rm -f
     echo "-- Done --"
 }
 
+function do_stop_infra {
+    echo "-- Stop Infra Containers --"
+    for container in "${infra_containers[@]}"
+    do
+	do_stop_one $container
+    done    
+    echo "-- Done --"
+}
+
+function do_stop_app {
+    echo "-- Stop App Containers --"
+    for container in "${app_containers[@]}"
+    do
+	do_stop_one $container
+    done    
+    echo "-- Done --"
+}
+
+function do_stop_one {
+    docker-compose stop $1
+    if [ $? != 0 ]; then
+	echo "Build failed - Stop $1 container failed"
+	exit -1;
+    fi
+}
+
+
 if [ "$TARGET" == "start" ]; then
-    do_start
+    do_start $SUB_TARGET
 elif [ "$TARGET" == "test" ]; then
     do_test
 elif [ "$TARGET" == "stop" ]; then
-    do_stop
+    do_stop $SUB_TARGET
 else
-    do_start
+    do_start 
     i="0"
     RESPONSE=$(curl -s -I -X GET http://localhost:9000/GatewaySvc/status | head -n 1)
     echo "$i - $RESPONSE"

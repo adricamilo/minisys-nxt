@@ -20,7 +20,6 @@
       <module>ProductSvc</module>
       <module>OrderSvc</module>
       <module>InventorySvc</module>
-      <module>UserProfileSvc</module>
 	  <module>DiscoverySvc</module>
   </modules>
 
@@ -55,7 +54,6 @@
 		    <copy file="ProductSvc/target/ProductSvc.war" todir="target/"/>
 		    <copy file="OrderSvc/target/OrderSvc.war" todir="target/"/>
             <copy file="InventorySvc/target/InventorySvc.war" todir="target/"/>
-		    <copy file="UserProfileSvc/target/UserProfileSvc.war" todir="target/"/>
 			<copy file="DiscoverySvc/target/DiscoverySvc.jar" todir="target/"/>
 		  </tasks>
 		</configuration>
@@ -74,7 +72,6 @@
 		    <copy file="ProductSvc/target/ProductSvc.war" todir="${install.dir}/webapps/"/>
 		    <copy file="OrderSvc/target/OrderSvc.war" todir="${install.dir}/webapps/"/>
             <copy file="InventorySvc/target/InventorySvc.war" todir="${install.dir}/webapps/"/>
-		    <copy file="UserProfileSvc/target/UserProfileSvc.war" todir="${install.dir}/webapps/"/>
 			<copy file="DiscoverySvc/target/DiscoverySvc.jar" todir="${install.dir}/webapps/"/>
 		  </tasks>
 		</configuration>

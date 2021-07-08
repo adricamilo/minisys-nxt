@@ -139,6 +139,7 @@ HTTP_TIMEOUT = 20
 HTTP_SAMPLE_DATA_TIMEOUT = 120
 
 LOG_FILE=os.environ.get('PYUI_LOG_FILE','./logs/PyUi.log')
+LOG_LEVEL=os.environ.get('PYUI_LOG_LEVEL','INFO')
 
 
 LOGGING = {
@@ -168,14 +169,14 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': LOG_LEVEL,
             'class': 'logging.FileHandler',
             'filters': ['require_debug_true','custom_filter'],
             'filename': LOG_FILE,
             'formatter': 'verbose',
         },
         'console': {
-            'level': 'DEBUG',
+            'level': LOG_LEVEL,
             'class': 'logging.StreamHandler',
             'filters': ['require_debug_true','custom_filter'],
             'formatter': 'verbose',
@@ -184,22 +185,22 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['file','console'],
-            'level': 'DEBUG',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
         'django.request': {
             'handlers': ['file','console'],
-            'level': 'DEBUG',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
         'django.utils.autoreload': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
         'app': {
             'handlers': ['file', 'console'],
-            'level': 'DEBUG',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
     },

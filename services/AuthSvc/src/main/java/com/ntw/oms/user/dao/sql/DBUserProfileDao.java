@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Created by anurag on 30/05/17.
  */
-@Component("SQL")
+@Component("UserProfileSQL")
 public class DBUserProfileDao implements UserProfileDao {
 
     private static final Logger logger = LoggerFactory.getLogger(DBUserProfileDao.class);

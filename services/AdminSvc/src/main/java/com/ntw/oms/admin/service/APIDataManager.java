@@ -115,7 +115,8 @@ public class APIDataManager {
         StringBuilder serviceStatusBuilder = new StringBuilder();
         for (ServiceID serviceID : ServiceID.values()) {
             ApiClient apiClient = apiClientFactory.createApiClient(serviceID, "");
-            if (serviceID == ServiceID.AdminSvc || serviceID == ServiceID.CartSvc)
+            if (serviceID == ServiceID.AdminSvc || serviceID == ServiceID.CartSvc
+                    || serviceID == ServiceID.UserProfileSvc)
                 continue;
             String serviceStatus = null;
             try {

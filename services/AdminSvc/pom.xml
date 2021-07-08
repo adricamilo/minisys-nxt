@@ -16,6 +16,7 @@
     <postgres.version>42.2.2</postgres.version>
     <dbcp2.version>2.6.0</dbcp2.version>
     <disruptor.version>3.4.2</disruptor.version>
+    <httpclient.version>4.5.13</httpclient.version>
     <junit.version>3.8.1</junit.version>
     <commons.lang.version>3.9</commons.lang.version>
     <start-class>com.ntw.oms.admin.WebApplication</start-class>
@@ -79,6 +80,12 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-dbcp2</artifactId>
       <version>${dbcp2.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>${httpclient.version}</version>
     </dependency>
 
     <dependency>

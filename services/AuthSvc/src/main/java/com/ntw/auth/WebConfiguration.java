@@ -36,7 +36,9 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns(AppConfig.AUTHORIZATION_RESOURCE_PATH
                         +AppConfig.AUTH_TOKEN_PATH)
                 .excludePathPatterns(AppConfig.AUTHORIZATION_RESOURCE_PATH
-                        +AppConfig.AUTH_TOKEN_USER_PATH);
+                        +AppConfig.AUTH_TOKEN_USER_PATH)
+                .addPathPatterns(AppConfig.USERS_PROFILE_RESOURCE_PATH)
+                .addPathPatterns(AppConfig.USERS_PROFILE_RESOURCE_PATH +"/**");
 
         registry.addInterceptor(new AuthorizationInterceptor())
                 .order(2)
@@ -44,6 +46,7 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .excludePathPatterns(AppConfig.AUTHORIZATION_RESOURCE_PATH
                         +AppConfig.AUTH_TOKEN_PATH)
                 .excludePathPatterns(AppConfig.AUTHORIZATION_RESOURCE_PATH
-                        +AppConfig.AUTH_TOKEN_USER_PATH);
+                        +AppConfig.AUTH_TOKEN_USER_PATH)
+                .addPathPatterns(AppConfig.USERS_PROFILE_RESOURCE_PATH +"/**");
     }
 }

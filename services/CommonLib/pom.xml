@@ -14,7 +14,6 @@
     <jdk.version>1.8</jdk.version>
     <servletapi.version>4.0.1</servletapi.version>
     <spring.version>5.1.6.RELEASE</spring.version>
-    <httpclient.version>4.5.13</httpclient.version>
     <slf4j.version>1.7.26</slf4j.version>
     <log4j.version>2.12.0</log4j.version>
     <jjwt.version>0.10.5</jjwt.version>
@@ -38,12 +37,6 @@
       <artifactId>javax.servlet-api</artifactId>
       <version>${servletapi.version}</version>
       <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>${httpclient.version}</version>
     </dependency>
 
     <dependency>

@@ -19,7 +19,6 @@ package com.ntw.oms.admin.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ntw.common.config.ServiceID;
-import com.ntw.common.http.HttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;

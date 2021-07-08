@@ -366,27 +366,6 @@ services:
         fluentd-address: "127.0.0.1:24224"
         tag: auth-svc-1
 
-  user-profile-svc:
-    image: ntw/rest
-    container_name: user-profile-svc-1
-    hostname: user-profile-svc-1
-    networks:
-      - mynet1
-    ports:
-      - "8083:8080"
-      - "6003:6005"
-    env_file: .env 
-    environment:
-      - eureka.instance.hostname=user-profile-svc-1
-    volumes:
-      - ./logs/rest-1:/var/log/oms
-    entrypoint: /usr/bin/docker-entrypoint.sh UserProfileSvc
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: "127.0.0.1:24224"
-        tag: user-profile-svc-1
-
   product-svc:
     image: ntw/rest
     container_name: product-svc-1
@@ -394,8 +373,8 @@ services:
     networks:
       - mynet1
     ports:
-      - "8084:8080"
-      - "6004:6005"
+      - "8083:8080"
+      - "6003:6005"
     env_file: .env 
     environment:
       - eureka.instance.hostname=product-svc-1
@@ -415,8 +394,8 @@ services:
     networks:
       - mynet1
     ports:
-      - "8085:8080"
-      - "6005:6005"
+      - "8084:8080"
+      - "6004:6005"
     env_file: .env 
     environment:
       - eureka.instance.hostname=order-svc-1
@@ -436,8 +415,8 @@ services:
     networks:
       - mynet1
     ports:
-      - "8086:8080"
-      - "6006:6005"
+      - "8085:8080"
+      - "6005:6005"
     env_file: .env 
     environment:
       - eureka.instance.hostname=inventory-svc-1

@@ -46,7 +46,7 @@ public class UserProfileServiceImpl {
     @PostConstruct
     public void postConstruct()
     {
-        this.userProfileDaoBean = userProfileDaoFactory.getUserProfileDao(userProfileDBType);
+        this.userProfileDaoBean = userProfileDaoFactory.getUserProfileDao("UserProfile"+userProfileDBType);
     }
 
     public void setUserProfileDaoBean(UserProfileDao userProfileDaoBean) {

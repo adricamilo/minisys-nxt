@@ -45,7 +45,7 @@ import javax.sql.DataSource;
  * Created by anurag on 13/08/19.
  */
 @Configuration
-@EnableCassandraRepositories(basePackages = { "com.ntw.auth" })
+@EnableCassandraRepositories(basePackages = { "com.ntw.auth", "com.ntw.oms.user" })
 @PropertySource(value = { "classpath:config.properties" })
 public class DBConfiguration {
 

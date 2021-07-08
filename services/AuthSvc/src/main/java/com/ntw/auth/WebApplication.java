@@ -21,6 +21,7 @@ import com.ntw.common.config.*;
 import com.ntw.common.security.CORSFilter;
 import com.ntw.common.security.JJwtUtility;
 import com.ntw.common.security.JwtUtility;
+import com.ntw.oms.user.dao.UserProfileDaoFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +47,7 @@ import javax.servlet.ServletContextListener;
  * Created by anurag on 02/08/19.
  */
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.ntw.auth", "com.ntw.oms.user"})
 @PropertySource(value = { "classpath:config.properties" })
 @EnableAutoConfiguration(exclude={CassandraDataAutoConfiguration.class})
 public class WebApplication extends SpringBootServletInitializer {
@@ -120,6 +121,13 @@ public class WebApplication extends SpringBootServletInitializer {
     public FactoryBean serviceLocatorFactoryBean() {
         ServiceLocatorFactoryBean factoryBean = new ServiceLocatorFactoryBean();
         factoryBean.setServiceLocatorInterface(AuthMgrFactory.class);
+        return factoryBean;
+    }
+
+    @Bean("userProfileDaoFactory")
+    public FactoryBean userServiceLocatorFactoryBean() {
+        ServiceLocatorFactoryBean factoryBean = new ServiceLocatorFactoryBean();
+        factoryBean.setServiceLocatorInterface(UserProfileDaoFactory.class);
         return factoryBean;
     }
 

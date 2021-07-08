@@ -44,7 +44,9 @@ public class ServiceAgent {
         produces= MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getServiceStatus() {
         logger.debug("Status request received");
-        String status = ServiceStatus.getServiceStatus(ServiceID.AuthSvc);
+        String cartSvcStatus = ServiceStatus.getServiceStatus(ServiceID.AuthSvc);
+        String orderSvcStatus = ServiceStatus.getServiceStatus(ServiceID.UserProfileSvc);
+        String status = new StringBuilder(cartSvcStatus).append("\n").append(orderSvcStatus).toString();
         logger.debug("Status request response is {}",status);
         return ResponseEntity.ok(status);
     }
