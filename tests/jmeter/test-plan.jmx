@@ -29,12 +29,12 @@
           <collectionProp name="Arguments.arguments">
             <elementProp name="gateway_svc_host" elementType="Argument">
               <stringProp name="Argument.name">gateway_svc_host</stringProp>
-              <stringProp name="Argument.value">${__P(REST_HOST,gateway-svc-1)}</stringProp>
+              <stringProp name="Argument.value">${__P(SERVICES_HOST,gateway-svc-1)}</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="gateway_svc_port" elementType="Argument">
               <stringProp name="Argument.name">gateway_svc_port</stringProp>
-              <stringProp name="Argument.value">${__P(REST_PORT,8080)}</stringProp>
+              <stringProp name="Argument.value">${__P(SERVICES_PORT,8080)}</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
           </collectionProp>

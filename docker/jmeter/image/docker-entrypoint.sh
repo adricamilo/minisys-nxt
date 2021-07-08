@@ -46,4 +46,4 @@ printf "Executing tests with args:"
 printf "host=$TEST_HOST; port=$TEST_PORT; users=$USER_NUM; loop=$LOOP_NUM; log-level=$LOG_LEVEL http-log-level=$LOG_LEVEL_HTTP \n"
 /usr/bin/jmeter -n -t /usr/data/jmeter/test-plan.jmx \
 		-Jusers=${USER_NUM} -Jcount=${LOOP_NUM} -L${LOG_LEVEL} -Lorg.apache.http=${LOG_LEVEL_HTTP} \
-		-DREST_HOST=${TEST_HOST} -DREST_PORT=${TEST_PORT}
+		-DSERVICES_HOST=${TEST_HOST} -DSERVICES_PORT=${TEST_PORT}

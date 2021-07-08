@@ -130,10 +130,10 @@ STATIC_URL = '/static/'
 
 REGISTRY_URL = os.environ.get('REGISTRY_URL','http://localhost:8761/eureka/apps')
 
-REST_HOST = os.environ.get('REST_HOST','localhost')
-REST_PORT = os.environ.get('REST_PORT','8080')
-REST_CLIENT_ID = os.environ.get('auth.client.id','web-client')
-REST_CLIENT_SECRET = os.environ.get('auth.client.secret','secret')
+SERVICES_HOST = os.environ.get('SERVICES_HOST','localhost')
+SERVICES_PORT = os.environ.get('SERVICES_PORT','8080')
+SERVICES_CLIENT_ID = os.environ.get('auth.client.id','web-client')
+SERVICES_CLIENT_SECRET = os.environ.get('auth.client.secret','secret')
 
 HTTP_TIMEOUT = 20
 HTTP_SAMPLE_DATA_TIMEOUT = 120

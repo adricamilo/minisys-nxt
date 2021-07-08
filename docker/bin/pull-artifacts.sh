@@ -11,8 +11,8 @@ echo Copy PyUI to lb-web
 cp $OMS_STAGING/web/PyUI.tar.gz $OMS_DEPLOY/lb-web/image
 
 echo Copy Services war files
-test -d $OMS_DEPLOY/rest/image/war || mkdir -p $OMS_DEPLOY/rest/image/war && \
-	cp $OMS_STAGING/services/*.war $OMS_DEPLOY/rest/image/war
+test -d $OMS_DEPLOY/services/image/war || mkdir -p $OMS_DEPLOY/services/image/war && \
+	cp $OMS_STAGING/services/*.war $OMS_DEPLOY/services/image/war
 
 echo Copy Eureka Server war file
 test -d $OMS_DEPLOY/eureka/image || mkdir -p $OMS_DEPLOY/eureka/image && \
