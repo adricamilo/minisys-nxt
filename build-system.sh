@@ -63,30 +63,56 @@ function do_clean {
 function do_build {
 
     echo "-- Build --"
-    do_build_services $1 $2
 
+    if [ -z "$2" ]; then
+	
+	do_build_services
+
+	do_create_test_data
+	
+	# cd $OMS_ROOT/analytics/hadoop/mapred
+	# mvn clean package -Dmaven.test.skip=true
+	# if [ $? != 0 ]; then
+	# 	echo "Build failed - Build Analytics failed"
+	# 	exit -1;
+	# fi
+
+	do_build_web
+    
+    else
+
+	if [ "$2" == "web" ]; then
+	    do_build_web
+	elif [ "$2" == "services" ]; then
+	    do_build_services
+	elif [ "$2" == "service" ] && [ -n "$3" ]; then
+	    do_build_service $3
+	else
+	    echo "Wrong set of parameters"
+	fi
+
+    fi
+	
+    echo "-- Done --"
+}
+
+function do_create_test_data {
     cd $OMS_ROOT/tests/jmeter
     ./create-data.sh
     if [ $? != 0 ]; then
 	echo "Build failed - Create jmeter test data failed"
 	exit -1;
     fi
+}
 
-    # cd $OMS_ROOT/analytics/hadoop/mapred
-    # mvn clean package -Dmaven.test.skip=true
-    # if [ $? != 0 ]; then
-    # 	echo "Build failed - Build Analytics failed"
-    # 	exit -1;
-    # fi
-    
+function do_build_web {
     cd $OMS_ROOT/web
     ./create-tgz.sh
     if [ $? != 0 ]; then
 	echo "Build failed - Create Python UI Zip failed"
 	exit -1;
     fi
-    echo "-- Done --"
-}
+}    
 
 function do_build_services {
     cd $OMS_ROOT/services
@@ -101,7 +127,7 @@ function do_build_service {
     cd $OMS_ROOT/services/$1
     mvn package
     if [ $? != 0 ]; then
-	echo "Build failed - Build Services failed"
+	echo "Build failed - Build Service $1 failed"
 	exit -1;
     fi
     cp ./target/*.war ../target
@@ -155,16 +181,18 @@ function do_images {
 if [ "$TARGET" == "clean" ]; then
     do_clean $2
 elif [ "$TARGET" == "build" ]; then
-    do_build $2 $3
+    do_build $1 $2 $3
 elif [ "$TARGET" == "stage" ]; then
     do_stage
 elif [ "$TARGET" == "images" ]; then
     do_images
 else
-    do_clean
-    do_build
-    do_stage
-    do_images
+    read -p "Do you wish to do complete build: " yn
+    case $yn in
+        [Yy]* ) do_clean; do_build; do_stage; do_images; break;;
+        [Nn]* ) exit;;
+        * ) do_clean; do_build; do_stage; do_images;;
+    esac    
 fi
     
 echo "-- Done --"
