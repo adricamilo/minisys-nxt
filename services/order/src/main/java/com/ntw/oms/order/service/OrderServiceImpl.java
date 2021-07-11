@@ -24,6 +24,10 @@ import com.ntw.oms.order.dao.OrderDaoFactory;
 import com.ntw.oms.order.entity.InventoryReservation;
 import com.ntw.oms.order.entity.Order;
 import com.ntw.oms.order.entity.OrderLine;
+import com.ntw.oms.order.entity.OrderStatus;
+import com.ntw.oms.order.inventory.InventoryClient;
+import com.ntw.oms.order.queue.OrderQueueProcessor;
+import com.ntw.oms.order.queue.OrderQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,29 +55,21 @@ public class OrderServiceImpl {
     @Autowired
     private OrderDaoFactory orderDaoFactory;
 
-    @Autowired
-    private InventoryClient inventoryClientBean;
-
     private OrderDao orderDaoBean;
 
     @Autowired
     private CartServiceImpl cartServiceBean;
 
+    @Autowired
+    private OrderQueueProcessor orderQueueProcessor;
+
     @Value("${database.type}")
     private String orderDBType;
 
     @PostConstruct
-    public void postConstruct()
-    {
+    public void postConstruct() throws Exception {
         this.orderDaoBean = orderDaoFactory.getOrderDao(orderDBType);
-    }
-
-    public InventoryClient getInventoryClientBean() {
-        return inventoryClientBean;
-    }
-
-    public void setInventoryClientBean(InventoryClient inventoryClientBean) {
-        this.inventoryClientBean = inventoryClientBean;
+        orderQueueProcessor.initialize();
     }
 
     public OrderDao getOrderDaoBean() {
@@ -156,37 +152,20 @@ public class OrderServiceImpl {
             orderLines.add(orderLine);
         }
         order.setOrderLines(orderLines);
+        order.setStatus(OrderStatus.IN_PROCESS);
         logger.debug("Prepared order; context={}", order);
-        // reserve inventory
-        if (! reserveInventory(order, authHeader)) {
-            logger.error("Unable to reserve inventory for order; context={}", order);
-            return null;
+        try {
+            OrderQueue.enqueue(order, authHeader);
+        } catch (Exception e) {
+            logger.error("Unable to publish order {}", order);
         }
+        logger.info("Queued order for processing; context={}", order);
         // empty cart
         if(! getCartServiceBean().removeCart(cartId)) {
             logger.error("Cannot empty cart; context={}", cartId);
         }
         logger.debug("Removed cart; context={}", cart);
-        // persist order
-        if (!saveOrder(order)) {
-            logger.error("Unable to create order; context={}", order);
-            // ToDo: Async Rollback inventory reservations
-        }
-        logger.debug("Created order; context={}", order);
         return order;
-    }
-
-    private boolean reserveInventory(Order order, String authHeader) throws IOException {
-        List<OrderLine> orderLines = order.getOrderLines();
-        InventoryReservation inventoryReservation = new InventoryReservation();
-        for (OrderLine ol : orderLines) {
-            inventoryReservation.addInvResLine(ol.getProductId(), ol.getQuantity());
-        }
-        if (!getInventoryClientBean().reserveInventory(inventoryReservation, authHeader)) {
-            logger.error("Unable to reserve inventory; context={}", inventoryReservation);
-            return false;
-        }
-        return true;
     }
 
     public static String createOrderId() {

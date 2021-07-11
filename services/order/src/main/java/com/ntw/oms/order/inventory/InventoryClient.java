@@ -14,7 +14,7 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.oms.order.service;
+package com.ntw.oms.order.inventory;
 
 import com.ntw.oms.order.entity.InventoryReservation;
 

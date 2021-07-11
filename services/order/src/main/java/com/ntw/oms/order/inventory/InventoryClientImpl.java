@@ -14,12 +14,14 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.oms.order.service;
+package com.ntw.oms.order.inventory;
 
 import com.google.gson.Gson;
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
 import com.ntw.oms.order.entity.InventoryReservation;
+import com.ntw.oms.order.service.OrderServiceImpl;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import okhttp3.*;
@@ -52,6 +54,7 @@ public class InventoryClientImpl implements InventoryClient {
     @Autowired
     private LoadBalancerClient loadBalancer;
 
+    // tracer bean is created by the spring jaeger cloud library itself
     @Autowired
     private Tracer tracer;
 
@@ -88,14 +91,11 @@ public class InventoryClientImpl implements InventoryClient {
                 .url(url.toString())
                 .post(body);
         requestBuilder.addHeader("Authorization", authHeader);
-        // tracer bean is created by the spring jaeger cloud library itself
-        tracer.inject(
-                tracer.activeSpan().context(),
-                Format.Builtin.HTTP_HEADERS,
-                new RequestBuilderCarrier(requestBuilder)
-
-        );
+        tracer.inject(tracer.activeSpan().context(),
+                    Format.Builtin.HTTP_HEADERS,
+                    new RequestBuilderCarrier(requestBuilder));
         Request request = requestBuilder.build();
+        Span childSpan = tracer.buildSpan("reserveInventory").asChildOf(tracer.activeSpan()).start();
         try (Response response = client.newCall(request).execute()) {
             if (response.code() == 200) {
                 logger.debug("Reserved inventory successfully; context={}", inventoryReservation);
@@ -108,6 +108,9 @@ public class InventoryClientImpl implements InventoryClient {
             logger.error("Error calling InventorySvc while reserving inventory; context={}", inventoryReservation);
             logger.error(e.getMessage(), e);
             throw e;
+        }
+        finally {
+            childSpan.finish();
         }
     }
 }

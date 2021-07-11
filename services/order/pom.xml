@@ -17,6 +17,7 @@
     <spring.jdbc.version>5.1.8.RELEASE</spring.jdbc.version>
     <spring.cassandra.version>2.1.9.RELEASE</spring.cassandra.version>
     <postgres.version>42.2.2</postgres.version>
+    <rabbitmq.version>5.12.0</rabbitmq.version>
     <dbcp2.version>2.6.0</dbcp2.version>
     <slf4j.version>1.7.26</slf4j.version>
     <log4j.version>2.12.0</log4j.version>
@@ -85,6 +86,12 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>${postgres.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.rabbitmq</groupId>
+      <artifactId>amqp-client</artifactId>
+      <version>${rabbitmq.version}</version>
     </dependency>
 
     <dependency>

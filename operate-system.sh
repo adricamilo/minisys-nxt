@@ -99,9 +99,9 @@ function do_stop_infra {
 
 function do_stop_app {
     echo "-- Stop App Containers --"
-    for container in "${app_containers[@]}"
+    for (( index=${#app_containers[@]}-1 ; index>=0 ; index-- )) ;
     do
-	do_stop_one $container
+	do_stop_one "${app_containers[index]}"
     done    
     echo "-- Done --"
 }

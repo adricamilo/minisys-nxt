@@ -27,6 +27,7 @@ import java.util.List;
 public class Order {
     private String id;
     private String userId;
+    private OrderStatus status;
     private List<OrderLine> orderLines;
 
     public Order() {
@@ -42,6 +43,7 @@ public class Order {
     public Order(Order orderEntity) {
         this.id = orderEntity.id;
         this.userId = orderEntity.userId;
+        this.status = orderEntity.status;
         this.orderLines = orderEntity.orderLines;
     }
 
@@ -61,6 +63,14 @@ public class Order {
         this.userId = userId;
     }
 
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
+    }
+
     public List<OrderLine> getOrderLines() {
         return orderLines;
     }
@@ -74,7 +84,9 @@ public class Order {
         return "{" +
                 "\"id\":" + (id == null ? "null" : "\"" + id + "\"") + ", " +
                 "\"userId\":" + (userId == null ? "null" : "\"" + userId + "\"") + ", " +
+                "\"status\":" + (status == null ? "null" : status) + ", " +
                 "\"orderLines\":" + (orderLines == null ? "null" : Arrays.toString(orderLines.toArray())) +
                 "}";
     }
+
 }

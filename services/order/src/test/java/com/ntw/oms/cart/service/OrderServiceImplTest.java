@@ -52,7 +52,7 @@ public class OrderServiceImplTest extends TestCase {
         CartServiceImpl cartService = new CartServiceImpl();
         cartService.setCartDaoBean(new CartMockDao());
         orderService.setCartServiceBean(cartService);
-        orderService.setInventoryClientBean(new InventoryMockClient());
+        //orderService.setInventoryClientBean(new InventoryMockClient());
         orderService.setOrderDaoBean(new OrderMockDao());
     }
 

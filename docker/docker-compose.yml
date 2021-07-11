@@ -215,6 +215,17 @@ services:
     entrypoint: /docker-entrypoint-second.sh
 
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq-1
+    hostname: rabbitmq-1
+    networks:
+      - mynet1
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+
   eureka:
     build:
       context: ./eureka

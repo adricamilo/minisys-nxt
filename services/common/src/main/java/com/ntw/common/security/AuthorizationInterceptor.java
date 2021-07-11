@@ -75,7 +75,7 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
             return false;
         }
 
-        logger.info("User "+authentication.getName()+" has been authorized "
+        logger.debug("User "+authentication.getName()+" has been authorized "
                 + "to execute "+resourceMethod.getName());
 
         return true;
