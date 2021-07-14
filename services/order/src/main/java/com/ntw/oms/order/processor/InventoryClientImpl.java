@@ -14,7 +14,7 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.oms.order.inventory;
+package com.ntw.oms.order.processor;
 
 import com.google.gson.Gson;
 import com.ntw.common.config.AppConfig;

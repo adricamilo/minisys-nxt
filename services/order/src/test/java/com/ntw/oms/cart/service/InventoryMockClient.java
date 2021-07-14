@@ -17,7 +17,7 @@
 package com.ntw.oms.cart.service;
 
 import com.ntw.oms.order.entity.InventoryReservation;
-import com.ntw.oms.order.inventory.InventoryClient;
+import com.ntw.oms.order.processor.InventoryClient;
 
 import java.io.IOException;
 

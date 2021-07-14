@@ -130,8 +130,6 @@ public class DBOrderLine {
             if (order.getCreatedDate() != null) {
                 dbOrderLine.setCreatedDate(new Date(order.getCreatedDate().getTime()));
                 dbOrderLine.setCreatedTime(new Time(order.getCreatedDate().getTime()));
-                System.out.println("Date="+dbOrderLine.createdDate.toString());
-                System.out.println("Date="+dbOrderLine.createdTime.toString());
             }
             dbOrderLines.add(dbOrderLine);
         }

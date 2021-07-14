@@ -25,8 +25,7 @@ import com.ntw.oms.order.dao.OrderDaoFactory;
 import com.ntw.oms.order.entity.Order;
 import com.ntw.oms.order.entity.OrderLine;
 import com.ntw.oms.order.entity.OrderStatus;
-import com.ntw.oms.order.queue.OrderQueueProcessor;
-import com.ntw.oms.order.queue.OrderQueue;
+import com.ntw.oms.order.queue.OrderQueueClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +60,7 @@ public class OrderServiceImpl {
     private CartServiceImpl cartServiceBean;
 
     @Autowired
-    private OrderQueueProcessor orderQueueProcessor;
+    private OrderQueueClient orderQueueClient;
 
     @Value("${database.type}")
     private String orderDBType;
@@ -69,7 +68,6 @@ public class OrderServiceImpl {
     @PostConstruct
     public void postConstruct() throws Exception {
         this.orderDaoBean = orderDaoFactory.getOrderDao(orderDBType);
-        orderQueueProcessor.initialize();
     }
 
     public OrderDao getOrderDaoBean() {
@@ -162,7 +160,7 @@ public class OrderServiceImpl {
         order.setStatus(OrderStatus.IN_PROCESS);
         logger.debug("Prepared order; context={}", order);
         try {
-            OrderQueue.enqueue(order, authHeader);
+            orderQueueClient.enqueue(order, authHeader);
         } catch (Exception e) {
             logger.error("Unable to publish order {}", order);
         }

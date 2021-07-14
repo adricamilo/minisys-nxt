@@ -1,18 +1,20 @@
 package com.ntw.oms.order.processor;
 
 import com.google.gson.Gson;
+import com.ntw.oms.order.dao.OrderDao;
+import com.ntw.oms.order.dao.OrderDaoFactory;
 import com.ntw.oms.order.entity.InventoryReservation;
 import com.ntw.oms.order.entity.Order;
 import com.ntw.oms.order.entity.OrderLine;
 import com.ntw.oms.order.entity.OrderStatus;
-import com.ntw.oms.order.inventory.InventoryClient;
 import com.ntw.oms.order.queue.QueueOrder;
-import com.ntw.oms.order.service.OrderServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 
@@ -22,21 +24,31 @@ public class OrderProcessor {
     private static final Logger logger = LoggerFactory.getLogger(OrderProcessor.class);
 
     @Autowired
-    private OrderServiceImpl orderServiceBean;
+    private OrderDaoFactory orderDaoFactory;
+
+    private OrderDao orderDaoBean;
+
+    @Value("${database.type}")
+    private String orderDBType;
 
     @Autowired
     private InventoryClient inventoryClientBean;
 
-    public OrderServiceImpl getOrderServiceBean() {
-        return orderServiceBean;
+    @PostConstruct
+    public void postConstruct() throws Exception {
+        this.orderDaoBean = orderDaoFactory.getOrderDao(orderDBType);
+    }
+
+    public OrderDao getOrderDaoBean() {
+        return orderDaoBean;
+    }
+
+    public void setOrderDaoBean(OrderDao orderDaoBean) {
+        this.orderDaoBean = orderDaoBean;
     }
 
     public InventoryClient getInventoryClientBean() {
         return inventoryClientBean;
-    }
-
-    public void setInventoryClientBean(InventoryClient inventoryClientBean) {
-        this.inventoryClientBean = inventoryClientBean;
     }
 
     public QueueOrder getOrder(String serializedOrderString) {
@@ -79,7 +91,7 @@ public class OrderProcessor {
         }
         // persist order
         order.setStatus(OrderStatus.CREATED);
-        if (!orderServiceBean.saveOrder(order)) {
+        if (!getOrderDaoBean().saveOrder(order)) {
             logger.error("Unable to create order; context={}", order);
             // ToDo: Async Rollback inventory reservations
         }
