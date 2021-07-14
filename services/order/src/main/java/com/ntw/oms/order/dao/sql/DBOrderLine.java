@@ -19,6 +19,8 @@ package com.ntw.oms.order.dao.sql;
 import com.ntw.oms.order.entity.Order;
 import com.ntw.oms.order.entity.OrderLine;
 
+import java.sql.Date;
+import java.sql.Time;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,6 +35,9 @@ public class DBOrderLine {
     private String productId;
     private float quantity;
     private String userId;
+    private String status;
+    private Date createdDate;
+    private Time createdTime;
 
     public String getOrderId() {
         return orderId;
@@ -74,6 +79,30 @@ public class DBOrderLine {
         this.userId = userId;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Time getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Time createdTime) {
+        this.createdTime = createdTime;
+    }
+
     @Override
     public String toString() {
         return "{" +
@@ -81,7 +110,10 @@ public class DBOrderLine {
                 "\"orderLineId\":\"" + orderLineId + "\"" + ", " +
                 "\"productId\":" + (productId == null ? "null" : "\"" + productId + "\"") + ", " +
                 "\"quantity\":\"" + quantity + "\"" + ", " +
-                "\"userId\":" + (userId == null ? "null" : "\"" + userId + "\"") +
+                "\"userId\":" + (userId == null ? "null" : "\"" + userId + "\"") + ", " +
+                "\"status\":" + (status == null ? "null" : "\"" + status + "\"") + ", " +
+                "\"createdDate\":" + (createdDate == null ? "null" : createdDate) + ", " +
+                "\"createdTime\":" + (createdTime == null ? "null" : createdTime) +
                 "}";
     }
 
@@ -94,6 +126,13 @@ public class DBOrderLine {
             dbOrderLine.setOrderLineId(orderLine.getId());
             dbOrderLine.setProductId(orderLine.getProductId());
             dbOrderLine.setQuantity(orderLine.getQuantity());
+            dbOrderLine.setStatus(order.getStatus().toString());
+            if (order.getCreatedDate() != null) {
+                dbOrderLine.setCreatedDate(new Date(order.getCreatedDate().getTime()));
+                dbOrderLine.setCreatedTime(new Time(order.getCreatedDate().getTime()));
+                System.out.println("Date="+dbOrderLine.createdDate.toString());
+                System.out.println("Date="+dbOrderLine.createdTime.toString());
+            }
             dbOrderLines.add(dbOrderLine);
         }
         return dbOrderLines;
@@ -106,6 +145,13 @@ public class DBOrderLine {
         if (dbOrderLines.size() > 0) {
             order.setId(dbOrderLines.get(0).getOrderId());
             order.setUserId(dbOrderLines.get(0).getUserId());
+            order.setStatus(dbOrderLines.get(0).getStatus());
+            long time = 0;
+            if (dbOrderLines.get(0).getCreatedDate() != null)
+                time += dbOrderLines.get(0).getCreatedDate().getTime();
+            if (dbOrderLines.get(0).getCreatedTime() != null)
+                time += dbOrderLines.get(0).getCreatedTime().getTime();
+            order.setCreatedDate(new java.util.Date(time));
         }
         for (DBOrderLine dbOrderLine : dbOrderLines) {
             OrderLine orderLine = new OrderLine();

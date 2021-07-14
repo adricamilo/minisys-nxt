@@ -16,16 +16,15 @@
 
 package com.ntw.oms.order.service;
 
+import com.ntw.oms.order.util.OrderIdGenerator;
 import com.ntw.oms.cart.entity.Cart;
 import com.ntw.oms.cart.entity.CartLine;
 import com.ntw.oms.cart.service.CartServiceImpl;
 import com.ntw.oms.order.dao.OrderDao;
 import com.ntw.oms.order.dao.OrderDaoFactory;
-import com.ntw.oms.order.entity.InventoryReservation;
 import com.ntw.oms.order.entity.Order;
 import com.ntw.oms.order.entity.OrderLine;
 import com.ntw.oms.order.entity.OrderStatus;
-import com.ntw.oms.order.inventory.InventoryClient;
 import com.ntw.oms.order.queue.OrderQueueProcessor;
 import com.ntw.oms.order.queue.OrderQueue;
 import org.slf4j.Logger;
@@ -36,9 +35,10 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by anurag on 12/05/17.
@@ -105,6 +105,12 @@ public class OrderServiceImpl {
      */
     public List<Order> getOrders(String userId) {
         List<Order> orders = getOrderDaoBean().getOrders(userId);
+        orders.sort(new Comparator<Order>() {
+            @Override
+            public int compare(Order o1, Order o2) {
+                return (o1.getCreatedDate().getTime() > o2.getCreatedDate().getTime()) ? -1 : 1;
+            }
+        });
         logger.debug("Fetched order; context={}", orders);
         return orders;
     }
@@ -141,7 +147,7 @@ public class OrderServiceImpl {
         }
         logger.debug("Fetched cart; context={}", cart);
         // create order from cart
-        String orderId = createOrderId();
+        String orderId = OrderIdGenerator.createOrderId();
         Order order = new Order(orderId, cartId);
         List<OrderLine> orderLines = new LinkedList<OrderLine>();
         for (CartLine cartLine : cart.getCartLines()) {
@@ -152,6 +158,7 @@ public class OrderServiceImpl {
             orderLines.add(orderLine);
         }
         order.setOrderLines(orderLines);
+        order.setCreatedDate(new Date());
         order.setStatus(OrderStatus.IN_PROCESS);
         logger.debug("Prepared order; context={}", order);
         try {
@@ -166,10 +173,6 @@ public class OrderServiceImpl {
         }
         logger.debug("Removed cart; context={}", cart);
         return order;
-    }
-
-    public static String createOrderId() {
-        return String.valueOf(UUID.randomUUID());
     }
 
     public boolean removeOrders() {

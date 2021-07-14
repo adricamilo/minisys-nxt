@@ -17,6 +17,7 @@
 package com.ntw.oms.order.entity;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class Order {
     private String id;
     private String userId;
     private OrderStatus status;
+    private Date createdDate;
     private List<OrderLine> orderLines;
 
     public Order() {
@@ -44,6 +46,7 @@ public class Order {
         this.id = orderEntity.id;
         this.userId = orderEntity.userId;
         this.status = orderEntity.status;
+        this.createdDate = orderEntity.createdDate;
         this.orderLines = orderEntity.orderLines;
     }
 
@@ -71,6 +74,18 @@ public class Order {
         this.status = status;
     }
 
+    public void setStatus(String status) {
+        this.status = OrderStatus.getStatus(status);
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
     public List<OrderLine> getOrderLines() {
         return orderLines;
     }
@@ -85,8 +100,8 @@ public class Order {
                 "\"id\":" + (id == null ? "null" : "\"" + id + "\"") + ", " +
                 "\"userId\":" + (userId == null ? "null" : "\"" + userId + "\"") + ", " +
                 "\"status\":" + (status == null ? "null" : status) + ", " +
+                "\"createdDate\":" + (createdDate == null ? "null" : createdDate) + ", " +
                 "\"orderLines\":" + (orderLines == null ? "null" : Arrays.toString(orderLines.toArray())) +
                 "}";
     }
-
 }

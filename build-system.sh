@@ -163,7 +163,7 @@ function do_images {
 
     echo "-- Build Docker Images --"
     cd $OMS_ROOT/docker
-    docker-compose build
+    docker-compose build $1
     if [ $? != 0 ]; then
 	echo "Build failed - Build images failed"
 	exit -1;
@@ -185,7 +185,7 @@ elif [ "$TARGET" == "build" ]; then
 elif [ "$TARGET" == "stage" ]; then
     do_stage
 elif [ "$TARGET" == "images" ]; then
-    do_images
+    do_images $2
 else
     read -p "Do you wish to do complete build: " yn
     case $yn in

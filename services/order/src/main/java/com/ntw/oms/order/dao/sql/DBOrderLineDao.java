@@ -99,7 +99,9 @@ public class DBOrderLineDao implements OrderDao {
     }
 
     private static final String ORDER_INSERT_SQL =
-            "insert into OrderLine (orderId, orderLineId, productId, quantity, userId) values(?,?,?,?,?)";
+            "insert into OrderLine " +
+                "(orderId, orderLineId, productId, quantity, userId, status, createdDate, createdTime) " +
+                "values(?,?,?,?,?,?,?,?)";
 
     @Override
     public boolean saveOrder(Order order) {
@@ -115,6 +117,9 @@ public class DBOrderLineDao implements OrderDao {
                     ps.setString(3, dbOrderLines.get(i).getProductId());
                     ps.setFloat(4, dbOrderLines.get(i).getQuantity());
                     ps.setString(5, dbOrderLines.get(i).getUserId());
+                    ps.setString(6, dbOrderLines.get(i).getStatus());
+                    ps.setDate(7, dbOrderLines.get(i).getCreatedDate());
+                    ps.setTime(8, dbOrderLines.get(i).getCreatedTime());
                 }
 
                 @Override

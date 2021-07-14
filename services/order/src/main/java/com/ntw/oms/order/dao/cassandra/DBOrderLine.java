@@ -16,12 +16,13 @@
 
 package com.ntw.oms.order.dao.cassandra;
 
-import com.ntw.oms.order.dao.cassandra.DBOrderKey;
 import com.ntw.oms.order.entity.Order;
 import com.ntw.oms.order.entity.OrderLine;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
+import java.sql.Date;
+import java.sql.Time;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,6 +36,9 @@ public class DBOrderLine {
 
     private String productId;
     private float quantity;
+    private String status;
+    private Date createdDate;
+    private Time createdTime;
 
     public DBOrderKey getOrderKey() {
         return orderKey;
@@ -60,12 +64,39 @@ public class DBOrderLine {
         this.quantity = quantity;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Time getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(Time createdTime) {
+        this.createdTime = createdTime;
+    }
+
     @Override
     public String toString() {
         return "{" +
-                "\"orderKey\":" + (orderKey == null ? "null" : orderKey.toString()) + ", " +
+                "\"orderKey\":" + (orderKey == null ? "null" : orderKey) + ", " +
                 "\"productId\":" + (productId == null ? "null" : "\"" + productId + "\"") + ", " +
-                "\"quantity\":\"" + quantity + "\"" +
+                "\"quantity\":\"" + quantity + "\"" + ", " +
+                "\"status\":" + (status == null ? "null" : "\"" + status + "\"") + ", " +
+                "\"createdDate\":" + (createdDate == null ? "null" : createdDate) + ", " +
+                "\"createdTime\":" + (createdTime == null ? "null" : createdTime) +
                 "}";
     }
 
@@ -80,6 +111,11 @@ public class DBOrderLine {
             dbOrderLine.setOrderKey(orderKey);
             dbOrderLine.setProductId(orderLine.getProductId());
             dbOrderLine.setQuantity(orderLine.getQuantity());
+            dbOrderLine.setStatus(order.getStatus().toString());
+            if (order.getCreatedDate() != null) {
+                dbOrderLine.setCreatedDate(new Date(order.getCreatedDate().getTime()));
+                dbOrderLine.setCreatedTime(new Time(order.getCreatedDate().getTime()));
+            }
             dbOrderLines.add(dbOrderLine);
         }
         return dbOrderLines;
@@ -92,6 +128,13 @@ public class DBOrderLine {
         if (dbOrderLines.size() > 0) {
             order.setId(dbOrderLines.get(0).getOrderKey().getId());
             order.setUserId(dbOrderLines.get(0).getOrderKey().getUserId());
+            order.setStatus(dbOrderLines.get(0).getStatus());
+            long time = 0;
+            if (dbOrderLines.get(0).getCreatedDate() != null)
+                time = dbOrderLines.get(0).getCreatedDate().getTime();
+            if (dbOrderLines.get(0).getCreatedTime() != null)
+                time += dbOrderLines.get(0).getCreatedTime().getTime();
+            order.setCreatedDate(new java.util.Date(time));
         }
         for (DBOrderLine dbOrderLine : dbOrderLines) {
             OrderLine orderLine = new OrderLine();
