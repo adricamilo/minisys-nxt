@@ -16,11 +16,13 @@
 
 package com.ntw.oms.product.entity;
 
+import java.io.Serializable;
+
 /**
  * Created by anurag on 24/03/17.
  */
 
-public class Product {
+public class Product implements Serializable {
     private String id;
     private String name;
     private Float price;

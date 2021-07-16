@@ -226,6 +226,16 @@ services:
       - "15672:15672"
 
 
+  redis:
+    image: redis
+    container_name: redis-1
+    hostname: redis-1
+    networks:
+      - mynet1
+    ports:
+      - "6379:6379"
+
+
   eureka:
     build:
       context: ./eureka
