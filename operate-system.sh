@@ -6,7 +6,7 @@ cd $OMS_ROOT
 TARGET=$1
 
 declare -a app_containers=("web" "lb-web" "eureka" "gateway-svc" "lb-services" "cassandra" "postgres" "rabbitmq" "admin-svc" "auth-svc" "product-svc" "order-svc" "inventory-svc")
-declare -a infra_containers=("elasticsearch" "kibana" "jaeger-collector" "jaeger-query" "jaeger-agent" "fluentd" "es-exporter" "pg-exporter" "prometheus")
+declare -a infra_containers=("redis" "elasticsearch" "kibana" "jaeger-collector" "jaeger-query" "jaeger-agent" "fluentd" "es-exporter" "pg-exporter" "prometheus")
 
 echo "-- Start --"
 

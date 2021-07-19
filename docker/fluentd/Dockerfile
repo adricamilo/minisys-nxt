@@ -24,5 +24,6 @@ USER root
 RUN ["gem", "install", "fluent-plugin-elasticsearch", "--no-document", "--version", "5.0.3"]
 RUN ["gem", "install", "fluent-plugin-detect-exceptions"]
 RUN ["gem", "install", "fluent-plugin-concat"]
+RUN ["gem", "install", "fluent-plugin-rewrite-tag-filter"]
 USER fluent
 COPY ./fluent.conf /fluentd/etc
