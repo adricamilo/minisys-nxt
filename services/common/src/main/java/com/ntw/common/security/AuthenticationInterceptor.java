@@ -68,7 +68,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         AppSecurityContext appSecurityContext = new AppSecurityContext(appAuthentication);
         request.setAttribute("AppSecurityContext",appSecurityContext);
         SecurityContextHolder.setContext(appSecurityContext);
-        logger.info("User authenticated; context={}", userAuth);
+        logger.debug("User authenticated; context={}", userAuth);
 
         return true;
     }

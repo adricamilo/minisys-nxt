@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+
 /**
  * Created by anurag on 24/03/17.
  */
@@ -54,7 +56,7 @@ public class AuthenticationFilter extends ZuulFilter {
 
     @Override
     public String filterType() {
-        return "pre";
+        return PRE_TYPE;
     }
 
     @Override
@@ -65,14 +67,10 @@ public class AuthenticationFilter extends ZuulFilter {
     @Override
     public boolean shouldFilter() {
         RequestContext context = RequestContext.getCurrentContext();
-        Route route = (Route) context.get("RequestRoute");
-        if (route == null) {
-            logger.error("Routed request does not have a route");
-            return false;
-        }
-        if (route.getUri().startsWith("/auth/token") ||
-                route.getUri().startsWith("/status") ||
-                route.getUri().startsWith("/admin/status")) {
+        HttpServletRequest request = context.getRequest();
+        if (request.getRequestURI().startsWith("/auth/token") ||
+                request.getRequestURI().startsWith("/status") ||
+                request.getRequestURI().startsWith("/admin/status")) {
             return false;
         }
         return true;

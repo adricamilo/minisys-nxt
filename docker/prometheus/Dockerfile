@@ -21,3 +21,4 @@ FROM prom/prometheus
 MAINTAINER Anurag Yadav
 
 ADD ./prometheus.yml /etc/prometheus/
+ADD ./rules.yml /etc/prometheus/

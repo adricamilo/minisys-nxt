@@ -51,6 +51,8 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS="http://elasticsearch-1:9200"
     restart: unless-stopped
+    depends_on:
+      - "elasticsearch"
       
 
   fluentd:
@@ -66,11 +68,8 @@ services:
       - "24224:24224"
     volumes:
       - ./logs/fluentd-1:/fluentd/log
-#    expose:
-#    - 24224
-#    - 24224/udp
     depends_on:
-    - "elasticsearch"
+      - "elasticsearch"
     restart: unless-stopped
 
 
@@ -87,6 +86,8 @@ services:
       - SPAN_STORAGE_TYPE=elasticsearch
     command: ["--reporter.grpc.host-port=jaeger-collector-1:14250"]
     restart: unless-stopped
+    depends_on:
+      - "jaeger-collector"
 
   jaeger-collector:
     image: jaegertracing/jaeger-collector
@@ -126,6 +127,8 @@ services:
       "--log-level=debug"
     ]
     restart: unless-stopped
+    depends_on:
+      - "jaeger-collector"
 
   prometheus:
     build:
@@ -161,7 +164,19 @@ services:
     ports:
       - "9187:9187"
     environment:
-      - DATA_SOURCE_NAME="postgresql://postgres:postgres@postgres-1:5432/oms?sslmode=disable"
+      - DATA_SOURCE_NAME=postgresql://postgres:postgres@postgres-1:5432/oms?sslmode=disable
+    restart: unless-stopped
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    container_name: redis-exporter-1
+    hostname: redis-exporter-1
+    networks:
+      - mynet1
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis-1:6379
     restart: unless-stopped
 
   grafana:
@@ -224,7 +239,9 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-
+      - "15692:15692"
+    volumes:
+      - ./data/rabbitmq-1:/var/lib/rabbitmq"
 
   redis:
     image: redis
@@ -274,6 +291,8 @@ services:
       - USE_SSL=false
     volumes:
       - ./logs/lb-web:/var/log/oms
+    depends_on:
+      - "web"
 
 
   lb-services:
@@ -291,6 +310,8 @@ services:
       - SERVER_PORT=8080
     volumes:
       - ./logs/lb-services:/var/log/oms
+    depends_on:
+      - "gateway-svc"
 
 
   web:
@@ -337,13 +358,15 @@ services:
       - eureka.instance.hostname=gateway-svc-1
       - server.threadPool.threads.maximum=20
     volumes:
-      - ./logs/services-1:/var/log/oms
+      - ./logs/services:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh gateway
     logging:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
         tag: gateway-svc-1
+    depends_on:
+      - "fluentd"
 
   admin-svc:
     image: ntw/services
@@ -358,13 +381,15 @@ services:
     environment:
       - eureka.instance.hostname=admin-svc-1
     volumes:
-      - ./logs/services-1:/var/log/oms
+      - ./logs/services:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh admin
     logging:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
         tag: admin-svc-1
+    depends_on:
+      - "fluentd"
 
   auth-svc:
     image: ntw/services
@@ -379,13 +404,15 @@ services:
     environment:
       - eureka.instance.hostname=auth-svc-1
     volumes:
-      - ./logs/services-1:/var/log/oms
+      - ./logs/services:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh auth
     logging:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
         tag: auth-svc-1
+    depends_on:
+      - "fluentd"
 
   product-svc:
     image: ntw/services
@@ -400,13 +427,15 @@ services:
     environment:
       - eureka.instance.hostname=product-svc-1
     volumes:
-      - ./logs/services-1:/var/log/oms
+      - ./logs/services:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh product
     logging:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
         tag: product-svc-1
+    depends_on:
+      - "fluentd"
 
   order-svc:
     image: ntw/services
@@ -421,13 +450,16 @@ services:
     environment:
       - eureka.instance.hostname=order-svc-1
     volumes:
-      - ./logs/services-1:/var/log/oms
+      - ./logs/services:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh order
     logging:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
         tag: order-svc-1
+    depends_on:
+      - "fluentd"
+      - "rabbitmq"
 
   inventory-svc:
     image: ntw/services
@@ -442,10 +474,12 @@ services:
     environment:
       - eureka.instance.hostname=inventory-svc-1
     volumes:
-      - ./logs/services-1:/var/log/oms
+      - ./logs/services:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh inventory
     logging:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
         tag: inventory-svc-1
+    depends_on:
+      - "fluentd"

@@ -22,6 +22,7 @@ package com.ntw.oms.gateway;
 import com.ntw.common.config.EnvConfig;
 import com.ntw.oms.gateway.filter.AuthenticationFilter;
 import com.ntw.oms.gateway.filter.RequestFilter;
+import com.ntw.oms.gateway.filter.ResponseFilter;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -75,6 +76,11 @@ public class WebApplication extends SpringBootServletInitializer {
     @Bean
     public AuthenticationFilter authenticationFilter() {
         return new AuthenticationFilter();
+    }
+
+    @Bean
+    ResponseFilter responseFilter() {
+        return new ResponseFilter();
     }
 
     @Bean

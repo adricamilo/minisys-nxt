@@ -30,10 +30,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by anurag on 30/05/17.
@@ -74,7 +71,7 @@ public class ProductServiceImpl {
         try {
             productMap = redisTemplate.opsForHash().entries(REDIS_PRODUCTS_MAP_KEY);
         } catch(Exception e) {
-            logger.error("Unable to access redis cache for getProduct: ", e);
+            logger.error("Unable to access redis cache for getProducts: ", e);
         }
         if (productMap != null && productMap.values().size() > 0) {
             products = new ArrayList<>();
@@ -83,6 +80,7 @@ public class ProductServiceImpl {
             }
         } else {
             products = getProductDaoBean().getProducts();
+            productMap = new HashMap<>();
             for (Product product : products) {
                 productMap.put(product.getId(), product);
             }

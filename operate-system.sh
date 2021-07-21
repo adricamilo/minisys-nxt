@@ -5,8 +5,10 @@ cd $OMS_ROOT
 
 TARGET=$1
 
-declare -a app_containers=("web" "lb-web" "eureka" "gateway-svc" "lb-services" "cassandra" "postgres" "rabbitmq" "admin-svc" "auth-svc" "product-svc" "order-svc" "inventory-svc")
-declare -a infra_containers=("redis" "elasticsearch" "kibana" "jaeger-collector" "jaeger-query" "jaeger-agent" "fluentd" "es-exporter" "pg-exporter" "prometheus")
+declare -a service_containers=("eureka" "gateway-svc" "lb-services" "admin-svc" "auth-svc" "product-svc" "order-svc" "inventory-svc")
+declare -a web_containers=("web" "lb-web")
+declare -a data_containers=("cassandra" "postgres" "rabbitmq" "redis")
+declare -a infra_containers=("elasticsearch" "kibana" "jaeger-collector" "jaeger-query" "jaeger-agent" "fluentd" "es-exporter" "pg-exporter" "prometheus")
 
 echo "-- Start --"
 
@@ -39,10 +41,20 @@ function do_start_infra {
 
 function do_start_app {
     echo "-- Run App Containers --"
-    for container in "${app_containers[@]}"
+    for container in "${data_containers[@]}"
     do
 	do_start_one $container
-	sleep 10s
+	sleep 5s
+    done    
+    for container in "${web_containers[@]}"
+    do
+	do_start_one $container
+	sleep 5s
+    done    
+    for container in "${service_containers[@]}"
+    do
+	do_start_one $container
+	sleep 30s
     done    
     echo "-- Done --"
 }
@@ -99,9 +111,17 @@ function do_stop_infra {
 
 function do_stop_app {
     echo "-- Stop App Containers --"
-    for (( index=${#app_containers[@]}-1 ; index>=0 ; index-- )) ;
+    for (( index=${#service_containers[@]}-1 ; index>=0 ; index-- )) ;
     do
-	do_stop_one "${app_containers[index]}"
+	do_stop_one "${service_containers[index]}"
+    done    
+    for (( index=${#web_containers[@]}-1 ; index>=0 ; index-- )) ;
+    do
+	do_stop_one "${web_containers[index]}"
+    done    
+    for (( index=${#data_containers[@]}-1 ; index>=0 ; index-- )) ;
+    do
+	do_stop_one "${data_containers[index]}"
     done    
     echo "-- Done --"
 }
@@ -125,6 +145,10 @@ function do_update {
 	SVC=$2
 	cd $OMS_ROOT/services/${SVC}
 	mvn clean package
+	if [ $? != 0 ]; then
+	    echo "Build failed!! .. Exiting"
+	    exit -1;
+	fi
 	cp ./target/${SVC}.war ../target
 	CONTAINER=$2-svc
 	COMPONENT=services

@@ -34,8 +34,8 @@ scrape_configs:
         - es-exporter-1:9114
         - pg-exporter-1:9187
         - cassandra-1:7070
-  - job_name: 'prometheus-scrape'
-    metrics_path: '/metrics'
-    scrape_interval: 5s
-    static_configs:
-      - targets: ['localhost:9090']
+        - rabbitmq-1:15692
+        - redis-exporter-1:9121 
+
+rule_files:
+  - rules.yml
