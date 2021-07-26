@@ -26,7 +26,6 @@ public class Product implements Serializable {
     private String id;
     private String name;
     private Float price;
-    private String imageUrl;
 
     public String getId() {
         return id;
@@ -52,21 +51,12 @@ public class Product implements Serializable {
         this.price = price;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     @Override
     public String toString() {
         return "{" +
                 "\"id\":" + (id == null ? "null" : "\"" + id + "\"") + ", " +
                 "\"name\":" + (name == null ? "null" : "\"" + name + "\"") + ", " +
                 "\"price\":" + (price == null ? "null" : "\"" + price + "\"") + ", " +
-                "\"imageUrl\":" + (imageUrl == null ? "null" : "\"" + imageUrl + "\"") +
                 "}";
     }
 

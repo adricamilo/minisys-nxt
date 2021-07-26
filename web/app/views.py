@@ -39,6 +39,8 @@ ORDER_CARTS_URI = '/orders/order/carts'
 USERS_PROFILE_URI = '/users-profile'
 INVENTORY_URI = '/inventory'
 
+PRODUCT_IMAGE_URL='http://placehold.it/300x150'
+
 logger = logging.getLogger(__name__)
 session = requests.session()
 adapter = requests.adapters.HTTPAdapter(pool_connections=20, pool_maxsize=20)
@@ -151,6 +153,7 @@ def decorate_cart(cart, access_token):
         req = get_product(cart_line['productId'], access_token)
         if req.status_code == 200:
             cart_line['product'] = req.json()
+            cart_line['product']['imageUrl'] = PRODUCT_IMAGE_URL
         else:
             logger.error('Unable to get product from service | productId=%s', cart_line['productId'])
     return cart
@@ -161,6 +164,7 @@ def decorate_order(order, access_token):
         req = get_product(order_line['productId'], access_token)
         if req.status_code == 200:
             order_line['product'] = req.json()
+            order_line['product']['imageUrl'] = PRODUCT_IMAGE_URL
         else:
             logger.error('Unable to get product from service | productId=%s', order_line['productId'])
     return order
@@ -302,7 +306,7 @@ def products(request):
 
     if req.status_code == 200:
         logger.info('Products fetched | context=%s', req.content.decode())
-        return render(request, 'app/products.html', {'products': req.json()})
+        return render(request, 'app/products.html', {'products': req.json(), 'imageUrl': PRODUCT_IMAGE_URL})
     logger.error('Unable to fetch products from service | userId=%s', get_user(request))
     return HttpResponse("Unable to get products")
 

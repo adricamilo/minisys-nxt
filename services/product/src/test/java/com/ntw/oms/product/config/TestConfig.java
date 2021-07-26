@@ -34,7 +34,6 @@ public class TestConfig {
         product.setId(id);
         product.setName(TestConfig.productTestName_1);
         product.setPrice(TestConfig.productTestPrice_1);
-        product.setImageUrl("http://placehold.it/350x150");
         return product;
     }
 

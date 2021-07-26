@@ -19,14 +19,11 @@ package com.ntw.oms.admin.api;
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
 import com.ntw.oms.admin.entity.Product;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Created by anurag on 27/06/19.
  */
 public class ProductApiClient extends ApiClient {
-
-    public static String imageBaseURL = "http://placehold.it/300x150";
 
     @Override
     protected ServiceID getServiceID() {
@@ -53,8 +50,6 @@ public class ProductApiClient extends ApiClient {
         product.setId(id);
         product.setName(getNameFromId(id));
         product.setPrice(10F);
-//        product.setImageUrl(imageBaseURL + "Test-Product-"+ (ix%100) + ".jpg");
-        product.setImageUrl(imageBaseURL);
         return product;
     }
 

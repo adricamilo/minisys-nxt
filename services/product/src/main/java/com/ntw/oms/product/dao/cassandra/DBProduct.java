@@ -30,7 +30,6 @@ public class DBProduct {
     private String id;
     private String name;
     private Float price;
-    private String imageUrl;
 
     public String getId() {
         return id;
@@ -56,21 +55,12 @@ public class DBProduct {
         this.price = price;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
     @Override
     public String toString() {
         return "{" +
                 "\"id\":" + (id == null ? "null" : "\"" + id + "\"") + ", " +
                 "\"name\":" + (name == null ? "null" : "\"" + name + "\"") + ", " +
                 "\"price\":" + (price == null ? "null" : "\"" + price + "\"") + ", " +
-                "\"imageUrl\":" + (imageUrl == null ? "null" : "\"" + imageUrl + "\"") +
                 "}";
     }
 
@@ -79,7 +69,6 @@ public class DBProduct {
         dbProduct.setId(product.getId());
         dbProduct.setName(product.getName());
         dbProduct.setPrice(product.getPrice());
-        dbProduct.setImageUrl(product.getImageUrl());
         return dbProduct;
     }
 
@@ -88,7 +77,6 @@ public class DBProduct {
         product.setId(getId());
         product.setName(getName());
         product.setPrice(getPrice());
-        product.setImageUrl(getImageUrl());
         return product;
     }
 }

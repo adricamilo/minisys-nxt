@@ -24,7 +24,7 @@ public class Product {
     private String id;
     private String name;
     private Float price;
-    private String imageUrl;
+    private String imageUri;
 
     public String getId() {
         return id;
@@ -50,12 +50,12 @@ public class Product {
         this.price = price;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImageUri() {
+        return imageUri;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageUri(String imageUri) {
+        this.imageUri = imageUri;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class Product {
                 "\"id\":" + (id == null ? "null" : "\"" + id + "\"") + ", " +
                 "\"name\":" + (name == null ? "null" : "\"" + name + "\"") + ", " +
                 "\"price\":" + (price == null ? "null" : "\"" + price + "\"") + ", " +
-                "\"imageUrl\":" + (imageUrl == null ? "null" : "\"" + imageUrl + "\"") +
+                "\"imageUrl\":" + (imageUri == null ? "null" : "\"" + imageUri + "\"") +
                 "}";
     }
 }

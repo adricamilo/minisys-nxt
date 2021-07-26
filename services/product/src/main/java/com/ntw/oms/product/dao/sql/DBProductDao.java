@@ -21,12 +21,10 @@ import com.ntw.oms.product.entity.Product;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -91,7 +89,7 @@ public class DBProductDao implements ProductDao {
     public boolean addProduct(Product product) {
         String addProductSql = "insert into Product (id, name, imageUrl, price) values (?,?,?,?)";
         int retValue = jdbcTemplate.update(addProductSql,
-                new Object[] {product.getId(), product.getName(), product.getImageUrl(), Float.valueOf(product.getPrice())});
+                new Object[] {product.getId(), product.getName(), Float.valueOf(product.getPrice())});
         if (retValue <= 0) {
             logger.error("Unable to add product; productId={}", product);
             return false;
@@ -106,7 +104,7 @@ public class DBProductDao implements ProductDao {
         int retValue;
         try {
             retValue = jdbcTemplate.update(modifyProductSql,
-                    new Object[]{product.getId(), product.getName(), product.getImageUrl(), Float.valueOf(product.getPrice())});
+                    new Object[]{product.getId(), product.getName(), Float.valueOf(product.getPrice())});
         } catch (Exception e) {
             logger.error("Exception modifying a product; context={}", product);
             logger.error("Exception message: ", e);

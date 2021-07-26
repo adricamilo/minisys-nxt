@@ -63,7 +63,6 @@ public class ProductTest extends TestCase {
         Assert.assertEquals(product1.getId(), fetchedProduct.getId());
         Assert.assertEquals(product1.getName(), fetchedProduct.getName());
         Assert.assertEquals(product1.getPrice(), fetchedProduct.getPrice());
-        Assert.assertEquals(product1.getImageUrl(), fetchedProduct.getImageUrl());
 
         Product fetchedProductBad = productDaoBean.getProduct(TestConfig.productTestId_Bad);
         Assert.assertNull(fetchedProductBad);
