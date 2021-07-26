@@ -91,10 +91,13 @@ function do_stop {
     if [ "$1" == "infra" ]; then
 	do_stop_infra
     elif [ "$1" == "app" ]; then
-	do_stop_app
-    else
+	do_stop_app $2
+    elif [ "$1" == "all" ]; then
 	do_stop_infra
 	do_stop_app
+    else
+	echo "Incorrect parameter. Specify infra, app, all ?"
+	exit -1;
     fi
     docker-compose rm -f
     echo "-- Done --"
@@ -111,18 +114,27 @@ function do_stop_infra {
 
 function do_stop_app {
     echo "-- Stop App Containers --"
-    for (( index=${#service_containers[@]}-1 ; index>=0 ; index-- )) ;
-    do
-	do_stop_one "${service_containers[index]}"
-    done    
-    for (( index=${#web_containers[@]}-1 ; index>=0 ; index-- )) ;
-    do
-	do_stop_one "${web_containers[index]}"
-    done    
-    for (( index=${#data_containers[@]}-1 ; index>=0 ; index-- )) ;
-    do
-	do_stop_one "${data_containers[index]}"
-    done    
+#    for (( index=${#service_containers[@]}-1 ; index>=0 ; index-- )) ;
+#    do
+#	do_stop_one "${service_containers[index]}"
+#    done    
+#    for (( index=${#web_containers[@]}-1 ; index>=0 ; index-- )) ;
+#    do
+#	do_stop_one "${web_containers[index]}"
+#    done    
+#    for (( index=${#data_containers[@]}-1 ; index>=0 ; index-- )) ;
+#    do
+#	do_stop_one "${data_containers[index]}"
+    #    done
+    if [ "$1" == "services" ]; then
+	do_stop_one "$(echo ${service_containers[@]})"
+    elif [ "$1" == "web" ]; then
+	do_stop_one "$(echo ${web_containers[@]})"
+    else
+	do_stop_one "$(echo ${service_containers[@]})"
+	do_stop_one "$(echo ${web_containers[@]})"
+	do_stop_one "$(echo ${data_containers[@]})"
+    fi
     echo "-- Done --"
 }
 
@@ -159,8 +171,12 @@ function do_update {
 	./create-tgz.sh
 	CONTAINER=web
 	
-    fi
+    else
 
+	echo "Incorrect component name. Specify service or web.";
+	exit -1;
+
+    fi
 
     cd $OMS_ROOT/staging/bin
     ./pull-artifacts.sh

@@ -532,50 +532,6 @@ def get_service_status(request):
     return render(request, 'app/admin.html', {'message': my_res})
 
 
-def register_form(request):
-    return render(request, 'app/register.html', {'message': ''})
-
-
-def register_service_instance(request):
-    host_name = request.POST.get('host')
-    host_ip = request.POST.get('ip')
-    port = request.POST.get('port')
-    service_id = request.POST.get('id')
-    service_name = request.POST.get('name')
-    req_data = {
-                    "instance": {
-                        "hostName": host_name,
-                        "app": service_name,
-                        "vipAddress": service_id,
-                        "secureVipAddress": service_id,
-                        "ipAddr": host_ip,
-                        "status": "UP",
-                        "port": {"$": port, "@enabled": "true"},
-                        "securePort": {"$": "8443", "@enabled": "true"},
-                        "healthCheckUrl": "http://localhost:8080/status",
-                        "statusPageUrl": "http://localhost:8080/status",
-                        "homePageUrl": "http://localhost:8080",
-                        "dataCenterInfo": {
-                            "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
-                            "name": "MyOwn"
-                        }
-                    }
-                }
-    req = session.post(settings.REGISTRY_URL + '/' + service_name,
-                       headers={'Content-Type':'application/json'},
-                       json=req_data,
-                       timeout=settings.HTTP_TIMEOUT)
-    if req.status_code == 204:
-        logger.info('Registered new service: '+json.dumps(req_data))
-        return render(request, 'app/register.html',
-                      {'message': 'Success:\n<pre>'+json.dumps(req_data, indent=4)+'</pre>'})
-    else:
-        logger.error('Unable to register service. Returned with error code'+str(req.status_code))
-        logger.error(req.content.decode())
-        return render(request, 'app/register.html',
-                      {'message': 'Service not Registered'+str(req.status_code)+':'+req.content.decode()})
-
-
 def get_registry(request):
     logger.debug('Get Registry Status')
     try:

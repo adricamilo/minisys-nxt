@@ -22,8 +22,6 @@ urlpatterns = [
   url(r'^status$', views.get_status),
   url(r'^serviceStatus$', views.get_service_status),
   url(r'^registry$', views.get_registry),
-  url(r'^register$', views.register_form),
-  url(r'^registerInstance$', views.register_service_instance),
   url(r'^inventoryTable$', views.get_inventory_table),
   url(r'^userAuthTable$', views.get_user_auth_table),
 ]

@@ -16,6 +16,7 @@
 
 package com.ntw.common.config;
 
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,11 +77,11 @@ public class EnvConfig {
                 properties.setProperty(key, System.getenv(key));
             }
         }
-        StringBuilder envLog = new StringBuilder();
+        Map<String, String> envLog = new HashMap<>();
         SortedSet<String> sortedProps = new TreeSet<>();
         sortedProps.addAll(properties.stringPropertyNames());
-        sortedProps.forEach(x -> envLog.append(x+"="+properties.getProperty(x)).append("\n"));
-        logger.info("**** Environment & System Variables ****\n{}",envLog.toString());
+        sortedProps.forEach(x -> envLog.put(x,properties.getProperty(x)));
+        logger.info("Environment & System Variables = {}",new Gson().toJson(envLog));
     }
 
     public boolean useServiceRegistry() {
