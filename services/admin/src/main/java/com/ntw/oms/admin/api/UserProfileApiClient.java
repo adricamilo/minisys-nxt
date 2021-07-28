@@ -43,6 +43,11 @@ public class UserProfileApiClient extends ApiClient {
     }
 
     @Override
+    protected ServiceID getEndpointServiceID() {
+        return ServiceID.AuthSvc;
+    }
+
+    @Override
     protected String getServiceURI() {
         return AppConfig.USERS_PROFILE_RESOURCE_PATH;
     }

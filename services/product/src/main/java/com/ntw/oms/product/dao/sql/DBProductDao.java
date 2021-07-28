@@ -87,7 +87,7 @@ public class DBProductDao implements ProductDao {
 
     @Override
     public boolean addProduct(Product product) {
-        String addProductSql = "insert into Product (id, name, imageUrl, price) values (?,?,?,?)";
+        String addProductSql = "insert into Product (id, name, price) values (?,?,?)";
         int retValue = jdbcTemplate.update(addProductSql,
                 new Object[] {product.getId(), product.getName(), Float.valueOf(product.getPrice())});
         if (retValue <= 0) {
@@ -100,7 +100,7 @@ public class DBProductDao implements ProductDao {
 
     @Override
     public Product modifyProduct(Product product) {
-        String modifyProductSql = "update Product set id=?, name=?, imageUrl=?, price=?";
+        String modifyProductSql = "update Product set id=?, name=?, price=?";
         int retValue;
         try {
             retValue = jdbcTemplate.update(modifyProductSql,

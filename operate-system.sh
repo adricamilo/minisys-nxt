@@ -93,8 +93,8 @@ function do_stop {
     elif [ "$1" == "app" ]; then
 	do_stop_app $2
     elif [ "$1" == "all" ]; then
-	do_stop_infra
 	do_stop_app
+	do_stop_infra
     else
 	echo "Incorrect parameter. Specify infra, app, all ?"
 	exit -1;
@@ -105,10 +105,11 @@ function do_stop {
 
 function do_stop_infra {
     echo "-- Stop Infra Containers --"
-    for container in "${infra_containers[@]}"
-    do
-	do_stop_one $container
-    done    
+#    for container in "${infra_containers[@]}"
+#    do
+#	do_stop_one $container
+#    done    
+    do_stop_one "$(echo ${infra_containers[@]})"
     echo "-- Done --"
 }
 

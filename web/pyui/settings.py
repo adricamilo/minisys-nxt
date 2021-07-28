@@ -10,8 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
-import os
-import socket
+import os, socket, logging
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'jlk7u+v6mqq$(47=*us23ru^tx$x3sj^+$314htmpperz)a7@b'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.environ.get('DJANGO_DEBUG'):
+if os.environ.get('DJANGO_DEBUG') == 'True':
     print("Debug is enabled.")
     DEBUG = True
 else:
@@ -134,6 +133,21 @@ SERVICES_HOST = os.environ.get('SERVICES_HOST','localhost')
 SERVICES_PORT = os.environ.get('SERVICES_PORT','8080')
 SERVICES_CLIENT_ID = os.environ.get('auth.client.id','web-client')
 SERVICES_CLIENT_SECRET = os.environ.get('auth.client.secret','secret')
+
+SERVICES_ENDPOINT = 'http://'+SERVICES_HOST+':'+SERVICES_PORT
+
+if os.environ.get('DJANGO_DEBUG') == 'True':
+    ADMIN_ENDPOINT = 'http://localhost:8081'
+    AUTH_ENDPOINT = 'http://localhost:8082'
+    PRODUCT_ENDPOINT = 'http://localhost:8083'
+    ORDER_ENDPOINT = 'http://localhost:8084'
+    INVENTORY_ENDPOINT = 'http://localhost:8085'
+else:
+    ADMIN_ENDPOINT = SERVICES_ENDPOINT
+    AUTH_ENDPOINT = SERVICES_ENDPOINT
+    PRODUCT_ENDPOINT = SERVICES_ENDPOINT
+    ORDER_ENDPOINT = SERVICES_ENDPOINT
+    INVENTORY_ENDPOINT = SERVICES_ENDPOINT
 
 HTTP_TIMEOUT = 20
 HTTP_SAMPLE_DATA_TIMEOUT = 120

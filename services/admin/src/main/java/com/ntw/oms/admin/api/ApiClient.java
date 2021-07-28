@@ -58,6 +58,10 @@ public abstract class ApiClient {
 
     protected abstract ServiceID getServiceID();
 
+    protected ServiceID getEndpointServiceID() {
+        return getServiceID();
+    }
+
     protected abstract String getServiceURI();
 
     protected abstract Object createObject(String id);
@@ -93,7 +97,7 @@ public abstract class ApiClient {
     }
 
     protected boolean insertData(String uri, String data) {
-        ServiceInstance instance = loadBalancer.choose(ServiceID.GatewaySvc.toString());
+        ServiceInstance instance = loadBalancer.choose(getEndpointServiceID().toString());
         String host = instance.getHost();
         int port = instance.getPort();
         try {
@@ -110,7 +114,7 @@ public abstract class ApiClient {
     }
 
     public boolean deleteData() {
-        ServiceInstance instance = loadBalancer.choose(ServiceID.GatewaySvc.toString());
+        ServiceInstance instance = loadBalancer.choose(getEndpointServiceID().toString());
         String host = instance.getHost();
         int port = instance.getPort();
         try {
@@ -127,7 +131,7 @@ public abstract class ApiClient {
     }
 
     public String getStatus() {
-        ServiceInstance instance = loadBalancer.choose(getServiceID().toString());
+        ServiceInstance instance = loadBalancer.choose(getEndpointServiceID().toString());
         String host = instance.getHost();
         int port = instance.getPort();
         try {

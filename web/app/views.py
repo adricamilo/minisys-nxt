@@ -17,13 +17,8 @@
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from requests.exceptions import ConnectionError, HTTPError, Timeout, RequestException
-from time import sleep
 
-import requests
-import json
-import logging
-import time
-import base64
+import requests, json, logging, time, base64, os, traceback
 
 AUTH_TOKEN_COOKIE = 'auth_token'
 AUTH_USER_COOKIE = 'user_auth'
@@ -45,41 +40,6 @@ logger = logging.getLogger(__name__)
 session = requests.session()
 adapter = requests.adapters.HTTPAdapter(pool_connections=20, pool_maxsize=20)
 session.mount('http://', adapter)
-
-
-def get_service_address(service_id):
-    logger.debug('Get service address for '+service_id)
-    for trial in range(1,60):
-        try:
-            req = session.get(settings.REGISTRY_URL + '/' + service_id,
-                               headers={'Accept':'application/json'},
-                               timeout=settings.HTTP_TIMEOUT)
-            if req.status_code == 200:
-                application = json.loads(req.content)['application']
-                for instance in application['instance']:
-                    logger.debug("Hostname -> " + instance['hostName'])
-                    logger.debug("Port -> " + str(instance['port']['$']))
-                    logger.debug('fetched registry apps | context=%s' + json.dumps(application))
-                    return instance['hostName'] + ':' + str(instance['port']['$'])
-            else:
-                req.raise_for_status()
-        except HTTPError as http_error:
-            print("Http Error:", http_error)
-        except ConnectionError as conn_error:
-            print("Error Connecting:", conn_error)
-        except Timeout as time_error:
-            print("Timeout Error:", time_error)
-        except RequestException as req_error:
-            print("OOps: Something went wrong. Try again.", req_error)
-        logger.error('Unable to fetch service information for '+service_id+' on trial count '+str(trial))
-        sleep(10)
-    return ''
-
-
-#SERVICES_ENDPOINT = 'http://'+get_service_address(settings.SERVICES_SERVICE_NAME)
-SERVICES_ENDPOINT = 'http://'+settings.SERVICES_HOST+':'+settings.SERVICES_PORT
-
-logger.info('Gateway Endpoint = %s', SERVICES_ENDPOINT)
 
 
 def get_access_token(request):
@@ -110,7 +70,7 @@ def is_admin_user(request):
 
 
 def get_product(product_id, access_token):
-    req = session.get(SERVICES_ENDPOINT + PRODUCTS_URI + '/' + product_id,
+    req = session.get(settings.PRODUCT_ENDPOINT + PRODUCTS_URI + '/' + product_id,
                        headers={'Authorization': 'Bearer '+access_token},
                        timeout=settings.HTTP_TIMEOUT)
     return req
@@ -121,14 +81,14 @@ def get_cart_id(request):
 
 
 def get_cart(cart_id, access_token):
-    req = session.get(SERVICES_ENDPOINT + CARTS_URI + '/' + cart_id,
+    req = session.get(settings.ORDER_ENDPOINT + CARTS_URI + '/' + cart_id,
                        headers={'Authorization': 'Bearer ' + access_token},
                        timeout=settings.HTTP_TIMEOUT)
     return req
 
 
 def get_order(order_id, access_token):
-    req = session.get(SERVICES_ENDPOINT + ORDERS_URI + '/' + order_id,
+    req = session.get(settings.ORDER_ENDPOINT + ORDERS_URI + '/' + order_id,
                        headers={'Authorization': 'Bearer '+access_token},
                        timeout=settings.HTTP_TIMEOUT)
     return req
@@ -195,7 +155,7 @@ def login(request):
         client_auth_b64_bytes = base64.b64encode(client_auth_bytes)
         client_auth_b64 = client_auth_b64_bytes.decode('ascii')
         try:
-            auth_token_res = session.post(SERVICES_ENDPOINT + AUTH_TOKEN_URI,
+            auth_token_res = session.post(settings.AUTH_ENDPOINT + AUTH_TOKEN_URI,
                                            headers={'Authorization': 'Basic ' + client_auth_b64},
                                            data={'username': username, 'password': password},
                                            timeout=settings.HTTP_TIMEOUT)
@@ -227,7 +187,7 @@ def login(request):
             response.set_cookie(AUTH_TOKEN_COOKIE, auth_token_res.content.decode())
             logger.debug('User token fetched | context=%s', auth_token_res.content.decode())
             access_token = auth_token_res.json()['access_token']
-            user_auth_res = session.get(SERVICES_ENDPOINT + AUTH_TOKEN_USER_URI + '?access_token='+access_token,
+            user_auth_res = session.get(settings.AUTH_ENDPOINT + AUTH_TOKEN_USER_URI + '?access_token='+access_token,
                                          timeout=settings.HTTP_TIMEOUT)
             if user_auth_res.status_code == 200:
                 response.set_cookie(AUTH_USER_COOKIE, user_auth_res.content.decode())
@@ -261,7 +221,7 @@ def setup_page(request):
 def profile(request):
     access_token = get_access_token(request)
     user_id = get_user(request)
-    req = session.get(SERVICES_ENDPOINT + USERS_PROFILE_URI +'/'+ user_id,
+    req = session.get(settings.AUTH_ENDPOINT + USERS_PROFILE_URI +'/'+ user_id,
                        headers={'Authorization':'Bearer '+access_token},
                        timeout=settings.HTTP_TIMEOUT)
     if req.status_code == 200:
@@ -282,27 +242,19 @@ def home(request):
 def products(request):
     access_token = get_access_token(request)
     try:
-        req = session.get(SERVICES_ENDPOINT + PRODUCTS_URI,
+        req = session.get(settings.PRODUCT_ENDPOINT + PRODUCTS_URI,
                            headers={'Authorization': 'Bearer '+access_token},
                            timeout=settings.HTTP_TIMEOUT)
         req.raise_for_status()
     except HTTPError as http_error:
-        print("Http Error:", http_error)
-        logger.error("HTTPError communicating with the backend server for get products")
+        logger.error("HTTPError communicating with the backend server for get products: %s", http_error)
         return render(request, 'app/error.html',
                       {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
-    except ConnectionError as conn_error:
-        print("Error Connecting:", conn_error)
-        logger.error("Error communicating with a backend server for get products")
+    except Exception as exception:
+        logger.error("Error communicating with a backend server for get products: %s", exception)
+        logger.error(traceback.format_exc())
         return render(request, 'app/error.html',
-                      {'message': 'Unable to connect to the backend.'})
-    except Timeout as time_error:
-        print("Timeout Error:", time_error)
-        logger.error("Timeout communicating with a backend server for get products")
-        return render(request, 'app/error.html',
-                      {'message': 'Timeout communicating with the backend server.'})
-    except RequestException as req_error:
-        print("OOps: Something went wrong. Try again.", req_error)
+                      {'message': 'Error communicating with the backend server.'})
 
     if req.status_code == 200:
         logger.info('Products fetched | context=%s', req.content.decode())
@@ -348,28 +300,20 @@ def cart(request):
         if action == 'remove':
             quantity = 0
         try:
-            req = session.post(SERVICES_ENDPOINT + CARTS_URI,
+            req = session.post(settings.ORDER_ENDPOINT + CARTS_URI,
                                 data={'id': cart_id, 'productId': product_id, 'quantity': quantity},
                                 headers={'Authorization': 'Bearer ' + access_token},
                                 timeout=settings.HTTP_TIMEOUT)
             req.raise_for_status()
         except HTTPError as http_error:
-            print("Http Error:", http_error)
-            logger.error("HTTPError communicating with the backend server for modify cart")
+            logger.error("HTTPError communicating with the backend server for modify cart: %s", http_error)
             return render(request, 'app/error.html',
-                          {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
-        except ConnectionError as conn_error:
-            print("Error Connecting:", conn_error)
-            logger.error("Error communicating with a backend server for modify cart")
+                          {'message': 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.'})
+        except Exception as exception:
+            logger.error("Error communicating with a backend server for modify cart: %s", exception)
+            logger.error(traceback.format_exc())
             return render(request, 'app/error.html',
-                          {'message': 'Unable to connect to the backend.'})
-        except Timeout as time_error:
-            print("Timeout Error:", time_error)
-            logger.error("Timeout communicating with a backend server for modify cart")
-            return render(request, 'app/error.html',
-                          {'message': 'Timeout communicating with the backend server.'})
-        except RequestException as req_error:
-            print("OOps: Something went wrong. Try again.", req_error)
+                          {'message': 'Error communicating with the backend server.'})
 
         if req.status_code == 201:
             logger.info('Modified cart | id=%s | productId=%s | quantity=%s', cart_id, product_id, quantity)
@@ -381,7 +325,7 @@ def cart(request):
 
 def orders(request):
     access_token = get_access_token(request)
-    req = session.get(SERVICES_ENDPOINT + ORDERS_URI,
+    req = session.get(settings.ORDER_ENDPOINT + ORDERS_URI,
                        headers={'Authorization': 'Bearer '+access_token},
                        timeout=settings.HTTP_TIMEOUT)
     if req.status_code == 200:
@@ -411,7 +355,7 @@ def create_order(request):
 
     cart_id = get_cart_id(request)
 
-    req = session.post(SERVICES_ENDPOINT + ORDER_CARTS_URI + '/'+cart_id,
+    req = session.post(settings.ORDER_ENDPOINT + ORDER_CARTS_URI + '/'+cart_id,
                         params={}, headers={'Authorization': 'Bearer ' + access_token},
                         timeout=settings.HTTP_TIMEOUT)
     if req.status_code == 201:
@@ -432,28 +376,21 @@ def create_test_data(request):
     logger.debug('Create data | userCount=%s productCount=%s', userCount, productCount);
     if userCount and productCount:
         try:
-            req = session.post(SERVICES_ENDPOINT + ADMIN_URI + '/dataset',
+            req = session.post(settings.ADMIN_ENDPOINT + ADMIN_URI + '/dataset',
                                data={'userCount': ''+userCount, 'productCount': ''+productCount},
                                headers={'Authorization': 'Bearer ' + access_token},
                                timeout=settings.HTTP_SAMPLE_DATA_TIMEOUT)
             req.raise_for_status()
         except HTTPError as http_error:
-            print("Http Error:", http_error)
-            logger.error("HTTPError communicating with the backend server for sample data")
+            logger.error("HTTPError communicating with the backend server for sample data: %s", http_error)
             return render(request, 'app/error.html',
-                          {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
-        except ConnectionError as conn_error:
-            print("Error Connecting:", conn_error)
-            logger.error("Error communicating with a backend server for sample data")
+                          {'message': 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.'})
+        except Exception as exception:
+            logger.error("Error communicating with a backend server for sample data: %s", exception)
+            logger.error(traceback.format_exc())
             return render(request, 'app/error.html',
-                          {'message': 'Unable to connect to the backend.'})
-        except Timeout as time_error:
-            print("Timeout Error:", time_error)
-            logger.error("Timeout communicating with a backend server for sample data")
-            return render(request, 'app/error.html',
-                          {'message': 'Timeout communicating with the backend server.'})
-        except RequestException as req_error:
-            print("OOps: Something went wrong. Try again.", req_error)
+                          {'message': 'Error communicating with the backend server.'})
+
         if req.status_code == 200:
             logger.info('Sample data created')
             return render(request, 'app/admin.html', {'message': 'Success - Created Test Data'})
@@ -466,27 +403,20 @@ def delete_test_data(request):
     logger.info('Deleting test data')
     access_token = get_access_token(request)
     try:
-        req = session.delete(SERVICES_ENDPOINT + ADMIN_URI + '/dataset',
+        req = session.delete(settings.ADMIN_ENDPOINT + ADMIN_URI + '/dataset',
                            params={}, headers={'Authorization': 'Bearer ' + access_token},
                            timeout=settings.HTTP_SAMPLE_DATA_TIMEOUT)
         req.raise_for_status()
     except HTTPError as http_error:
-        print("Http Error:", http_error)
-        logger.error("HTTPError communicating with the backend server for sample data")
+        logger.error("HTTPError communicating with the backend server for delete data: %s", http_error)
         return render(request, 'app/error.html',
-                      {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
-    except ConnectionError as conn_error:
-        print("Error Connecting:", conn_error)
-        logger.error("Error communicating with a backend server for sample data")
+                      {'message': 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.'})
+    except Exception as exception:
+        logger.error("Error communicating with a backend server for delete data: %s", exception)
+        logger.error(traceback.format_exc())
         return render(request, 'app/error.html',
-                      {'message': 'Unable to connect to the backend.'})
-    except Timeout as time_error:
-        print("Timeout Error:", time_error)
-        logger.error("Timeout communicating with a backend server for sample data")
-        return render(request, 'app/error.html',
-                      {'message': 'Timeout communicating with the backend server.'})
-    except RequestException as req_error:
-        print("OOps: Something went wrong. Try again.", req_error)
+                      {'message': 'Error communicating with the backend server.'})
+
     if req.status_code == 200:
         logger.debug('Sample data created')
         return render(request, 'app/admin.html', {'message': 'Success - Deleted Test Data'})
@@ -506,7 +436,7 @@ def get_service_status(request):
     my_res = 'WebApp@' + settings.HOSTNAME + '\n'
     my_res += 'Time: ' + time.ctime(time.time()) + '\n\n'
     try:
-        my_req = session.get(SERVICES_ENDPOINT + ADMIN_URI + '/status',
+        my_req = session.get(settings.ADMIN_ENDPOINT + ADMIN_URI + '/status',
                             timeout=settings.HTTP_TIMEOUT)
         my_req.raise_for_status()
     except HTTPError as http_error:
@@ -548,8 +478,8 @@ def get_registry(request):
         logger.error("HTTPError communicating with the backend server")
         return render(request, 'app/error.html',
                       {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
-    except ConnectionError as conn_error:
-        print("Error Connecting:", conn_error)
+    except Exception as exception:
+        print("Error Connecting:", exception)
         logger.error("Error communicating with a backend server")
         return render(request, 'app/error.html',
                       {'message': 'Unable to connect to the backend.'})
@@ -569,27 +499,18 @@ def get_inventory_table(request):
     logger.debug('Get Inventory Table')
     access_token = get_access_token(request)
     try:
-        req = session.get(SERVICES_ENDPOINT + INVENTORY_URI,
+        req = session.get(settings.INVENTORY_ENDPOINT + INVENTORY_URI,
                            headers={'Authorization': 'Bearer '+access_token},
                            timeout=settings.HTTP_TIMEOUT)
         req.raise_for_status()
     except HTTPError as http_error:
-        print("Http Error:", http_error)
         logger.error("HTTPError communicating with the backend server for get inventory")
         return render(request, 'app/error.html',
                       {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
-    except ConnectionError as conn_error:
-        print("Error Connecting:", conn_error)
+    except Exception as e:
         logger.error("Error communicating with a backend server for get inventory")
         return render(request, 'app/error.html',
                       {'message': 'Unable to connect to the backend.'})
-    except Timeout as time_error:
-        print("Timeout Error:", time_error)
-        logger.error("Timeout communicating with a backend server for get products")
-        return render(request, 'app/error.html',
-                      {'message': 'Timeout communicating with the backend server.'})
-    except RequestException as req_error:
-        print("OOps: Something went wrong. Try again.", req_error)
 
     if req.status_code == 200:
         logger.info('inventory fetched | context=%s', req.content.decode())
@@ -602,7 +523,7 @@ def get_user_auth_table(request):
     logger.debug('Get User Auth Table')
     access_token = get_access_token(request)
     try:
-        req = session.get(SERVICES_ENDPOINT + AUTH_USERS_URI,
+        req = session.get(settings.AUTH_ENDPOINT + AUTH_USERS_URI,
                            headers={'Authorization': 'Bearer '+access_token},
                            timeout=settings.HTTP_TIMEOUT)
         req.raise_for_status()
@@ -611,18 +532,10 @@ def get_user_auth_table(request):
         logger.error("HTTPError communicating with the backend server for get user auth")
         return render(request, 'app/error.html',
                       {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
-    except ConnectionError as conn_error:
-        print("Error Connecting:", conn_error)
+    except Exception as e:
         logger.error("Error communicating with a backend server")
         return render(request, 'app/error.html',
                       {'message': 'Unable to connect to the backend.'})
-    except Timeout as time_error:
-        print("Timeout Error:", time_error)
-        logger.error("Timeout communicating with a backend server")
-        return render(request, 'app/error.html',
-                      {'message': 'Timeout communicating with the backend server.'})
-    except RequestException as req_error:
-        print("OOps: Something went wrong. Try again.", req_error)
 
     if req.status_code == 200:
         logger.info('inventory fetched | context=%s', req.content.decode())

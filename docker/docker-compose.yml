@@ -328,7 +328,7 @@ services:
     env_file: .env
     volumes:
       - ./logs/web-1:/var/log/oms
-    command: python3 manage.py runserver 0.0.0.0:8000
+    #command: python3 manage.py runserver 0.0.0.0:8000
     logging:
       driver: "fluentd"
       options:

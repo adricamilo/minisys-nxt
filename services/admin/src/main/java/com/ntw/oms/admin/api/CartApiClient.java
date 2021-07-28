@@ -30,6 +30,11 @@ public class CartApiClient extends ApiClient {
     }
 
     @Override
+    protected ServiceID getEndpointServiceID() {
+        return ServiceID.OrderSvc;
+    }
+
+    @Override
     protected String getServiceURI() {
         return AppConfig.CARTS_RESOURCE_PATH;
     }
