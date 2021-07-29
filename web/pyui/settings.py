@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'jlk7u+v6mqq$(47=*us23ru^tx$x3sj^+$314htmpperz)a7@b'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.environ.get('DJANGO_DEBUG') == 'True':
+if os.environ.get('DJANGO_DEBUG').lower() == 'true':
     print("Debug is enabled.")
     DEBUG = True
 else:
@@ -136,7 +136,7 @@ SERVICES_CLIENT_SECRET = os.environ.get('auth.client.secret','secret')
 
 SERVICES_ENDPOINT = 'http://'+SERVICES_HOST+':'+SERVICES_PORT
 
-if os.environ.get('DJANGO_DEBUG') == 'True':
+if os.environ.get('DJANGO_DEBUG').lower() == 'true':
     ADMIN_ENDPOINT = 'http://localhost:8081'
     AUTH_ENDPOINT = 'http://localhost:8082'
     PRODUCT_ENDPOINT = 'http://localhost:8083'
