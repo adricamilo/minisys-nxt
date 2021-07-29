@@ -2,6 +2,7 @@ package com.ntw.oms.product;
 
 import com.ntw.oms.product.entity.Product;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -23,6 +24,7 @@ public class CacheConfiguration {
     private int redisPort;
 
     @Bean
+    @ConditionalOnProperty(name = "redis.enabled", havingValue = "true")
     JedisConnectionFactory jedisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(redisHostName);
@@ -40,6 +42,7 @@ public class CacheConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "redis.enabled", havingValue = "true")
     RedisTemplate<String, Product> redisProductTemplate() {
         RedisTemplate<String, Product> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
