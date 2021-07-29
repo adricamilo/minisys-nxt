@@ -16,12 +16,10 @@
 
 package com.ntw.oms.order;
 
-import com.ntw.oms.order.queue.MessageQueue;
-import com.ntw.oms.order.queue.OrderQueueProcessor;
-import com.ntw.oms.order.queue.RabbitMQ;
+import com.ntw.oms.order.processor.OrderProcessor;
+import com.ntw.oms.order.queue.*;
+import io.opentracing.Tracer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -40,26 +38,36 @@ public class OrderMQConfiguration {
     @Autowired
     private Environment environment;
 
-    @Bean
-    @Qualifier("messageQueueProducer")
-    public MessageQueue getMessageQueueProducerBean() throws IOException, TimeoutException {
-        return new RabbitMQ(environment.getProperty("order.queue.host"),
-                environment.getProperty("order.queue.name"));
-    }
-
-    @Bean
-    @Qualifier("messageQueueConsumer")
-    public MessageQueue getMessageQueueConsumerBean() throws IOException, TimeoutException {
-        return new RabbitMQ(environment.getProperty("order.queue.host"),
-                environment.getProperty("order.queue.name"));
-    }
+    @Autowired
+    OrderProcessor orderProcessor;
 
     @Autowired
-    private OrderQueueProcessor orderQueueProcessor;
+    private Tracer tracer;
 
     @Bean
-    @ConditionalOnProperty(name = "order.queue.consumer.enabled", havingValue = "true")
-    public void startMessageQueueConsumer() throws Exception {
-        orderQueueProcessor.start();
+    public MQClient getMessageQueueProducerBean() throws IOException, TimeoutException {
+        if (environment.getProperty("order.queue.type").equals("local")) {
+            return LocalMQ.getInstance();
+        }
+        return new RabbitMQClient(environment.getProperty("order.queue.host"),
+                environment.getProperty("order.queue.name"));
     }
+
+    @Bean
+    public MQReciever getMessageQueueConsumerBean() throws IOException, TimeoutException {
+        MQReciever receiver =
+        (environment.getProperty("order.queue.type").equals("local")) ?
+            LocalMQ.getInstance() :
+            new RabbitMQReceiver(environment.getProperty("order.queue.host"),
+                    environment.getProperty("order.queue.name"));
+        receiver.setOrderProcessor(orderProcessor);
+        receiver.setTracer(tracer);
+        try {
+            receiver.startReceiver();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return receiver;
+    }
+
 }
