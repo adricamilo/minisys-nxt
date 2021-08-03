@@ -12,5 +12,7 @@ echo "-- Install NodeJS --"
 curl -sL https://deb.nodesource.com/setup_12.x | sudo bash - && \
 sudo apt-get install -y nodejs
 
-echo "-- Done --"
+echo "-- Install jq --"
+sudo apt-get install -y jq
 
+echo "-- Done --"

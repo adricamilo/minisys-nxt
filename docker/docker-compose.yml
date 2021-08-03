@@ -20,6 +20,24 @@ networks:
   mynet1:
     name: mynet1
 
+volumes:
+  elasticsearch-data-1:
+    driver: local
+  fluentd-logs-1:
+    driver: local
+  cassandra-data-1:
+    driver: local
+  cassandra-logs-1:
+    driver: local
+  postgres-data-1:
+    driver: local
+  postgres-logs-1:
+    driver: local
+  rabbitmq-data-1:
+    driver: local
+  app-logs:
+    driver: local
+
 
 services:
 
@@ -37,7 +55,7 @@ services:
     networks:
       - mynet1
     volumes:
-      - ./data/elasticsearch-1:/usr/share/elasticsearch/data
+      - elasticsearch-data-1:/usr/share/elasticsearch/data
     restart: unless-stopped
 
   kibana:
@@ -67,7 +85,7 @@ services:
     ports:
       - "24224:24224"
     volumes:
-      - ./logs/fluentd-1:/fluentd/log
+      - fluentd-logs-1:/fluentd/log
     depends_on:
       - "elasticsearch"
     restart: unless-stopped
@@ -204,8 +222,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./logs/postgres-1:/var/log/postgresql
-      - ./data/postgres-1:/var/lib/postgresql/data
+      - postgres-logs-1:/var/log/postgresql
+      - postgres-data-1:/var/lib/postgresql/data
     command: postgres -c shared_buffers=128MB -c max_connections=50
 
 
@@ -225,8 +243,8 @@ services:
       - JVM_OPTS=-Xms512M -Xmx1024M
       - SCHEMA_SEED_INSTANCE=cassandra-1
     volumes:
-      - ./logs/cassandra-1:/var/log/cassandra
-      - ./data/cassandra-1:/var/lib/cassandra
+      - cassandra-logs-1:/var/log/cassandra
+      - cassandra-data-1:/var/lib/cassandra
     entrypoint: /docker-entrypoint-second.sh
 
 
@@ -241,7 +259,7 @@ services:
       - "15672:15672"
       - "15692:15692"
     volumes:
-      - ./data/rabbitmq-1:/var/lib/rabbitmq"
+      - rabbitmq-data-1:/var/lib/rabbitmq"
 
   redis:
     image: redis
@@ -271,7 +289,7 @@ services:
       - eureka.client.registerWithEureka=false
       - eureka.client.fetchRegistry=false
     volumes:
-      - ./logs/eureka-1:/usr/local/tomcat/logs
+      - app-logs:/usr/local/tomcat/logs
 
 
   lb-web:
@@ -290,7 +308,7 @@ services:
       - SERVER_PORT=8000
       - USE_SSL=false
     volumes:
-      - ./logs/lb-web:/var/log/oms
+      - app-logs:/var/log/oms
     depends_on:
       - "web"
 
@@ -309,7 +327,7 @@ services:
       - SERVER_HOSTS=gateway-svc-1
       - SERVER_PORT=8080
     volumes:
-      - ./logs/lb-services:/var/log/oms
+      - app-logs:/var/log/oms
     depends_on:
       - "gateway-svc"
 
@@ -327,7 +345,7 @@ services:
       - "8000:8000"
     env_file: .env
     volumes:
-      - ./logs/web-1:/var/log/oms
+      - app-logs:/var/log/oms
     #command: python3 manage.py runserver 0.0.0.0:8000
     logging:
       driver: "fluentd"
@@ -358,7 +376,7 @@ services:
       - eureka.instance.hostname=gateway-svc-1
       - server.threadPool.threads.maximum=20
     volumes:
-      - ./logs/services:/var/log/oms
+      - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh gateway
     logging:
       driver: "fluentd"
@@ -381,7 +399,7 @@ services:
     environment:
       - eureka.instance.hostname=admin-svc-1
     volumes:
-      - ./logs/services:/var/log/oms
+      - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh admin
     logging:
       driver: "fluentd"
@@ -404,7 +422,7 @@ services:
     environment:
       - eureka.instance.hostname=auth-svc-1
     volumes:
-      - ./logs/services:/var/log/oms
+      - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh auth
     logging:
       driver: "fluentd"
@@ -427,7 +445,7 @@ services:
     environment:
       - eureka.instance.hostname=product-svc-1
     volumes:
-      - ./logs/services:/var/log/oms
+      - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh product
     logging:
       driver: "fluentd"
@@ -450,7 +468,7 @@ services:
     environment:
       - eureka.instance.hostname=order-svc-1
     volumes:
-      - ./logs/services:/var/log/oms
+      - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh order
     logging:
       driver: "fluentd"
@@ -474,7 +492,7 @@ services:
     environment:
       - eureka.instance.hostname=inventory-svc-1
     volumes:
-      - ./logs/services:/var/log/oms
+      - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh inventory
     logging:
       driver: "fluentd"
