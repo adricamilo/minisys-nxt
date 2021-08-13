@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  labels:
+    app: fluentd
+spec:
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      labels:
+        app: fluentd
+    spec:
+      containers:
+      - name: fluentd
+        image: IMAGE_REGISTRY_PATH/fluentd-kubernetes:REVISION_ID
+        volumeMounts:
+          - name: log-volume
+            mountPath: /var/log
+      volumes:
+        - name: log-volume
+          hostPath:
+            path: /var/log
+            type: Directory

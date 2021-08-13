@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: service-config
   labels:
-    app: rest
+    app: services
 data:
   server.port: "8080"
   eureka.client.registerWithEureka: "false"
@@ -13,7 +13,6 @@ data:
   GatewaySvc.ribbon.listOfServers: "http://gateway-svc:80"
   AdminSvc.ribbon.listOfServers: "http://admin-svc:80"
   AuthSvc.ribbon.listOfServers: "http://auth-svc:80"
-  UserProfileSvc.ribbon.listOfServers: "http://user-profile-svc:80"
   ProductSvc.ribbon.listOfServers: "http://product-svc:80"
   OrderSvc.ribbon.listOfServers: "http://order-svc:80"
   InventorySvc.ribbon.listOfServers: "http://inventory-svc:80"
@@ -24,7 +23,7 @@ data:
   database.postgres.port: "5432"
   database.postgres.schema: oms
   server.log.path: "/var/log/oms"
-  server.log.level: WARN
+  server.log.level: INFO
   JAVA_HEAP_MEMORY: "-Xms256M -Xmx512M"
 ---
 apiVersion: v1
@@ -32,10 +31,10 @@ kind: ConfigMap
 metadata:
   name: web-config
   labels:
-    app: rest
+    app: web
 data:
-  REST_HOST: gateway-svc
-  REST_PORT: "80"
+  SERVICES_HOST: gateway-svc
+  SERVICES_PORT: "80"
   PYUI_LOG_FILE: "/var/log/oms/PyUi.log"
   REGISTRY_URL: "#"
   DJANGO_DEBUG: "False"

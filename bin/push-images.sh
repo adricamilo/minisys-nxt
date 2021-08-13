@@ -25,7 +25,7 @@ function tag_and_push {
 
 }
 
-declare -a arr=("cassandra" "postgres" "rest" "web" "lb-rest" "lb-web" "jmeter" "eureka")
+declare -a arr=("cassandra" "postgres" "services" "web" "lb-services" "lb-web" "jmeter" "eureka" "rabbitmq" "redis" "fluentd" "fluentd-k8s" "prometheus")
 
 for i in "${arr[@]}"
 do

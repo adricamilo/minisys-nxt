@@ -35,9 +35,9 @@ public class LocalRequestHandler {
 
     @GetMapping(path = "/status", produces = MediaType.TEXT_PLAIN_VALUE)
     private static ResponseEntity<String> getServiceStatus() {
-        logger.info("Status request received");
+        logger.debug("Status request received");
         String status = ServiceStatus.getServiceStatus(ServiceID.GatewaySvc);
-        logger.info("Status request response is {}",status);
+        logger.debug("Status request response is {}",status);
         return ResponseEntity.ok().body(status);
     }
 

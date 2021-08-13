@@ -42,14 +42,14 @@ spec:
         command: [ '/bin/bash','-c', 'until pg_isready -h postgres; do echo waiting for postgres; sleep 1; done;' ]
       containers:
       - name: admin-svc-cont
-        image: IMAGE_REGISTRY_PATH/rest:REVISION_ID
-        args: ["AdminSvc"]
+        image: IMAGE_REGISTRY_PATH/services:REVISION_ID
+        args: ["admin"]
         imagePullPolicy: Always
         ports:
           - containerPort: 8080
         resources:
           requests:
-            cpu: "500m"
+            cpu: "100m"
             memory: "512Mi"
           limits:
             cpu: "1000m"

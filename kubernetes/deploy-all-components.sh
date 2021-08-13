@@ -16,8 +16,8 @@ echo "Docker Image Registry Path: ${IMAGE_REGISTRY_PATH}"
 declare -a arr=("config-map" "secrets-map" \
 			     "cassandra" "postgres" \
 			     "gateway-svc" "admin-svc" \
-			     "auth-svc" "user-profile-svc" "product-svc" "order-svc" "inventory-svc" \
-			     "web-app")
+			     "auth-svc" "product-svc" "order-svc" "inventory-svc" \
+			     "web-app" "elasticsearch" "kibana")
 
 cd ./config
 

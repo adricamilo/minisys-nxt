@@ -22,4 +22,4 @@ if [[ $(hostname -s) = ${SCHEMA_SEED_INSTANCE} ]]; then
     create_schema &
 fi
 
-exec /docker-entrypoint.sh "$@"
+exec /usr/local/bin/docker-entrypoint.sh "$@"

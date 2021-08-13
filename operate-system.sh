@@ -8,7 +8,7 @@ TARGET=$1
 declare -a service_containers=("eureka" "gateway-svc" "lb-services" "admin-svc" "auth-svc" "product-svc" "order-svc" "inventory-svc")
 declare -a web_containers=("web" "lb-web")
 declare -a data_containers=("cassandra" "postgres" "rabbitmq" "redis")
-declare -a infra_containers=("elasticsearch" "kibana" "jaeger-collector" "jaeger-query" "jaeger-agent" "fluentd" "es-exporter" "pg-exporter" "prometheus")
+declare -a infra_containers=("elasticsearch" "kibana" "jaeger-collector" "jaeger-query" "jaeger-agent" "fluentd" "es-exporter" "redis-exporter" "pg-exporter" "prometheus")
 
 echo "-- Start --"
 

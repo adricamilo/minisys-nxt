@@ -18,6 +18,14 @@ sed 's/COMPONENT/'${COMPONENT}'/g' persistent-volumes.yaml \
     | sed 's/NODENAME/'${arr[0]}'/g' \
     | kubectl $CMD -f -
 
+COMPONENT=elasticsearch
+arr=($NODES)
+echo "$CMD volume for $COMPONENT on node ${arr[0]}"
+sed 's/COMPONENT/'${COMPONENT}'/g' persistent-volumes.yaml \
+    | sed 's/NODEIX/'1'/g' \
+    | sed 's/NODENAME/'${arr[0]}'/g' \
+    | kubectl $CMD -f -
+
 COMPONENT=cassandra
 counter=0    
 for NODE in $NODES

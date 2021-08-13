@@ -21,6 +21,6 @@ echo "-- Create Sub-Network ${NETWORK_ID}-subnet-1 --"
 gcloud compute --project=$PROJECT_ID networks subnets create ${NETWORK_ID}-subnet-1 --network=kube-net-1 --region=$REGION_ID --range=10.10.10.0/24 --enable-private-ip-google-access
 
 echo "-- Create Firewall Rule --"
-gcloud compute --project=$PROJECT_ID firewall-rules create ${NETWORK_ID}-fw-1 --network ${NETWORK_ID} --allow tcp:80,tcp:22,tcp:32100,icmp --source-ranges 0.0.0.0/0
+gcloud compute --project=$PROJECT_ID firewall-rules create ${NETWORK_ID}-fw-1 --network ${NETWORK_ID} --allow tcp:80,tcp:81,tcp:22,tcp:32100,tcp:16686,tcp:9090,tcp:5601,tcp:15672,icmp --source-ranges 0.0.0.0/0
 
 echo "-- Done --"
