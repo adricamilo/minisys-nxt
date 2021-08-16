@@ -16,7 +16,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: rabbitmq-1
+  name: data-pods-rabbitmq
   labels:
     app: rabbitmq
 spec:

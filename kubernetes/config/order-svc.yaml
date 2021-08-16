@@ -11,18 +11,18 @@ spec:
       port: 80
       targetPort: 8080
   selector:
-    app: order-svc-nodes
+    app: order-svc-pods
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-svc-nodes
+  name: app-pods-order-svc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order-svc-nodes
+      app: order-svc-pods
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -31,7 +31,7 @@ spec:
   template:
     metadata:
       labels:
-        app: order-svc-nodes
+        app: order-svc-pods
     spec:
       initContainers:
       - name: wait-for-postgres
@@ -97,7 +97,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: order-svc-nodes
+    name: order-svc-pods
   minReplicas: 1
   maxReplicas: 2
   targetCPUUtilizationPercentage: 70

@@ -11,18 +11,18 @@ spec:
       port: 80
       targetPort: 8080
   selector:
-    app: product-svc-nodes
+    app: product-svc-pods
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-svc-nodes
+  name: app-pods-product-svc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: product-svc-nodes
+      app: product-svc-pods
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -31,7 +31,7 @@ spec:
   template:
     metadata:
       labels:
-        app: product-svc-nodes
+        app: product-svc-pods
     spec:
       initContainers:
       - name: wait-for-cassandra
@@ -87,7 +87,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: product-svc-nodes
+    name: product-svc-pods
   minReplicas: 1
   maxReplicas: 2
   targetCPUUtilizationPercentage: 70

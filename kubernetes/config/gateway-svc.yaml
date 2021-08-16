@@ -11,18 +11,18 @@ spec:
       port: 80
       targetPort: 8080
   selector:
-    app: gateway-svc-nodes
+    app: gateway-svc-pods
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gateway-svc-nodes
+  name: app-pods-gateway-svc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gateway-svc-nodes
+      app: gateway-svc-pods
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -31,7 +31,7 @@ spec:
   template:
     metadata:
       labels:
-        app: gateway-svc-nodes
+        app: gateway-svc-pods
     spec:
       containers:
       - name: gateway-svc-cont
@@ -80,7 +80,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: gateway-svc-nodes
+    name: gateway-svc-pods
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 70

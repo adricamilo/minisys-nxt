@@ -48,6 +48,7 @@ services:
     environment:
       - "discovery.type=single-node"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "xpack.security.enabled=false"
     expose:
       - "9200"
     ports:
@@ -85,6 +86,7 @@ services:
     ports:
       - "24224:24224"
     volumes:
+      - ${PWD}/fluentd/fluent.conf:/fluentd/etc/fluent.conf
       - fluentd-logs-1:/fluentd/log
     depends_on:
       - "elasticsearch"
@@ -155,16 +157,18 @@ services:
       - "jaeger-collector"
 
   prometheus:
-    build:
-      context: ./prometheus
-      dockerfile: Dockerfile
-    image: ntw/prometheus
+    image: prom/prometheus
     container_name: prometheus-1
     hostname: prometheus-1
     networks:
       - mynet1
     ports:
       - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    volumes:
+      - ${PWD}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${PWD}/prometheus/rules.yml:/etc/prometheus/rules.yml
     restart: unless-stopped
 
   es-exporter:

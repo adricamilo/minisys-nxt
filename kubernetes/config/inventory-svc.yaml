@@ -11,18 +11,18 @@ spec:
       port: 80
       targetPort: 8080
   selector:
-    app: inventory-svc-nodes
+    app: inventory-svc-pods
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: inventory-svc-nodes
+  name: app-pods-inventory-svc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: inventory-svc-nodes
+      app: inventory-svc-pods
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -31,7 +31,7 @@ spec:
   template:
     metadata:
       labels:
-        app: inventory-svc-nodes
+        app: inventory-svc-pods
     spec:
       initContainers:
       - name: wait-for-postgres
@@ -97,7 +97,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: inventory-svc-nodes
+    name: inventory-svc-pods
   minReplicas: 1
   maxReplicas: 2
   targetCPUUtilizationPercentage: 70

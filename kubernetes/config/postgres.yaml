@@ -9,18 +9,29 @@ spec:
   clusterIP: None
   ports:
     - port: 5432
-      name: default
+      name: postgres
+    - port: 9187
+      name: prometheus
   selector:
     app: postgres
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: postgres-1
+  name: data-pods-postgres
   labels:
     app: postgres
 spec:
   containers:
+    - name: prometheus-pg-exporter
+      image: prometheuscommunity/postgres-exporter
+      ports:
+        - name: prometheus
+          containerPort: 9187
+      env:
+        - name: DATA_SOURCE_NAME
+          value: "postgresql://postgres:postgres@postgres:5432/oms?sslmode=disable"
+      
     - name: postgres-1
       image: IMAGE_REGISTRY_PATH/postgres:REVISION_ID
       imagePullPolicy: Always

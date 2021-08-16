@@ -12,19 +12,19 @@ spec:
       targetPort: 80
       nodePort: 32100
   selector:
-    app: web-app-nodes
+    app: web-app-pods
 #  type: LoadBalancer
   type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-app-nodes
+  name: app-pods-web-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web-app-nodes
+      app: web-app-pods
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -33,7 +33,7 @@ spec:
   template:
     metadata:
       labels:
-        app: web-app-nodes
+        app: web-app-pods
     spec:
       containers:
       - name: web-app-static-cont
@@ -98,7 +98,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: web-app-nodes
+    name: web-app-pods
   minReplicas: 1
   maxReplicas: 2
   targetCPUUtilizationPercentage: 70

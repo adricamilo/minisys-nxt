@@ -11,18 +11,18 @@ spec:
       port: 80
       targetPort: 8080
   selector:
-    app: auth-svc-nodes
+    app: auth-svc-pods
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-svc-nodes
+  name: app-pods-auth-svc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth-svc-nodes
+      app: auth-svc-pods
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -31,7 +31,7 @@ spec:
   template:
     metadata:
       labels:
-        app: auth-svc-nodes
+        app: auth-svc-pods
     spec:
       initContainers:
       - name: wait-for-cassandra
@@ -89,7 +89,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: auth-svc-nodes
+    name: auth-svc-pods
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 70

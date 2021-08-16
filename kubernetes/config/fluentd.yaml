@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: fluentd
+  name: logging-pods-fluentd
   labels:
     app: fluentd
 spec:
@@ -15,12 +15,18 @@ spec:
     spec:
       containers:
       - name: fluentd
-        image: IMAGE_REGISTRY_PATH/fluentd-kubernetes:REVISION_ID
+        image: IMAGE_REGISTRY_PATH/fluentd:REVISION_ID
         volumeMounts:
           - name: log-volume
             mountPath: /var/log
+          - name: config-volume
+            mountPath: /fluentd/etc/fluent.conf
+            subPath: fluent.conf
       volumes:
         - name: log-volume
           hostPath:
             path: /var/log
             type: Directory
+        - name: config-volume
+          configMap:
+            name: fluent-config

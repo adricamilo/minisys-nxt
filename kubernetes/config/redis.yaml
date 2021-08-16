@@ -16,16 +16,25 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: redis-1
+  name: data-pods-redis
   labels:
     app: redis
 spec:
   containers:
+    - name: prometheus-redis-exporter
+      image: oliver006/redis_exporter
+      ports:
+        - name: prometheus
+          containerPort: 9121
+      env:
+        - name: REDIS_ADDR
+          value: "redis://redis:6379"
     - name: redis-1
       image: IMAGE_REGISTRY_PATH/redis:REVISION_ID
       imagePullPolicy: Always
       ports:
-        - protocol: TCP
+        - name: redis
+          protocol: TCP
           containerPort: 6379
       readinessProbe:
         exec:
