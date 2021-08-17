@@ -172,11 +172,11 @@ data:
         scrape_interval: 5s
         static_configs:
           - targets:
-            - es-exporter:9114
-            - pg-exporter:9187
+            - elasticsearch:9114
+            - postgres:9187
             - cassandra:7070
             - rabbitmq:15692
-            - redis-exporter:9121 
+            - redis:9121 
     rule_files:
       - rules.yml
   rules.yml: |

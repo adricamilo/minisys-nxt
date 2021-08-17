@@ -69,6 +69,18 @@ spec:
         claimName: local-disk-elasticsearch-claim
 
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: local-disk-elasticsearch-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
 apiVersion: v1
 kind: Service
 metadata:

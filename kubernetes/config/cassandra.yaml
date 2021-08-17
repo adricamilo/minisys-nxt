@@ -56,14 +56,10 @@ spec:
               value: 512M
           volumeMounts:
             - mountPath: "/var/lib/cassandra"
-              name: cassandra-storage
-#      volumes:
-#        - name: cassandra-storage
-#          persistentVolumeClaim:
-#            claimName: local-disk-pv-claim
+              name: cassandra-storage-claim
   volumeClaimTemplates:
   - metadata:
-      name: cassandra-storage
+      name: cassandra-storage-claim
     spec:
       accessModes: 
         - ReadWriteOnce

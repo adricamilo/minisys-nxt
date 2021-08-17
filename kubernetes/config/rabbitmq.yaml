@@ -8,8 +8,14 @@ metadata:
 spec:
   clusterIP: None
   ports:
-    - port: 5672
-      name: default
+    - name: rabbitmq
+      port: 5672
+    - name: ui
+      port: 15672
+      targetPort: 15672
+    - name: exporter
+      port: 15692
+      targetPort: 15692
   selector:
     app: rabbitmq
 ---
@@ -22,7 +28,7 @@ metadata:
 spec:
   containers:
     - name: rabbitmq-1
-      image: IMAGE_REGISTRY_PATH/rabbitmq:REVISION_ID
+      image: rabbitmq:management
       imagePullPolicy: Always
       ports:
         - protocol: TCP
@@ -40,3 +46,15 @@ spec:
     - name: rabbitmq-storage
       persistentVolumeClaim:
         claimName: local-disk-rabbitmq-claim
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: local-disk-rabbitmq-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

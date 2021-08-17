@@ -17,7 +17,8 @@ declare -a arr=("config-map" "secrets-map" \
 			     "cassandra" "postgres" \
 			     "gateway-svc" "admin-svc" \
 			     "auth-svc" "product-svc" "order-svc" "inventory-svc" \
-			     "web-app" "elasticsearch" "fluentd" "jaeger" "prometheus")
+			     "web-app" "redis" "rabbitmq" \
+			     "elasticsearch" "fluentd" "jaeger" "prometheus")
 
 cd ./config
 

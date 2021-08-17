@@ -67,3 +67,15 @@ spec:
     - name: postgres-storage
       persistentVolumeClaim:
         claimName: local-disk-postgres-claim
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: local-disk-postgres-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

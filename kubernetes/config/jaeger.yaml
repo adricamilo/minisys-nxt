@@ -99,10 +99,15 @@ metadata:
     app: jaeger-query
 spec:
   ports:
-    - protocol: TCP
+    - name: ui
+      protocol: TCP
       port: 16686
       targetPort: 16686
       nodePort: 32102
+    - name: exporter
+      protocol: TCP
+      port: 16687
+      targetPort: 16687
   selector:
     app: jaeger-query
   type: NodePort
