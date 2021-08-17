@@ -33,7 +33,7 @@ spec:
         app: jaeger-agent
     spec:
       containers:
-      - name: jaeger-agent
+      - name: jaeger-agent-cont
         image: jaegertracing/jaeger-agent:REVISION_ID
         ports:
           - protocol: TCP

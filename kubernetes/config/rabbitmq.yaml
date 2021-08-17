@@ -27,7 +27,7 @@ metadata:
     app: rabbitmq
 spec:
   containers:
-    - name: rabbitmq-1
+    - name: rabbitmq-cont
       image: rabbitmq:management
       imagePullPolicy: Always
       ports:

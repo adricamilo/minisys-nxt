@@ -14,7 +14,7 @@ spec:
         app: fluentd
     spec:
       containers:
-      - name: fluentd
+      - name: fluentd-cont
         image: IMAGE_REGISTRY_PATH/fluentd:REVISION_ID
         volumeMounts:
           - name: log-volume

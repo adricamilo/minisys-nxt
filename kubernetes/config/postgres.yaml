@@ -32,7 +32,7 @@ spec:
         - name: DATA_SOURCE_NAME
           value: "postgresql://postgres:postgres@postgres:5432/oms?sslmode=disable"
       
-    - name: postgres-1
+    - name: postgres-cont
       image: IMAGE_REGISTRY_PATH/postgres:REVISION_ID
       imagePullPolicy: Always
       ports:

@@ -31,7 +31,7 @@ spec:
         app: cassandra
     spec:
       containers:
-        - name: cassandra
+        - name: cassandra-cont
           image: IMAGE_REGISTRY_PATH/cassandra:REVISION_ID
           imagePullPolicy: Always
           ports:
