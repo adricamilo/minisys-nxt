@@ -466,13 +466,9 @@ def get_service_status(request):
     else:
         # if my_req.status_code == 200:
         my_res += my_req.content.decode()
-        if request.GET['page'] == 'setup':
-            return render(request, 'app/setup.html', {'message': '<pre>'+my_res+'</pre>'})
-        return render(request, 'app/admin.html',{'message': '<pre>'+my_res+'</pre>'})
+        return render(request, 'app/setup.html', {'hostname':settings.HOSTNAME, 'message': '<pre>'+my_res+'</pre>'})
     my_res = my_res + '<br/><strong>' + res_error + '</strong>'
-    if request.GET['page'] == 'setup':
-        return render(request, 'app/setup.html', {'message': my_res})
-    return render(request, 'app/admin.html', {'message': my_res})
+    return render(request, 'app/setup.html', {'hostname':settings.HOSTNAME, 'message': my_res})
 
 
 def get_registry(request):
@@ -523,7 +519,7 @@ def get_inventory_table(request):
 
     if req.status_code == 200:
         logger.info('inventory fetched | context=%s', req.content.decode())
-        return render(request, 'app/db/inventory.html', {'inventoryList': req.json()})
+        return render(request, 'app/admin.html', {'message': '<pre>'+json.dumps(req.json(), indent = 2)+'</pre>'})
     logger.error('Unable to fetch inventory from service | userId=%s', get_user(request))
     return HttpResponse("Unable to get inventory")
 
@@ -548,7 +544,7 @@ def get_user_auth_table(request):
 
     if req.status_code == 200:
         logger.info('inventory fetched | context=%s', req.content.decode())
-        return render(request, 'app/db/auth.html', {'authList': req.json()})
+        return render(request, 'app/admin.html', {'message': '<pre>'+json.dumps(req.json(), indent = 2)+'</pre>'})
     logger.error('Unable to fetch auth data from service | userId=%s', get_user(request))
     return HttpResponse("Unable to get auth data")
 
