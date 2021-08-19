@@ -7,7 +7,7 @@
         <!-- --------- Product Grid ----------------------  -->
         <div class="row">
             <div style="text-align:center; padding:2em 0">
-                <h3>Products</h3>
+                <h1>Products</h1>
             </div>
             <div class="col-xs-12">
                 <div class="well">
@@ -15,12 +15,13 @@
                         {% for product in products %}
                         <div class="col-sm-6 col-md-4">
                             <div class="thumbnail product-thumbnail">
-                                <a href="{% url 'views.product' %}?id={{product.id}}"><img src="{{imageUrl}}" alt="product name"></a>
-                                <div class="caption">
+                                <a href="{% url 'views.product' %}?id={{product.id}}"><img src="{{product.imageUrl}}" alt="product name">
+                                <div class="product-caption">
                                     <h3>{{product.name}}</h3>
                                     <p id="name">{{product.id}}</p>
-                                    <h3>&#x20b9 {{product.price}}</h3>
+                                    <h3>{{product.price}} &#36;</h3>
                                 </div>
+                                </a>
                             </div>
                         </div>
                         {% endfor %}

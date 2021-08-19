@@ -8,6 +8,29 @@ and open the template in the editor.
     Author     : anurag
 */
 
+.product-image-large img {
+    width: auto;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+}
 .product-thumbnail {
-    height:26em;
+    height:30em;
+}
+.product-thumbnail a {
+    text-decoration: none
+}
+.product-thumbnail a img {
+    padding-top: 1em;
+    max-height: 18em;
+}
+.product-caption {
+    padding: 1em;
+    color: black;
+}
+.product-caption h3 {
+    font-size: 1.2em;
+}
+.product-caption p {
+    font-size: 1em;
 }

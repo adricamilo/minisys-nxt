@@ -92,12 +92,6 @@ services:
       - "elasticsearch"
     restart: unless-stopped
 
-  fluentd-k8s:
-    build:
-      context: ./fluentd
-      dockerfile: Dockerfile.k8s
-    image: ntw/fluentd-k8s
-    container_name: fluentd-k8s-1
 
   jaeger-agent:
     image: jaegertracing/jaeger-agent

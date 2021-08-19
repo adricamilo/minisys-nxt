@@ -34,7 +34,7 @@ ORDER_CARTS_URI = '/orders/order/carts'
 USERS_PROFILE_URI = '/users-profile'
 INVENTORY_URI = '/inventory'
 
-PRODUCT_IMAGE_URL='http://placehold.it/300x150'
+#PRODUCT_IMAGE_URL='http://placehold.it/300x150'
 
 logger = logging.getLogger(__name__)
 session = requests.session()
@@ -75,6 +75,10 @@ def get_product(product_id, access_token):
                        timeout=settings.HTTP_TIMEOUT)
     return req
 
+def get_product_image_url(product_id):
+    postfix_char = product_id[-1]
+    return "https://storage.googleapis.com/minisys/"+postfix_char+".jpeg"
+
 
 def get_cart_id(request):
     return get_user(request)
@@ -113,7 +117,7 @@ def decorate_cart(cart, access_token):
         req = get_product(cart_line['productId'], access_token)
         if req.status_code == 200:
             cart_line['product'] = req.json()
-            cart_line['product']['imageUrl'] = PRODUCT_IMAGE_URL
+            cart_line['product']['imageUrl'] = get_product_image_url(cart_line['productId'])
         else:
             logger.error('Unable to get product from service | productId=%s', cart_line['productId'])
     return cart
@@ -124,7 +128,7 @@ def decorate_order(order, access_token):
         req = get_product(order_line['productId'], access_token)
         if req.status_code == 200:
             order_line['product'] = req.json()
-            order_line['product']['imageUrl'] = PRODUCT_IMAGE_URL
+            order_line['product']['imageUrl'] = get_product_image_url(order_line['productId'])
         else:
             logger.error('Unable to get product from service | productId=%s', order_line['productId'])
     return order
@@ -258,7 +262,10 @@ def products(request):
 
     if req.status_code == 200:
         logger.info('Products fetched | context=%s', req.content.decode())
-        return render(request, 'app/products.html', {'products': req.json(), 'imageUrl': PRODUCT_IMAGE_URL})
+        products = req.json()
+        for product in products:
+            product['imageUrl'] = get_product_image_url(product['id'])
+        return render(request, 'app/products.html', {'products': products})
     logger.error('Unable to fetch products from service | userId=%s', get_user(request))
     return HttpResponse("Unable to get products")
 
@@ -270,13 +277,15 @@ def product(request):
     req = get_product(product_id, access_token)
     if req.status_code == 200:
         logger.info('Product fetched | context=%s', req.content.decode())
+        product = req.json()
+        product['imageUrl'] = get_product_image_url(product_id)
         cart_id = get_cart_id(request)
         in_cart = is_product_in_cart(cart_id, product_id, access_token)
         remove_button_visibility = 'hidden'
         if in_cart:
             remove_button_visibility = 'visible'
         return render(request, 'app/product.html',
-                      {'product': req.json(),
+                      {'product': product,
                        'removeButtonVisibility': remove_button_visibility})
     logger.error('Unable to get product from service | productId=%s', product_id)
     return HttpResponse("Unable to get product")

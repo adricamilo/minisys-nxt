@@ -9,7 +9,7 @@
                 <!-- --------- Product Grid ----------------------  -->
                 <div class="row">
                     <div  class="col-xs-12 col-sm-6">
-                        <h3>Order</h3>
+                        <h1>Order</h1>
                     </div>
                     <div class="col-xs-12">
                         <h3><a class="label label-primary" href="/order?id={{ order.id }}">{{ order.id }}</a></h3>
@@ -20,13 +20,15 @@
                                     <div class="thumbnail product-thumbnail">
                                         <a href="{% url 'views.product' %}?id={{orderLine.product.id}}">
                                             <img src="{{orderLine.product.imageUrl}}" alt="product name"></a>
-                                        <div class="caption">
+                                        <div class="product-caption">
                                             <h3 id="name">Product: {{orderLine.productId}}</h3>
-                                            <h3>Price: &#x20b9 {{orderLine.product.price}}</h3>
+                                            <h3>Price: {{orderLine.product.price}} &#36;</h3>
                                             <p>Qty: {{orderLine.quantity}}</p>
-                                            <p>Status: {{ order.status }}</p>
-                                            <p>Date: {{ order.createdDate }}</p>
                                         </div>
+                                    </div>
+                                    <div>
+                                        <p>Status: {{ order.status }}</p>
+                                        <p>Created Date: {{ order.createdDate }}</p>
                                     </div>
                                 </div>
                                 {% endfor %}

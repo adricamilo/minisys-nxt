@@ -1,13 +1,15 @@
 {% extends "app/base.html" %}
 {% block content %}
 
+        <link rel="stylesheet" type="text/css" href="/static/css/products.css">
+
         <div class="container">
             <div class="row">
-                <div class="col-xs-12 col-md-5">
-                    <img style="width:100%" src="http://placehold.it/400x500"><img>
+                <div class="col-xs-12 col-md-5 product-image-large">
+                    <img style="width:100%" src="{{ product.imageUrl }}"><img>
                 </div>
                 <div class="col-xs-12 col-md-7">
-                    <h1>{{product.name}}</h1>
+                    <h2>{{product.name}}</h2>
                     <p>{{product.name}}, internationally acclaimed textbook provides a comprehensive introduction to the
                         modern study of computer algorithms. It covers a broad range of algorithms in depth, yet makes
                         their design and analysis accessible to all levels of readers. Each chapter is relatively
@@ -16,7 +18,7 @@
                         done a little programming. The explanations have been kept elementary without sacrificing depth
                         of coverage or mathematical rigor. </p>
                     <div class="form-horizontal">
-                        <h3>&#x20b9 {{product.price}}</h3>
+                        <h3>{{product.price}} &#36;</h3>
                         <div class="form-group">
                             <div class="selectContainer" style="padding:1em">
                                 <select  class="form-control" id="qtyAdd{{product.id}}">

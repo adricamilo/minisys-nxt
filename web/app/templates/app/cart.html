@@ -1,13 +1,13 @@
 {% extends "app/base.html" %}
 {% block content %}
 
-    <!--link rel="stylesheet" type="text/css" href="/static/css/cart.css"-->
+    <link rel="stylesheet" type="text/css" href="/static/css/products.css">
 
     <div class="container">
         <!-- --------- Product Grid ----------------------  -->
         <div class="row">
             <div style="text-align:center;padding: 1em;">
-                <h3>Cart</h3>
+                <h1>Cart</h1>
             </div>
             {% if cart.cartLines %}
             <div id="product-grid">
@@ -16,10 +16,10 @@
                     <div class="thumbnail product-thumbnail">
                         <a href="{% url 'views.product' %}?id={{cartLine.product.id}}">
                             <img src="{{cartLine.product.imageUrl}}" alt="product name"></a>
-                        <div class="caption">
-                            <h3 id="name">{{cartLine.productId}}</h3>
-                            <p>{{cartLine.quantity}}</p>
-                            <h3>&#x20b9 {{cartLine.product.price}}</h3>
+                        <div class="product-caption">
+                            <h3 id="name">Product: {{cartLine.product.name}}</h3>
+                            <p>Qty: {{cartLine.quantity}}</p>
+                            <h3>Price: {{cartLine.product.price}} &#36;</h3>
                         </div>
                     </div>
                 </div>
