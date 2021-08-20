@@ -16,6 +16,8 @@
 
 package com.ntw.oms.admin.db;
 
+import com.ntw.common.status.DatabaseStatus;
+import com.ntw.common.status.ServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,26 +69,28 @@ public class DBAdminMgr {
         return null;
     }
 
-    public String getDBStatus(String dbType) {
+    public DatabaseStatus getDBStatus(String dbType) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
-
-        StringBuilder sb = new StringBuilder();
+        String db = dbType.equals("SQL") ? "Postgres" : dbType.equals("CQL") ?
+                "Cassandra" : "Unknown";
+        DatabaseStatus dbStatus = new DatabaseStatus(db);
         DBAdmin dbAdmin = getDBAdmin(dbType);
         if (manageDB(dbType) && dbAdmin != null) {
             try {
                 Date dateTime = dbAdmin.getDateTime();
                 cal.setTime(dateTime);
                 logger.debug("Fetched data from DB = {}", dateFormat.format(cal.getTime()));
-                sb.append(dbType).append(" DB Time: ").append(dateFormat.format(cal.getTime()));
+                dbStatus.setDatabaseTime(dateFormat.format(cal.getTime()));
             } catch (Exception e) {
                 logger.error("Unable to fetch data from {} DB", dbType);
-                sb.append(dbType).append(" DB is not reachable");
-                return sb.toString();
+                dbStatus.setDatabaseTime("DB not reachable");
+                return dbStatus;
             }
-            return sb.toString();
+            return dbStatus;
         }
-        return sb.append(dbType).append(" DB is not configured").toString();
+        dbStatus.setDatabaseTime("DB not Configured");
+        return dbStatus;
     }
 
 }

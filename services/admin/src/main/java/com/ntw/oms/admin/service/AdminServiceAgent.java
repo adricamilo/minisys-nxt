@@ -14,34 +14,57 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.oms.order.service;
+package com.ntw.oms.admin.service;
 
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
+import com.ntw.common.status.DatabaseStatus;
+import com.ntw.common.status.ServiceAgent;
 import com.ntw.common.status.ServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
- * Created by anurag on 24/03/17.
+ * Created by anurag on 23/05/19.
  */
-
 @RestController
-public class ServiceAgent {
+public class AdminServiceAgent extends ServiceAgent {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
+    private static final Logger logger = LoggerFactory.getLogger(AdminServiceAgent.class);
 
-    @GetMapping(path= AppConfig.STATUS_PATH, produces= MediaType.APPLICATION_JSON_VALUE)
+    @Autowired
+    private AdminServiceImpl adminServiceBean;
+
+    @GetMapping(path = AppConfig.STATUS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getServiceStatus() {
         logger.debug("Status request received");
-        String cartSvcStatus = ServiceStatus.getServiceStatus(ServiceID.CartSvc);
-        String orderSvcStatus = ServiceStatus.getServiceStatus(ServiceID.OrderSvc);
-        String status = new StringBuilder(cartSvcStatus).append("\n").append(orderSvcStatus).toString();
+        ServiceStatus status = getServiceStatus(ServiceID.AdminSvc);
         logger.debug("Status request response is {}",status);
+        return ResponseEntity.ok().body(status.toJson());
+    }
+
+    @GetMapping(path = AppConfig.SERVICE_STATUS_PATH,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ServiceStatus>> getServicesStatus() {
+        logger.debug("System status request received");
+        List<ServiceStatus> status = adminServiceBean.getServicesStatus();
+        logger.debug("System status request response is {}",status);
+        return ResponseEntity.ok().body(status);
+    }
+
+    @GetMapping(path = AppConfig.DB_STATUS_PATH,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<DatabaseStatus>> getDBStatus() {
+        logger.debug("System status request received");
+        List<DatabaseStatus> status = adminServiceBean.getDBStatus();
+        logger.debug("System status request response is {}",status);
         return ResponseEntity.ok().body(status);
     }
 

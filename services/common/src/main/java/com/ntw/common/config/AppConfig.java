@@ -22,6 +22,8 @@ package com.ntw.common.config;
 public class AppConfig {
 
     public static final String STATUS_PATH = "/status";
+    public static final String SERVICE_STATUS_PATH = "/service/status";
+    public static final String DB_STATUS_PATH = "/database/status";
     public static final String SYS_PROPERTY_PATH = "/property/{name}";
 
     public static final String ADMIN_RESOURCE_PATH = "/admin";

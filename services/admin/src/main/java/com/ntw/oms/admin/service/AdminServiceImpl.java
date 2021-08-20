@@ -16,11 +16,14 @@
 
 package com.ntw.oms.admin.service;
 
-import com.ntw.common.config.ServiceID;
+import com.ntw.common.status.DatabaseStatus;
 import com.ntw.common.status.ServiceStatus;
 import com.ntw.oms.admin.db.DBAdminMgr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by anurag on 23/05/19.
@@ -49,21 +52,17 @@ public class AdminServiceImpl {
         return success;
     }
 
-    public String getDBStatus() {
-        StringBuilder statusBuilder = new StringBuilder();
-        String cqlStatus = adminDBMgr.getDBStatus("CQL");
-        statusBuilder.append(cqlStatus).append("<br/>\n");
-        String sqlStatus = adminDBMgr.getDBStatus("SQL");
-        statusBuilder.append(sqlStatus).append("<br/>\n");
-        return statusBuilder.toString();
+    public List<DatabaseStatus> getDBStatus() {
+        List<DatabaseStatus> serviceStatusList = new LinkedList<>();
+        DatabaseStatus cqlStatus = adminDBMgr.getDBStatus("CQL");
+        serviceStatusList.add(cqlStatus);
+        DatabaseStatus sqlStatus = adminDBMgr.getDBStatus("SQL");
+        serviceStatusList.add(sqlStatus);
+        return serviceStatusList;
     }
 
-    public String getSystemStatus() {
-        String serviceStatus = apiDataManager.getServiceStatus();
-        StringBuilder statusBuilder = new StringBuilder(serviceStatus);
-        String dbStatus = getDBStatus();
-        statusBuilder.append(dbStatus);
-        return statusBuilder.toString();
+    public List<ServiceStatus> getServicesStatus() {
+        return apiDataManager.getServicesStatus();
     }
 
 }

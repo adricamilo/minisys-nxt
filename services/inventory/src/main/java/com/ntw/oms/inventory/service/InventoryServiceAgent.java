@@ -14,8 +14,9 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.oms.gateway;
+package com.ntw.oms.inventory.service;
 
+import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
 import com.ntw.common.status.ServiceAgent;
 import com.ntw.common.status.ServiceStatus;
@@ -27,17 +28,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Created by anurag on 21/08/19.
+ * Created by anurag on 24/03/17.
  */
 @RestController
-public class LocalRequestHandler {
+public class InventoryServiceAgent extends ServiceAgent {
 
-    private static final Logger logger = LoggerFactory.getLogger(LocalRequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(InventoryServiceAgent.class);
 
-    @GetMapping(path = "/status", produces = MediaType.TEXT_PLAIN_VALUE)
-    private static ResponseEntity<ServiceStatus> getServiceStatus() {
+    @GetMapping(path= AppConfig.STATUS_PATH, produces= MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ServiceStatus> getServiceStatus() {
         logger.debug("Status request received");
-        ServiceStatus status = ServiceAgent.getServiceStatus(ServiceID.GatewaySvc);
+        ServiceStatus status = getServiceStatus(ServiceID.InventorySvc);
         logger.debug("Status request response is {}",status);
         return ResponseEntity.ok().body(status);
     }

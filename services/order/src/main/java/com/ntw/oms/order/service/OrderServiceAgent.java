@@ -14,43 +14,34 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.oms.admin.service;
+package com.ntw.oms.order.service;
 
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
+import com.ntw.common.status.ServiceAgent;
 import com.ntw.common.status.ServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Created by anurag on 23/05/19.
+ * Created by anurag on 24/03/17.
  */
+
 @RestController
-public class ServiceAgent {
+public class OrderServiceAgent extends ServiceAgent {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceAgent.class);
 
-    @Autowired
-    private AdminServiceImpl adminServiceBean;
-
-    @GetMapping(path = AppConfig.STATUS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getServiceStatus() {
+    @GetMapping(path= AppConfig.STATUS_PATH, produces= MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ServiceStatus> getServiceStatus() {
         logger.debug("Status request received");
-        String status = ServiceStatus.getServiceStatus(ServiceID.AdminSvc);
+        ServiceStatus status = getServiceStatus(ServiceID.OrderSvc);
         logger.debug("Status request response is {}",status);
-        return ResponseEntity.ok().body(status);
-    }
-
-    @GetMapping(path = AppConfig.ADMIN_RESOURCE_PATH + AppConfig.STATUS_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getSystemStatus() {
-        logger.debug("System status request received");
-        String status = adminServiceBean.getSystemStatus();
-        logger.debug("System status request response is {}",status);
         return ResponseEntity.ok().body(status);
     }
 

@@ -435,40 +435,55 @@ def delete_test_data(request):
 
 def get_status(request):
     logger.debug('Get Web Status')
-    my_res = 'Web Host: ' + settings.HOSTNAME + '\n'
-    my_res += 'Time: ' + time.ctime(time.time()) + '\n'
-    return HttpResponse(my_res)
+    status = { 'serviceId': 'WebApp', 'serviceHost': settings.HOSTNAME,
+               'serviceTime': time.ctime(time.time()) }
+    return HttpResponse(json.dumps(status, indent=2))
 
 
 def get_service_status(request):
-    logger.debug('Get System Status')
-    my_res = 'WebApp@' + settings.HOSTNAME + '\n'
-    my_res += 'Time: ' + time.ctime(time.time()) + '\n\n'
+    logger.debug('Get Services Status')
+    status = [{ 'serviceId': 'WebApp', 'serviceHost': settings.HOSTNAME,
+               'serviceTime': time.ctime(time.time()) }]
     try:
-        my_req = session.get(settings.ADMIN_ENDPOINT + ADMIN_URI + '/status',
+        req = session.get(settings.ADMIN_ENDPOINT + '/service/status',
                             timeout=settings.HTTP_TIMEOUT)
-        my_req.raise_for_status()
+        req.raise_for_status()
     except HTTPError as http_error:
         print("Http Error:", http_error)
         logger.error("HTTPError communicating with the backend server for get status")
-        res_error = 'HTTP Error '+str(my_req.status_code)+' communicating with the backend server.'
-    except ConnectionError as conn_error:
-        print("Error Connecting:", conn_error)
-        logger.error("Error communicating with a backend server for get status")
+        res_error = 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'
+    except Exception as exception:
+        print("Exception connecting:", exception)
+        logger.error("Exception communicating with a backend server for get status")
         res_error = 'Unable to connect to the backend'
-    except Timeout as time_error:
-        print("Timeout Error:", time_error)
-        logger.error("Timeout communicating with a backend server for get status")
-        res_error = 'Timeout communicating with the backend server'
-    except RequestException as req_error:
-        print("OOps: Something went wrong. Try again.", req_error)
-        res_error = 'Unknown request error with the backend server'
     else:
-        # if my_req.status_code == 200:
-        my_res += my_req.content.decode()
-        return render(request, 'app/setup.html', {'hostname':settings.HOSTNAME, 'message': '<pre>'+my_res+'</pre>'})
-    my_res = my_res + '<br/><strong>' + res_error + '</strong>'
-    return render(request, 'app/setup.html', {'hostname':settings.HOSTNAME, 'message': my_res})
+        # if req.status_code == 200:
+        for statusEl in req.json():
+            status.append(statusEl)
+        return render(request, 'app/setup.html', {'message': '<pre>'+json.dumps(status, indent=4)+'</pre>'})
+    res = '<br/><strong>' + res_error + '</strong>'
+    return render(request, 'app/setup.html', {'message': res})
+
+
+def get_database_status(request):
+    logger.debug('Get Database Status')
+    try:
+        req = session.get(settings.ADMIN_ENDPOINT + '/database/status',
+                          timeout=settings.HTTP_TIMEOUT)
+        req.raise_for_status()
+    except HTTPError as http_error:
+        print("Http Error:", http_error)
+        logger.error("HTTPError communicating with the backend server for get status")
+        res_error = 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.'
+    except Exception as exception:
+        print("Exception connecting:", exception)
+        logger.error("Exception communicating with a backend server for get status")
+        res_error = 'Unable to connect to the backend'
+    else:
+        # if req.status_code == 200:
+        return render(request, 'app/setup.html', {'message': '<pre>' + json.dumps(req.json(), indent=4) + '</pre>'})
+    res = '<br/><strong>' + res_error + '</strong>'
+    return render(request, 'app/setup.html', {'message': res})
 
 
 def get_registry(request):

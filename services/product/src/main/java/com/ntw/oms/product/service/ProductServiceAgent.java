@@ -14,41 +14,34 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.auth.service;
+package com.ntw.oms.product.service;
 
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
+import com.ntw.common.status.ServiceAgent;
 import com.ntw.common.status.ServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Created by anurag on 17/03/17.
+ * Created by anurag on 24/03/17.
  */
 
-/**
- * AuthService provides rest interface for authentication and authorization
- */
 @RestController
-public class ServiceAgent {
+public class ProductServiceAgent extends ServiceAgent {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProductServiceAgent.class);
 
-    @GetMapping(path= AppConfig.STATUS_PATH,
-        produces= MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getServiceStatus() {
+    @GetMapping(path = AppConfig.STATUS_PATH, produces = "application/json")
+    public ResponseEntity<ServiceStatus> getServiceStatus() {
         logger.debug("Status request received");
-        String cartSvcStatus = ServiceStatus.getServiceStatus(ServiceID.AuthSvc);
-        String orderSvcStatus = ServiceStatus.getServiceStatus(ServiceID.UserProfileSvc);
-        String status = new StringBuilder(cartSvcStatus).append("\n").append(orderSvcStatus).toString();
+        ServiceStatus status = getServiceStatus(ServiceID.ProductSvc);
         logger.debug("Status request response is {}",status);
-        return ResponseEntity.ok(status);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
 }

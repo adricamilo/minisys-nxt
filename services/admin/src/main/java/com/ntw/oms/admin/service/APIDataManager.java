@@ -17,6 +17,7 @@
 package com.ntw.oms.admin.service;
 
 import com.ntw.common.config.ServiceID;
+import com.ntw.common.status.ServiceStatus;
 import com.ntw.oms.admin.api.ApiClient;
 import com.ntw.oms.admin.api.ApiClientFactory;
 import org.slf4j.Logger;
@@ -111,26 +112,26 @@ public class APIDataManager {
         return success;
     }
 
-    public String getServiceStatus() {
-        StringBuilder serviceStatusBuilder = new StringBuilder();
+    public List<ServiceStatus> getServicesStatus() {
+        List<ServiceStatus> serviceStatusList = new LinkedList<>();
         for (ServiceID serviceID : ServiceID.values()) {
             ApiClient apiClient = apiClientFactory.createApiClient(serviceID, "");
             if (serviceID == ServiceID.AdminSvc || serviceID == ServiceID.CartSvc
                     || serviceID == ServiceID.UserProfileSvc)
                 continue;
-            String serviceStatus = null;
+            ServiceStatus serviceStatus = null;
             try {
                 serviceStatus = apiClient.getStatus();
             } catch (Exception e) {
                 logger.info("Service {} not reachable");
             }
             if (serviceStatus == null) {
-                serviceStatus = serviceID.toString() + " - Not Reachable";
+                serviceStatus = new ServiceStatus(serviceID.toString());
+                serviceStatus.setServiceHost("Not Reachable");
             }
-            serviceStatusBuilder.append(serviceStatus);
-            serviceStatusBuilder.append("<br/>\n");
+            serviceStatusList.add(serviceStatus);
         }
-        return serviceStatusBuilder.toString();
+        return serviceStatusList;
     }
 
 }

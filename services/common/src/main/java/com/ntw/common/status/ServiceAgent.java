@@ -14,36 +14,43 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.oms.product.service;
+package com.ntw.common.status;
 
-import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
-import com.ntw.common.status.ServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
- * Created by anurag on 24/03/17.
+ * Created by anurag on 28/06/19.
  */
-
-@RestController
 public class ServiceAgent {
 
+    private static String HOSTNAME = "UNKNOWN";
     private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
 
-    @GetMapping(path = AppConfig.STATUS_PATH, produces = "application/json")
-    public ResponseEntity<String> getServiceStatus() {
-        logger.debug("Status request received");
-        String status = ServiceStatus.getServiceStatus(ServiceID.ProductSvc);
-        logger.debug("Status request response is {}",status);
-        return new ResponseEntity<String>(status, HttpStatus.OK);
+    static {
+        try {
+            HOSTNAME = InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            logger.error("Unable to get Hostname");
+            logger.error(e.getMessage(),e);
+        }
+    }
+
+    public static ServiceStatus getServiceStatus(ServiceID serviceID) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
+        ServiceStatus status = new ServiceStatus(serviceID.toString());
+        status.setServiceHost(HOSTNAME);
+        status.setServiceTime(dateFormat.format(cal.getTime()));
+        return status;
     }
 
 }

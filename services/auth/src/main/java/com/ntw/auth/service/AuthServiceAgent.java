@@ -14,34 +14,38 @@
 // limitations under the License.                                           //
 //////////////////////////////////////////////////////////////////////////////
 
-package com.ntw.oms.inventory.service;
+package com.ntw.auth.service;
 
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
+import com.ntw.common.status.ServiceAgent;
 import com.ntw.common.status.ServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Created by anurag on 24/03/17.
+ * Created by anurag on 17/03/17.
+ */
+
+/**
+ * AuthService provides rest interface for authentication and authorization
  */
 @RestController
-public class ServiceAgent {
+public class AuthServiceAgent extends ServiceAgent {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceAgent.class);
 
-    @GetMapping(path= AppConfig.STATUS_PATH, produces= MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getServiceStatus() {
+    @GetMapping(path= AppConfig.STATUS_PATH,
+        produces= MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ServiceStatus> getServiceStatus() {
         logger.debug("Status request received");
-        String status = ServiceStatus.getServiceStatus(ServiceID.InventorySvc);
+        ServiceStatus status = getServiceStatus(ServiceID.AuthSvc);
         logger.debug("Status request response is {}",status);
-        return ResponseEntity.ok().body(status);
+        return ResponseEntity.ok(status);
     }
 
 }

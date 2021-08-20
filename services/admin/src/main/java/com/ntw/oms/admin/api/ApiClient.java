@@ -18,8 +18,10 @@ package com.ntw.oms.admin.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
+import com.ntw.common.status.ServiceStatus;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,7 +132,7 @@ public abstract class ApiClient {
         return true;
     }
 
-    public String getStatus() {
+    public ServiceStatus getStatus() {
         ServiceInstance instance = loadBalancer.choose(getEndpointServiceID().toString());
         String host = instance.getHost();
         int port = instance.getPort();
@@ -139,10 +141,10 @@ public abstract class ApiClient {
             HttpClientResponse response = client.sendGet(host, port, uri, authHeader, "");
             logger.info("Status code: {} and body: {}",
                     response.getStatus(), response.getBody());
-            return response.getBody();
+            String status = response.getBody();
+            return (new Gson()).fromJson(status, ServiceStatus.class);
         } catch (Exception e) {
-            logger.error("Error fetching server status");
-            logger.error(e.getMessage(),e);
+            logger.error("Error fetching server status: {}", e.getMessage());
             return null;
         }
     }

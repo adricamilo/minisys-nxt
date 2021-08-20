@@ -18,7 +18,7 @@ package com.ntw.oms.cart.service;
 
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
-import com.ntw.common.status.ServiceStatus;
+import com.ntw.common.status.ServiceAgent;
 import com.ntw.oms.cart.entity.Cart;
 import com.ntw.common.entity.Role;
 import com.ntw.common.security.Secured;
@@ -136,13 +136,13 @@ public class CartService {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
-    @GetMapping(path= AppConfig.STATUS_PATH, produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getServiceStatus() {
-        logger.info("Status request received");
-        String status = ServiceStatus.getServiceStatus(ServiceID.CartSvc);
-        logger.info("Status request response is {}",status);
-        return ResponseEntity.ok(status);
-    }
+//    @GetMapping(path= AppConfig.STATUS_PATH, produces=MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity getServiceStatus() {
+//        logger.info("Status request received");
+//        String status = ServiceAgent.getServiceStatus(ServiceID.CartSvc);
+//        logger.info("Status request response is {}",status);
+//        return ResponseEntity.ok(status);
+//    }
 
     private String getUser() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
