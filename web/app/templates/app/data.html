@@ -8,13 +8,13 @@
   </style>
 
 <div class="container">
-    <h3 style="text-align:center;margin: 1em 0 2em 0;">Admin Dashboard</h3>
+    <h3 style="text-align:center;margin: 1em 0 2em 0;">Data Dashboard</h3>
 
     <div class="row">
 
         <div class="col-md-3">
 
-            <div style="padding:1em 0">
+            <div>
                 <ul class="list-group">
                     <li class="list-group-item">
                         <a href="/deleteTestData">Delete All Data</a>
@@ -34,10 +34,16 @@
                         </form>
                     </li>
                     <li class="list-group-item">
-                        <a href="/userAuthTable">User Auth Data</a>
+                        <a href="/tableData?table=auth">User Auth Data</a>
                     </li>
                     <li class="list-group-item">
-                        <a href="/inventoryTable">Inventory Data</a>
+                        <a href="/tableData?table=product">Product Data</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/tableData?table=inventory">Inventory Data</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/tableData?table=order">Order Data</a>
                     </li>
                 </ul>
             </div>

@@ -50,7 +50,7 @@ public class AdminServiceAgent extends ServiceAgent {
         return ResponseEntity.ok().body(status.toJson());
     }
 
-    @GetMapping(path = AppConfig.SERVICE_STATUS_PATH,
+    @GetMapping(path = AppConfig.ADMIN_RESOURCE_PATH + AppConfig.SERVICE_STATUS_PATH,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ServiceStatus>> getServicesStatus() {
         logger.debug("System status request received");
@@ -59,7 +59,7 @@ public class AdminServiceAgent extends ServiceAgent {
         return ResponseEntity.ok().body(status);
     }
 
-    @GetMapping(path = AppConfig.DB_STATUS_PATH,
+    @GetMapping(path = AppConfig.ADMIN_RESOURCE_PATH + AppConfig.DB_STATUS_PATH,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<DatabaseStatus>> getDBStatus() {
         logger.debug("System status request received");

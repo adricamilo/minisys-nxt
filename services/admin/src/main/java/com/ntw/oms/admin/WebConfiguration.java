@@ -34,11 +34,11 @@ public class WebConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(new AuthenticationInterceptor())
                 .order(1)
                 .addPathPatterns(AppConfig.ADMIN_RESOURCE_PATH +"/**")
-                .excludePathPatterns("/admin/status");
+                .excludePathPatterns("/admin/status/**");
 
         registry.addInterceptor(new AuthorizationInterceptor())
                 .order(2)
                 .addPathPatterns(AppConfig.ADMIN_RESOURCE_PATH +"/**")
-                .excludePathPatterns("/admin/status");
+                .excludePathPatterns("/admin/status/**");
     }
 }

@@ -10,9 +10,13 @@ public class ServiceStatus implements Serializable {
     private String serviceTime;
 
     public ServiceStatus() {
+        this.serviceId = "Uninitialized";
+        this.serviceHost = "Not Attempted";
+        this.serviceTime = "Not Attempted";
     }
 
     public ServiceStatus(String serviceId) {
+        this();
         this.serviceId = serviceId;
     }
 

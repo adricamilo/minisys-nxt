@@ -33,8 +33,8 @@ ORDERS_URI = '/orders'
 ORDER_CARTS_URI = '/orders/order/carts'
 USERS_PROFILE_URI = '/users-profile'
 INVENTORY_URI = '/inventory'
-
-#PRODUCT_IMAGE_URL='http://placehold.it/300x150'
+STATUS_SERVICES = '/status/services'
+STATUS_DATABASES = '/status/databases'
 
 logger = logging.getLogger(__name__)
 session = requests.session()
@@ -211,15 +211,15 @@ def logout(request):
     return response
 
 
-def admin_page(request):
+def data_page(request):
     access_token = get_access_token(request)
     if access_token:
-        return render(request, 'app/admin.html', {'message': ''})
+        return render(request, 'app/data.html', {'message': ''})
     return render(request, 'app/error.html',
                   {'message': 'Please login as Admin to access this page'})
 
-def setup_page(request):
-    return render(request, 'app/setup.html', {'message': ''})
+def monitoring_page(request):
+    return render(request, 'app/monitor.html', {'message': ''})
 
 
 def profile(request):
@@ -402,10 +402,10 @@ def create_test_data(request):
 
         if req.status_code == 200:
             logger.info('Sample data created')
-            return render(request, 'app/admin.html', {'message': 'Success - Created Test Data'})
+            return render(request, 'app/data.html', {'message': 'Success - Created Test Data'})
         logger.error('Unable to create test data')
-        return render(request, 'app/admin.html', {'message': 'Failure - Unable to create test data'})
-    return render(request, 'app/admin.html', {'message': 'Specify data counts as positive integer values'})
+        return render(request, 'app/data.html', {'message': 'Failure - Unable to create test data'})
+    return render(request, 'app/data.html', {'message': 'Specify data counts as positive integer values'})
 
 
 def delete_test_data(request):
@@ -428,9 +428,9 @@ def delete_test_data(request):
 
     if req.status_code == 200:
         logger.debug('Sample data created')
-        return render(request, 'app/admin.html', {'message': 'Success - Deleted Test Data'})
+        return render(request, 'app/data.html', {'message': 'Success - Deleted Test Data'})
     logger.error('Unable to delete test data')
-    return render(request, 'app/admin.html', {'message': 'Failure - Unable to delete test data'})
+    return render(request, 'app/data.html', {'message': 'Failure - Unable to delete test data'})
 
 
 def get_status(request):
@@ -440,13 +440,22 @@ def get_status(request):
     return HttpResponse(json.dumps(status, indent=2))
 
 
-def get_service_status(request):
-    logger.debug('Get Services Status')
-    status = [{ 'serviceId': 'WebApp', 'serviceHost': settings.HOSTNAME,
-               'serviceTime': time.ctime(time.time()) }]
+def get_system_status(request):
+    logger.debug('Get System Status')
+    if request.GET['layer'] == 'services':
+        url = settings.ADMIN_ENDPOINT + ADMIN_URI + STATUS_SERVICES
+    elif request.GET['layer'] == 'databases':
+        url = settings.ADMIN_ENDPOINT + ADMIN_URI + STATUS_DATABASES
+    elif request.GET['layer'] == 'web':
+        status = [{'serviceId': 'WebApp', 'serviceHost': settings.HOSTNAME,
+                   'serviceTime': time.ctime(time.time())}]
+        return render(request, 'app/monitor.html',
+                      {'message': '<pre>' + json.dumps(status, indent=4) + '</pre>'})
+    else:
+        return HttpResponse("Unknown table")
+
     try:
-        req = session.get(settings.ADMIN_ENDPOINT + '/service/status',
-                            timeout=settings.HTTP_TIMEOUT)
+        req = session.get(url, timeout=settings.HTTP_TIMEOUT)
         req.raise_for_status()
     except HTTPError as http_error:
         print("Http Error:", http_error)
@@ -458,32 +467,9 @@ def get_service_status(request):
         res_error = 'Unable to connect to the backend'
     else:
         # if req.status_code == 200:
-        for statusEl in req.json():
-            status.append(statusEl)
-        return render(request, 'app/setup.html', {'message': '<pre>'+json.dumps(status, indent=4)+'</pre>'})
+        return render(request, 'app/monitor.html', {'message': '<pre>' + json.dumps(req.json(), indent=4) + '</pre>'})
     res = '<br/><strong>' + res_error + '</strong>'
-    return render(request, 'app/setup.html', {'message': res})
-
-
-def get_database_status(request):
-    logger.debug('Get Database Status')
-    try:
-        req = session.get(settings.ADMIN_ENDPOINT + '/database/status',
-                          timeout=settings.HTTP_TIMEOUT)
-        req.raise_for_status()
-    except HTTPError as http_error:
-        print("Http Error:", http_error)
-        logger.error("HTTPError communicating with the backend server for get status")
-        res_error = 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.'
-    except Exception as exception:
-        print("Exception connecting:", exception)
-        logger.error("Exception communicating with a backend server for get status")
-        res_error = 'Unable to connect to the backend'
-    else:
-        # if req.status_code == 200:
-        return render(request, 'app/setup.html', {'message': '<pre>' + json.dumps(req.json(), indent=4) + '</pre>'})
-    res = '<br/><strong>' + res_error + '</strong>'
-    return render(request, 'app/setup.html', {'message': res})
+    return render(request, 'app/monitor.html', {'message': res})
 
 
 def get_registry(request):
@@ -510,57 +496,39 @@ def get_registry(request):
         my_res = ''
         for application in applications:
             my_res += '\n'+json.dumps(application, indent=4)+'\n'
-        return render(request, 'app/admin.html',{'message': '<pre>'+my_res+'</pre>'})
+        return render(request, 'app/monitor.html',{'message': '<pre>'+my_res+'</pre>'})
     logger.error('Unable to get registry status')
-    return HttpResponse('Unable to get registry status')
+    return render(request, 'app/monitor.html', {'message': 'Registry not configured or not reachable'})
 
 
-def get_inventory_table(request):
-    logger.debug('Get Inventory Table')
+def get_table_data(request):
+    logger.debug('Get table data for '+request.GET['table'])
     access_token = get_access_token(request)
+    if request.GET['table'] == 'inventory':
+        url = settings.INVENTORY_ENDPOINT + INVENTORY_URI
+    elif request.GET['table'] == 'auth':
+        url = settings.AUTH_ENDPOINT + AUTH_USERS_URI
+    elif request.GET['table'] == 'product':
+        url = settings.PRODUCT_ENDPOINT + PRODUCTS_URI
+    elif request.GET['table'] == 'order':
+        url = settings.ORDER_ENDPOINT + ORDERS_URI
+    else:
+        return HttpResponse("Unknown table")
+
     try:
-        req = session.get(settings.INVENTORY_ENDPOINT + INVENTORY_URI,
-                           headers={'Authorization': 'Bearer '+access_token},
-                           timeout=settings.HTTP_TIMEOUT)
+        req = session.get(url, headers={'Authorization': 'Bearer '+access_token}, timeout=settings.HTTP_TIMEOUT)
         req.raise_for_status()
     except HTTPError as http_error:
-        logger.error("HTTPError communicating with the backend server for get inventory")
+        logger.error("HTTPError communicating with the backend server for get table data")
         return render(request, 'app/error.html',
                       {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
     except Exception as e:
-        logger.error("Error communicating with a backend server for get inventory")
+        logger.error("Error communicating with the backend server for get table data")
         return render(request, 'app/error.html',
                       {'message': 'Unable to connect to the backend.'})
 
     if req.status_code == 200:
         logger.info('inventory fetched | context=%s', req.content.decode())
-        return render(request, 'app/admin.html', {'message': '<pre>'+json.dumps(req.json(), indent = 2)+'</pre>'})
-    logger.error('Unable to fetch inventory from service | userId=%s', get_user(request))
-    return HttpResponse("Unable to get inventory")
-
-
-def get_user_auth_table(request):
-    logger.debug('Get User Auth Table')
-    access_token = get_access_token(request)
-    try:
-        req = session.get(settings.AUTH_ENDPOINT + AUTH_USERS_URI,
-                           headers={'Authorization': 'Bearer '+access_token},
-                           timeout=settings.HTTP_TIMEOUT)
-        req.raise_for_status()
-    except HTTPError as http_error:
-        print("Http Error:", http_error)
-        logger.error("HTTPError communicating with the backend server for get user auth")
-        return render(request, 'app/error.html',
-                      {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
-    except Exception as e:
-        logger.error("Error communicating with a backend server")
-        return render(request, 'app/error.html',
-                      {'message': 'Unable to connect to the backend.'})
-
-    if req.status_code == 200:
-        logger.info('inventory fetched | context=%s', req.content.decode())
-        return render(request, 'app/admin.html', {'message': '<pre>'+json.dumps(req.json(), indent = 2)+'</pre>'})
-    logger.error('Unable to fetch auth data from service | userId=%s', get_user(request))
-    return HttpResponse("Unable to get auth data")
-
-
+        return render(request, 'app/data.html', {'message': '<pre>'+json.dumps(req.json(), indent = 2)+'</pre>'})
+    logger.error('Unable to fetch table data for table %s', request.GET['table'])
+    return HttpResponse("Unable to get table data")
