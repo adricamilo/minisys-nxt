@@ -487,8 +487,7 @@ def get_registry(request):
     except Exception as exception:
         print("Error Connecting:", exception)
         logger.error("Error communicating with a backend server")
-        return render(request, 'app/error.html',
-                      {'message': 'Unable to connect to the backend.'})
+        return render(request, 'app/monitor.html', {'message': 'Registry not configured or not reachable'})
 
     if req.status_code == 200:
         res = json.loads(req.content)
