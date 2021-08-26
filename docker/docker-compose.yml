@@ -21,19 +21,19 @@ networks:
     name: mynet1
 
 volumes:
-  elasticsearch-data-1:
+  elasticsearch-data:
     driver: local
-  fluentd-logs-1:
+  fluentd-logs:
     driver: local
-  cassandra-data-1:
+  cassandra-data:
     driver: local
-  cassandra-logs-1:
+  cassandra-logs:
     driver: local
-  postgres-data-1:
+  postgres-data:
     driver: local
-  postgres-logs-1:
+  postgres-logs:
     driver: local
-  rabbitmq-data-1:
+  rabbitmq-data:
     driver: local
   app-logs:
     driver: local
@@ -43,8 +43,8 @@ services:
 
   elasticsearch:
     image: elasticsearch:7.13.2
-    container_name: elasticsearch-1
-    hostname: elasticsearch-1
+    container_name: elasticsearch
+    hostname: elasticsearch
     environment:
       - "discovery.type=single-node"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -56,19 +56,19 @@ services:
     networks:
       - mynet1
     volumes:
-      - elasticsearch-data-1:/usr/share/elasticsearch/data
+      - elasticsearch-data:/usr/share/elasticsearch/data
     restart: unless-stopped
 
   kibana:
     image: kibana:7.13.2
-    container_name: kibana-1
-    hostname: kibana-1
+    container_name: kibana
+    hostname: kibana
     ports:
       - "5601:5601"
     networks:
       - mynet1
     environment:
-      - ELASTICSEARCH_HOSTS="http://elasticsearch-1:9200"
+      - ELASTICSEARCH_HOSTS="http://elasticsearch:9200"
     restart: unless-stopped
     depends_on:
       - "elasticsearch"
@@ -79,15 +79,15 @@ services:
       context: ./fluentd
       dockerfile: Dockerfile
     image: ntw/fluentd
-    container_name: fluentd-1
-    hostname: fluentd-1
+    container_name: fluentd
+    hostname: fluentd
     networks:
       - mynet1
     ports:
       - "24224:24224"
     volumes:
       - ${PWD}/fluentd/fluent.conf:/fluentd/etc/fluent.conf
-      - fluentd-logs-1:/fluentd/log
+      - fluentd-logs:/fluentd/log
     depends_on:
       - "elasticsearch"
     restart: unless-stopped
@@ -95,8 +95,8 @@ services:
 
   jaeger-agent:
     image: jaegertracing/jaeger-agent
-    container_name: jaeger-agent-1
-    hostname: jaegar-agent-1
+    container_name: jaeger-agent
+    hostname: jaegar-agent
     networks:
       - mynet1
     ports:
@@ -104,15 +104,15 @@ services:
       - "14271:14271"
     environment:
       - SPAN_STORAGE_TYPE=elasticsearch
-    command: ["--reporter.grpc.host-port=jaeger-collector-1:14250"]
+    command: ["--reporter.grpc.host-port=jaeger-collector:14250"]
     restart: unless-stopped
     depends_on:
       - "jaeger-collector"
 
   jaeger-collector:
     image: jaegertracing/jaeger-collector
-    container_name: jaeger-collector-1
-    hostname: jaegar-collector-1
+    container_name: jaeger-collector
+    hostname: jaegar-collector
     networks:
       - mynet1
     ports:
@@ -120,9 +120,9 @@ services:
       - "14269:14269"
     environment:
       - SPAN_STORAGE_TYPE=elasticsearch
-#      - ES_SERVER_URLS="elasticsearch-1:9200"
+#      - ES_SERVER_URLS="elasticsearch:9200"
     command: [
-      "--es.server-urls=http://elasticsearch-1:9200",
+      "--es.server-urls=http://elasticsearch:9200",
       "--es.num-shards=1",
       "--es.num-replicas=0",
       "--log-level=error"
@@ -131,8 +131,8 @@ services:
     
   jaeger-query:
     image: jaegertracing/jaeger-query
-    container_name: jaeger-query-1
-    hostname: jaeger-query-1
+    container_name: jaeger-query
+    hostname: jaeger-query
     networks:
       - mynet1
     ports:
@@ -142,7 +142,7 @@ services:
     environment:
       - SPAN_STORAGE_TYPE=elasticsearch
     command: [
-      "--es.server-urls=http://elasticsearch-1:9200",
+      "--es.server-urls=http://elasticsearch:9200",
       "--span-storage.type=elasticsearch",
       "--log-level=debug"
     ]
@@ -152,8 +152,8 @@ services:
 
   prometheus:
     image: prom/prometheus
-    container_name: prometheus-1
-    hostname: prometheus-1
+    container_name: prometheus
+    hostname: prometheus
     networks:
       - mynet1
     ports:
@@ -167,48 +167,38 @@ services:
 
   es-exporter:
     image: prometheuscommunity/elasticsearch-exporter
-    container_name: es-exporter-1
-    hostname: es-exporter-1
+    container_name: es-exporter
+    hostname: es-exporter
     networks:
       - mynet1
     ports:
       - "9114:9114"
     command:
-      - '--es.uri=http://elasticsearch-1:9200'
+      - '--es.uri=http://elasticsearch:9200'
     restart: unless-stopped
 
   pg-exporter:
     image: prometheuscommunity/postgres-exporter
-    container_name: pg-exporter-1
-    hostname: pg-exporter-1
+    container_name: pg-exporter
+    hostname: pg-exporter
     networks:
       - mynet1
     ports:
       - "9187:9187"
     environment:
-      - DATA_SOURCE_NAME=postgresql://postgres:postgres@postgres-1:5432/oms?sslmode=disable
+      - DATA_SOURCE_NAME=postgresql://postgres:postgres@postgres:5432/oms?sslmode=disable
     restart: unless-stopped
 
   redis-exporter:
     image: oliver006/redis_exporter
-    container_name: redis-exporter-1
-    hostname: redis-exporter-1
+    container_name: redis-exporter
+    hostname: redis-exporter
     networks:
       - mynet1
     ports:
       - "9121:9121"
     environment:
-      - REDIS_ADDR=redis://redis-1:6379
-    restart: unless-stopped
-
-  grafana:
-    image: grafana/grafana
-    container_name: grafana-1
-    hostname: grafana-1
-    networks:
-      - mynet1
-    ports:
-      - "3000:3000"
+      - REDIS_ADDR=redis://redis:6379
     restart: unless-stopped
 
   postgres:
@@ -216,8 +206,8 @@ services:
       context: ./postgres
       dockerfile: Dockerfile
     image: ntw/postgres
-    container_name: postgres-1
-    hostname: postgres-1
+    container_name: postgres
+    hostname: postgres
     networks:
       - mynet1
     ports:
@@ -226,8 +216,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - postgres-logs-1:/var/log/postgresql
-      - postgres-data-1:/var/lib/postgresql/data
+      - postgres-logs:/var/log/postgresql
+      - postgres-data:/var/lib/postgresql/data
     command: postgres -c shared_buffers=128MB -c max_connections=50
 
 
@@ -236,8 +226,8 @@ services:
       context: ./cassandra
       dockerfile: Dockerfile
     image: ntw/cassandra
-    container_name: cassandra-1
-    hostname: cassandra-1
+    container_name: cassandra
+    hostname: cassandra
     networks:
       - mynet1
     ports:
@@ -245,17 +235,17 @@ services:
       - "7070:7070"
     environment:
       - JVM_OPTS=-Xms512M -Xmx1024M
-      - SCHEMA_SEED_INSTANCE=cassandra-1
+      - SCHEMA_SEED_INSTANCE=cassandra
     volumes:
-      - cassandra-logs-1:/var/log/cassandra
-      - cassandra-data-1:/var/lib/cassandra
+      - cassandra-logs:/var/log/cassandra
+      - cassandra-data:/var/lib/cassandra
     entrypoint: /docker-entrypoint-second.sh
 
 
   rabbitmq:
     image: rabbitmq:management
-    container_name: rabbitmq-1
-    hostname: rabbitmq-1
+    container_name: rabbitmq
+    hostname: rabbitmq
     networks:
       - mynet1
     ports:
@@ -263,12 +253,12 @@ services:
       - "15672:15672"
       - "15692:15692"
     volumes:
-      - rabbitmq-data-1:/var/lib/rabbitmq"
+      - rabbitmq-data:/var/lib/rabbitmq"
 
   redis:
     image: redis
-    container_name: redis-1
-    hostname: redis-1
+    container_name: redis
+    hostname: redis
     networks:
       - mynet1
     ports:
@@ -280,8 +270,8 @@ services:
       context: ./eureka
       dockerfile: Dockerfile
     image: ntw/eureka
-    container_name: eureka-1
-    hostname: eureka-1
+    container_name: eureka
+    hostname: eureka
     networks:
       - mynet1
     ports:
@@ -308,7 +298,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      - SERVER_HOSTS=web-1
+      - SERVER_HOSTS=web
       - SERVER_PORT=8000
       - USE_SSL=false
     volumes:
@@ -328,7 +318,7 @@ services:
     ports:
       - "81:80"
     environment:
-      - SERVER_HOSTS=gateway-svc-1
+      - SERVER_HOSTS=gateway-svc
       - SERVER_PORT=8080
     volumes:
       - app-logs:/var/log/oms
@@ -341,8 +331,8 @@ services:
       context: ./web
       dockerfile: Dockerfile
     image: ntw/web
-    container_name: web-1
-    hostname: web-1
+    container_name: web
+    hostname: web
     networks:
       - mynet1
     ports:
@@ -355,7 +345,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: web-1
+        tag: web
     depends_on:
       - "fluentd"
 
@@ -370,8 +360,8 @@ services:
 
   gateway-svc:
     image: ntw/services
-    container_name: gateway-svc-1
-    hostname: gateway-svc-1
+    container_name: gateway-svc
+    hostname: gateway-svc
     networks:
       - mynet1
     ports:
@@ -379,7 +369,7 @@ services:
       - "6000:6005"
     env_file: .env
     environment:
-      - eureka.instance.hostname=gateway-svc-1
+      - eureka.instance.hostname=gateway-svc
       - server.threadPool.threads.maximum=20
     volumes:
       - app-logs:/var/log/oms
@@ -388,14 +378,14 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc-1
+        tag: gateway-svc
     depends_on:
       - "fluentd"
 
   admin-svc:
     image: ntw/services
-    container_name: admin-svc-1
-    hostname: admin-svc-1
+    container_name: admin-svc
+    hostname: admin-svc
     networks:
       - mynet1
     ports:
@@ -403,7 +393,7 @@ services:
       - "6001:6005"
     env_file: .env 
     environment:
-      - eureka.instance.hostname=admin-svc-1
+      - eureka.instance.hostname=admin-svc
     volumes:
       - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh admin
@@ -411,14 +401,14 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: admin-svc-1
+        tag: admin-svc
     depends_on:
       - "fluentd"
 
   auth-svc:
     image: ntw/services
-    container_name: auth-svc-1
-    hostname: auth-svc-1
+    container_name: auth-svc
+    hostname: auth-svc
     networks:
       - mynet1
     ports:
@@ -426,7 +416,7 @@ services:
       - "6002:6005"
     env_file: .env 
     environment:
-      - eureka.instance.hostname=auth-svc-1
+      - eureka.instance.hostname=auth-svc
     volumes:
       - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh auth
@@ -434,14 +424,14 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: auth-svc-1
+        tag: auth-svc
     depends_on:
       - "fluentd"
 
   product-svc:
     image: ntw/services
-    container_name: product-svc-1
-    hostname: product-svc-1
+    container_name: product-svc
+    hostname: product-svc
     networks:
       - mynet1
     ports:
@@ -449,7 +439,7 @@ services:
       - "6003:6005"
     env_file: .env 
     environment:
-      - eureka.instance.hostname=product-svc-1
+      - eureka.instance.hostname=product-svc
     volumes:
       - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh product
@@ -457,14 +447,14 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: product-svc-1
+        tag: product-svc
     depends_on:
       - "fluentd"
 
   order-svc:
     image: ntw/services
-    container_name: order-svc-1
-    hostname: order-svc-1
+    container_name: order-svc
+    hostname: order-svc
     networks:
       - mynet1
     ports:
@@ -472,7 +462,7 @@ services:
       - "6004:6005"
     env_file: .env 
     environment:
-      - eureka.instance.hostname=order-svc-1
+      - eureka.instance.hostname=order-svc
     volumes:
       - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh order
@@ -480,15 +470,15 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: order-svc-1
+        tag: order-svc
     depends_on:
       - "fluentd"
       - "rabbitmq"
 
   inventory-svc:
     image: ntw/services
-    container_name: inventory-svc-1
-    hostname: inventory-svc-1
+    container_name: inventory-svc
+    hostname: inventory-svc
     networks:
       - mynet1
     ports:
@@ -496,7 +486,7 @@ services:
       - "6005:6005"
     env_file: .env 
     environment:
-      - eureka.instance.hostname=inventory-svc-1
+      - eureka.instance.hostname=inventory-svc
     volumes:
       - app-logs:/var/log/oms
     entrypoint: /usr/bin/docker-entrypoint.sh inventory
@@ -504,6 +494,6 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: inventory-svc-1
+        tag: inventory-svc
     depends_on:
       - "fluentd"
