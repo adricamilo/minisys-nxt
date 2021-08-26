@@ -193,6 +193,14 @@ function do_update {
 }
 
 
+############################## Status ####################################
+
+function get_status {
+    cd $OMS_ROOT/docker
+    watch -n 3 docker-compose ps
+}
+
+
 
 ############################## All ####################################
 
@@ -223,8 +231,10 @@ elif [ "$TARGET" == "test" ]; then
     do_test
 elif [ "$TARGET" == "stop" ]; then
     do_stop $2
+elif [ "$TARGET" == "status" ]; then
+    get_status
 else
-    read -p "Do you wish to do complete build: " yn
+    read -p "Do you wish to start all: " yn
     case $yn in
         [Yy]* ) do_all; break;;
         [Nn]* ) exit;;

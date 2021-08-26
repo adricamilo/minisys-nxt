@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'jlk7u+v6mqq$(47=*us23ru^tx$x3sj^+$314htmpperz)a7@b'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.environ.get('DJANGO_DEBUG').lower() == 'true':
+if os.environ.get('DJANGO_DEBUG') is None or os.environ.get('DJANGO_DEBUG').lower() == 'true':
     print("Debug is enabled.")
     DEBUG = True
 else:
@@ -136,7 +136,7 @@ SERVICES_CLIENT_SECRET = os.environ.get('auth.client.secret','secret')
 
 SERVICES_ENDPOINT = 'http://'+SERVICES_HOST+':'+SERVICES_PORT
 
-if os.environ.get('DJANGO_DEBUG').lower() == 'true':
+if os.environ.get('DJANGO_DEBUG') is None or os.environ.get('DJANGO_DEBUG').lower() == 'true':
     ADMIN_ENDPOINT = 'http://localhost:8081'
     AUTH_ENDPOINT = 'http://localhost:8082'
     PRODUCT_ENDPOINT = 'http://localhost:8083'
@@ -152,7 +152,7 @@ else:
 HTTP_TIMEOUT = 20
 HTTP_SAMPLE_DATA_TIMEOUT = 120
 
-LOG_FILE=os.environ.get('PYUI_LOG_FILE','./logs/PyUi.log')
+LOG_FILE=os.environ.get('PYUI_LOG_FILE','./PyUi.log')
 LOG_LEVEL=os.environ.get('PYUI_LOG_LEVEL','INFO')
 
 

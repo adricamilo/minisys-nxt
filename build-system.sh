@@ -187,7 +187,7 @@ elif [ "$TARGET" == "stage" ]; then
 elif [ "$TARGET" == "images" ]; then
     do_images $2
 else
-    read -p "Do you wish to do complete build: " yn
+    read -p "Do you wish to do complete build (y/n): " yn
     case $yn in
         [Yy]* ) do_clean; do_build; do_stage; do_images; break;;
         [Nn]* ) exit;;
