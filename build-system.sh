@@ -138,6 +138,18 @@ function do_stage {
 ############################## Images ####################################
 
 function do_images {
+    echo "-- Check if docker daemon is running --"
+    docker version
+    if [ $? == 0 ]; then
+	echo "Docker daemon installed and running"
+    elif [ $? == 1 ]; then
+	echo "Build failed -- Docker daemon installed but not running"
+	exit -1;
+    else
+	echo "Build failed -- Docker daemon not installed"
+	exit -1;
+    fi
+    
     echo "-- Pull artifacts from Staging to Docker images dir --"
     cd $OMS_ROOT/docker/bin
     ./pull-artifacts.sh
