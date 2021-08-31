@@ -24,13 +24,4 @@ test -d $OMS_DEPLOY/jmeter/image/tests || mkdir -p $OMS_DEPLOY/jmeter/image/test
 test -d $OMS_DEPLOY/ubuntux/image/tests || mkdir -p $OMS_DEPLOY/ubuntux/image/tests && \
 	cp $OMS_STAGING/tests/* $OMS_DEPLOY/ubuntux/image/tests
 
-# echo Copy PySpark files
-# test -d $OMS_DEPLOY/hadoop/image/pyspark || mkdir $OMS_DEPLOY/hadoop/image/pyspark && \
-# 	cp $OMS_STAGING/analytics/pyspark/*.py $OMS_DEPLOY/hadoop/image/pyspark
-
-# echo Copy MapRed jar files
-# test -d $OMS_DEPLOY/hadoop/image/mapred || mkdir $OMS_DEPLOY/hadoop/image/mapred && \
-# 	cp $OMS_STAGING/analytics/mapred/MapRed.jar $OMS_DEPLOY/hadoop/image/mapred && \
-# 	cp -r $OMS_STAGING/analytics/mapred/lib $OMS_DEPLOY/hadoop/image/mapred
-
 echo Done!!

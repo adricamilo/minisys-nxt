@@ -26,16 +26,9 @@ function do_clean {
 	exit -1;
     fi
 
-    cd $OMS_ROOT/analytics/hadoop/mapred
-    mvn clean
-    if [ $? != 0 ]; then
-	echo "Build failed - Clean mapred"
-	exit -1;
-    fi
-
     if [ "$1" == "all" ]; then
 	cd $OMS_ROOT/staging
-	rm -rf services web analytics registry tests
+	rm -rf services web registry tests
 	if [ $? != 0 ]; then
 	    echo "Build failed - Clean staging"
 	    exit -1;
@@ -70,13 +63,6 @@ function do_build {
 
 	do_create_test_data
 	
-	# cd $OMS_ROOT/analytics/hadoop/mapred
-	# mvn clean package -Dmaven.test.skip=true
-	# if [ $? != 0 ]; then
-	# 	echo "Build failed - Build Analytics failed"
-	# 	exit -1;
-	# fi
-
 	do_build_web
     
     else
