@@ -119,16 +119,7 @@ public class APIDataManager {
             if (serviceID == ServiceID.AdminSvc || serviceID == ServiceID.CartSvc
                     || serviceID == ServiceID.UserProfileSvc)
                 continue;
-            ServiceStatus serviceStatus = null;
-            try {
-                serviceStatus = apiClient.getStatus();
-            } catch (Exception e) {
-                logger.info("Service {} not reachable");
-            }
-            if (serviceStatus == null) {
-                serviceStatus = new ServiceStatus(serviceID.toString());
-                serviceStatus.setServiceHost("Not Reachable");
-            }
+            ServiceStatus serviceStatus = apiClient.getStatus();
             serviceStatusList.add(serviceStatus);
         }
         return serviceStatusList;

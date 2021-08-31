@@ -4,12 +4,17 @@ import com.google.gson.Gson;
 
 public class DatabaseStatus {
     private String database;
+    private String connection;
     private String databaseTime;
 
     public DatabaseStatus() {
+        this.database = "Uninitialized";
+        this.connection = "Not Configured";
+        this.databaseTime = "Not Attempted";
     }
 
     public DatabaseStatus(String database) {
+        this();
         this.database = database;
     }
 
@@ -19,6 +24,14 @@ public class DatabaseStatus {
 
     public void setDatabase(String database) {
         this.database = database;
+    }
+
+    public String getConnection() {
+        return connection;
+    }
+
+    public void setConnection(String connection) {
+        this.connection = connection;
     }
 
     public String getDatabaseTime() {
@@ -35,6 +48,10 @@ public class DatabaseStatus {
 
     @Override
     public String toString() {
-        return super.toString();
+        return "{" +
+                "\"database\":" + (database == null ? "null" : "\"" + database + "\"") + ", " +
+                "\"connection\":" + (connection == null ? "null" : "\"" + connection + "\"") + ", " +
+                "\"databaseTime\":" + (databaseTime == null ? "null" : "\"" + databaseTime + "\"") +
+                "}";
     }
 }

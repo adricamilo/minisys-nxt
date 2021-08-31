@@ -77,6 +77,7 @@ public class DBAdminMgr {
         DatabaseStatus dbStatus = new DatabaseStatus(db);
         DBAdmin dbAdmin = getDBAdmin(dbType);
         if (manageDB(dbType) && dbAdmin != null) {
+            dbStatus.setConnection(dbAdmin.getConnection());
             try {
                 Date dateTime = dbAdmin.getDateTime();
                 cal.setTime(dateTime);
@@ -84,12 +85,11 @@ public class DBAdminMgr {
                 dbStatus.setDatabaseTime(dateFormat.format(cal.getTime()));
             } catch (Exception e) {
                 logger.error("Unable to fetch data from {} DB", dbType);
-                dbStatus.setDatabaseTime("DB not reachable");
+                dbStatus.setDatabaseTime("DB not reachable: "+e.getMessage());
                 return dbStatus;
             }
             return dbStatus;
         }
-        dbStatus.setDatabaseTime("DB not Configured");
         return dbStatus;
     }
 

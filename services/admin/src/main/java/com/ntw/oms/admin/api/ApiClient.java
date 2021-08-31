@@ -145,7 +145,10 @@ public abstract class ApiClient {
             return (new Gson()).fromJson(status, ServiceStatus.class);
         } catch (Exception e) {
             logger.error("Error fetching server status: {}", e.getMessage());
-            return null;
+            ServiceStatus serviceStatus = new ServiceStatus(getEndpointServiceID().toString());
+            serviceStatus.setServiceHost(host+":"+port);
+            serviceStatus.setServiceTime("Not Reachable: "+e.getMessage());
+            return serviceStatus;
         }
     }
 
