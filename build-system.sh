@@ -93,7 +93,7 @@ function do_create_test_data {
 
 function do_build_web {
     cd $OMS_ROOT/web
-    ./create-tgz.sh
+    ./create-build.sh
     if [ $? != 0 ]; then
 	echo "Build failed - Create Python UI Zip failed"
 	exit -1;

@@ -169,7 +169,7 @@ function do_update {
     elif [ "$COMPONENT" == "web" ]; then
 
 	cd $OMS_ROOT/web
-	./create-tgz.sh
+	./create-build.sh
 	CONTAINER=web
 	
     else
