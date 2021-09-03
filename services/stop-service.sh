@@ -3,7 +3,7 @@
 echo "Killing"
 if [ "$1" == "all" ]; then
     echo $(jps | grep -e auth.war -e admin.war -e product.war -e order.war -e inventory.war)
-    jps | grep -e auth.war -e admin.war -e product.war -e order.war -e inventory.war | awk '{print $1}' | xargs kill
+    jps | grep -e auth.war -e admin.war -e product.war -e order.war -e inventory.war -e gateway.war | awk '{print $1}' | xargs kill
 elif [ "$1" == "admin" ]; then
     echo $(jps | grep -e admin.war)
     jps | grep -e admin.war | awk '{print $1}' | xargs kill
@@ -19,6 +19,9 @@ elif [ "$1" == "order" ]; then
 elif [ "$1" == "inventory" ]; then
     echo $(jps | grep -e inventory.war)
     jps | grep -e inventory.war | awk '{print $1}' | xargs kill
+elif [ "$1" == "gateway" ]; then
+    echo $(jps | grep -e inventory.war)
+    jps | grep -e gateway.war | awk '{print $1}' | xargs kill
 else
     echo "Incorrect service name"
 fi

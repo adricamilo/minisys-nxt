@@ -19,6 +19,7 @@ package com.ntw.oms.admin.service;
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.entity.Role;
 import com.ntw.common.security.Secured;
+import com.ntw.oms.admin.entity.OperationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,26 +54,30 @@ public class AdminService {
     @PostMapping(path = "/dataset",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<String> createTestData(@RequestParam("userCount") Integer userCount,
+    public ResponseEntity<String> createAppData(@RequestParam("userCount") Integer userCount,
                                                  @RequestParam("productCount") Integer productCount) {
         logger.info("Create test data with userCount={} and productCount={}", userCount, productCount);
-        boolean success = adminServiceBean.createTestData(userCount, productCount, getAuthHeader());
-        if (!success) {
+        OperationStatus operationStatus =
+                adminServiceBean.createAppData(userCount, productCount, getAuthHeader());
+        if (!operationStatus.isSuccess()) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Unable to create test data for all or some tables. Check log.");
+                    .body(operationStatus.getMessage());
         }
         logger.info("Created test data with userCount={} and productCount={}", userCount, productCount);
-        return ResponseEntity.ok().body("Successfully created test data");
+        return ResponseEntity.ok().body(operationStatus.getMessage());
     }
 
 
     @Secured({Role.ADMIN})
     @DeleteMapping(path = "/dataset", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity deleteTestData() {
-        logger.info("Delete test data");
-        boolean success = adminServiceBean.deleteTestData(getAuthHeader());
-        logger.info("Deleted test data");
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> deleteTestData() {
+        logger.info("Delete data");
+        OperationStatus operationStatus = adminServiceBean.deleteAppData(getAuthHeader());
+        logger.info("Deleted data with status={}",operationStatus.toString());
+        if (operationStatus.isSuccess())
+            return ResponseEntity.ok().body(operationStatus.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(operationStatus.getMessage());
     }
 
 }

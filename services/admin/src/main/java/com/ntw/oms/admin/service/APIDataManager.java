@@ -20,6 +20,7 @@ import com.ntw.common.config.ServiceID;
 import com.ntw.common.status.ServiceStatus;
 import com.ntw.oms.admin.api.ApiClient;
 import com.ntw.oms.admin.api.ApiClientFactory;
+import com.ntw.oms.admin.entity.OperationStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class APIDataManager {
     @Value("${GatewaySvc.client.threads.size:10}")
     private int apiThreadPoolSize;
 
-    public boolean createTestData(int userCount, int productCount, String authHeader) {
+    public OperationStatus createAppData(int userCount, int productCount, String authHeader) {
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(apiThreadPoolSize);
         List<DataInsertTask> insertTasks = new LinkedList<>();
         for (ServiceID serviceID : ServiceID.values()) {
@@ -74,42 +75,60 @@ public class APIDataManager {
             e.printStackTrace();
         }
         for (DataInsertTask task : insertTasks) {
-            StringBuilder taskStatus = new StringBuilder();
-            taskStatus.append(task.getApiClient().toString()).append(":").append(task.getIndex())
-                    .append(":").append(task.isSuccess());
-            System.out.println(taskStatus.toString());
+            logger.info(task.getOperationStatus().toString());
+            if (!task.getOperationStatus().isSuccess()) {
+                return task.getOperationStatus();
+            }
         }
-        return true;
+        OperationStatus operationStatus = new OperationStatus(true);
+        operationStatus.setMessage("Inserted all data");
+        return operationStatus;
     }
 
-    public boolean createBootstrapData(String authHeader) {
+    public OperationStatus createBootstrapData(String authHeader) {
         ApiClient apiClient = apiClientFactory.
                 createApiClient(ServiceID.AuthSvc, authHeader);
-        if (!apiClient.insertBootstrapData()) {
+        OperationStatus operationStatus = null;
+        operationStatus = apiClient.insertBootstrapData();
+        if (!operationStatus.isSuccess()) {
             logger.error("Unable to create bootstrap user auth data");
-            return false;
+            return operationStatus;
         }
         apiClient = apiClientFactory.
                 createApiClient(ServiceID.UserProfileSvc, authHeader);
-        if (!apiClient.insertBootstrapData()) {
+        operationStatus = apiClient.insertBootstrapData();
+        if (!operationStatus.isSuccess()) {
             logger.error("Unable to create bootstrap user profile data");
-            return false;
+            return operationStatus;
         }
         logger.info("Created bootstrap data");
-        return true;
+        if (operationStatus == null) {
+            logger.error("Unexpected no operation status");
+            operationStatus = new OperationStatus();
+        }
+        operationStatus.setSuccess(true);
+        operationStatus.setMessage("Deleted data");
+        return operationStatus;
     }
 
-    public boolean deleteTestData(String authHeader) {
-        boolean success = true;
+    public OperationStatus deleteAppData(String authHeader) {
+        OperationStatus operationStatus = null;
         for (ServiceID serviceID : ServiceID.values()) {
             if (serviceID == ServiceID.AdminSvc || serviceID == ServiceID.GatewaySvc)
                 continue;
             ApiClient apiClient = apiClientFactory.createApiClient(serviceID, authHeader);
-            if (! apiClient.deleteData()) {
-                success = false;
+            operationStatus = apiClient.deleteData();
+            if (!operationStatus.isSuccess()) {
+                return operationStatus;
             }
         }
-        return success;
+        if (operationStatus == null) {
+            logger.error("Unexpected no operation status");
+            operationStatus = new OperationStatus();
+        }
+        operationStatus.setSuccess(true);
+        operationStatus.setMessage("Deleted data");
+        return operationStatus;
     }
 
     public List<ServiceStatus> getServicesStatus() {
@@ -131,7 +150,7 @@ class DataInsertTask implements Runnable {
 
     private ApiClient apiClient;
     private int index;
-    private boolean success;
+    private OperationStatus operationStatus;
 
     public DataInsertTask(ApiClient apiClient, int index) {
         this.apiClient = apiClient;
@@ -139,7 +158,8 @@ class DataInsertTask implements Runnable {
     }
 
     public void run() {
-        success = apiClient.insertData(index);
+        operationStatus = apiClient.insertData(index);
+        setOperationStatus(operationStatus);
     }
 
     public ApiClient getApiClient() {
@@ -150,7 +170,11 @@ class DataInsertTask implements Runnable {
         return index;
     }
 
-    public boolean isSuccess() {
-        return success;
+    private void setOperationStatus(OperationStatus operationStatus) {
+        this.operationStatus = operationStatus;
+    }
+
+    public OperationStatus getOperationStatus() {
+        return operationStatus;
     }
 }

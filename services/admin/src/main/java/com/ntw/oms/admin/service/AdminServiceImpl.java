@@ -19,6 +19,7 @@ package com.ntw.oms.admin.service;
 import com.ntw.common.status.DatabaseStatus;
 import com.ntw.common.status.ServiceStatus;
 import com.ntw.oms.admin.db.DBAdminMgr;
+import com.ntw.oms.admin.entity.OperationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,19 +38,22 @@ public class AdminServiceImpl {
     @Autowired
     private APIDataManager apiDataManager;
 
-    public boolean createTestData(int userCount, int productCount, String authHeader) {
-        return apiDataManager.createTestData(userCount, productCount, authHeader);
+    public OperationStatus createAppData(int userCount, int productCount, String authHeader) {
+        return apiDataManager.createAppData(userCount, productCount, authHeader);
     }
 
-    public boolean deleteTestData(String authHeader) {
+    public OperationStatus deleteAppData(String authHeader) {
         boolean success = true;
-        if (!apiDataManager.deleteTestData(authHeader)) {
-            success = false;
+        OperationStatus deleteOperationStatus;
+        deleteOperationStatus = apiDataManager.deleteAppData(authHeader);
+        OperationStatus operationStatus = apiDataManager.createBootstrapData(authHeader);
+        if (!operationStatus.isSuccess()) {
+            return operationStatus;
         }
-        if (!apiDataManager.createBootstrapData(authHeader)) {
-            success = false;
+        if (!deleteOperationStatus.isSuccess()) {
+            return deleteOperationStatus;
         }
-        return success;
+        return operationStatus;
     }
 
     public List<DatabaseStatus> getDBStatus() {

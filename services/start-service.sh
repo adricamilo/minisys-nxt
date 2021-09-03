@@ -17,11 +17,14 @@ function start_service {
 }
 
 if [ "$1" == "all" ]; then
+    start_service gateway 8080 6000
     start_service admin 8081 6001
     start_service auth 8082 6002
     start_service product 8083 6003
     start_service order 8084 6004
     start_service inventory 8085 6005
+elif [ "$1" == "gateway" ]; then
+    start_service gateway 8080 6000
 elif [ "$1" == "admin" ]; then
     start_service admin 8081 6001
 elif [ "$1" == "auth" ]; then

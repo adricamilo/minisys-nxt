@@ -18,6 +18,7 @@ package com.ntw.oms.admin.api;
 
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
+import com.ntw.oms.admin.entity.OperationStatus;
 import com.ntw.oms.admin.entity.UserAuth;
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,12 +27,15 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class UserAuthApiClient extends ApiClient {
 
-    public boolean insertBootstrapData() {
-        if (!insertData("admin", createAdminUserAuth("admin")))
-            return false;
-        if (!insertData("john", createUserAuth("john")))
-            return false;
-        return true;
+    public OperationStatus insertBootstrapData() {
+        OperationStatus operationStatus = insertData("admin", createAdminUserAuth("admin"));
+        if (!operationStatus.isSuccess())
+            return operationStatus;
+        operationStatus = insertData("john", createUserAuth("john"));
+        if (!operationStatus.isSuccess())
+            return operationStatus;
+        operationStatus.setMessage("Inserted User Auth bootstrap data");
+        return operationStatus;
     }
 
     @Override

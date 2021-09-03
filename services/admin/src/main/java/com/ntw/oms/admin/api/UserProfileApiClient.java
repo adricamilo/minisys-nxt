@@ -20,6 +20,7 @@ import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
 import com.ntw.oms.admin.entity.Address;
 import com.ntw.oms.admin.entity.Contact;
+import com.ntw.oms.admin.entity.OperationStatus;
 import com.ntw.oms.admin.entity.UserProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,16 +63,19 @@ public class UserProfileApiClient extends ApiClient {
         return getUserId(index);
     }
 
-    public boolean insertBootstrapData() {
+    public OperationStatus insertBootstrapData() {
         String users[] = {"admin", "anurag", "john", "bob"};
+        OperationStatus operationStatus = null;
         for (String userId : users) {
-            if (!insertData(userId, createUserProfile(userId))) {
+            operationStatus = insertData(userId, createUserProfile(userId));
+            if (!operationStatus.isSuccess()) {
                 logger.error("Error creating bootstrap user profile data");
-                return false;
+                return operationStatus;
             }
         }
         logger.info("Created bootstrap user auth data");
-        return true;
+        operationStatus.setMessage("Inserted User profile bootstrap data");
+        return operationStatus;
     }
 
     private Contact createContact(String id) {

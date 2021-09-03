@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.config.ServiceID;
 import com.ntw.common.status.ServiceStatus;
+import com.ntw.oms.admin.entity.OperationStatus;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,66 +71,77 @@ public abstract class ApiClient {
 
     protected abstract String getObjectId(int index);
 
-    public boolean insertBootstrapData() {
-        return true;
+    public OperationStatus insertBootstrapData() {
+        throw new UnsupportedOperationException();
     }
 
-    public boolean insertData(int index) {
+    public OperationStatus insertData(int index) {
         String id = getObjectId(index);
         Object object = createObject(id);
         return insertData(id, object);
     }
 
-    public boolean insertData(String id, Object object) {
+    public OperationStatus insertData(String id, Object object) {
         String uri = new StringBuilder().append(getServiceURI())
                 .append("/").append(id).toString();
+        OperationStatus operationStatus = new OperationStatus(false);
+        operationStatus.setMessage("Unable to convert object to json: "+object.toString());
+        String jsonObject = null;
         try {
-            boolean success = insertData(uri, mapper.writeValueAsString(object));
-            if (!success) {
-                logger.error("Unable to insert data for object {}", object.toString());
-                return false;
-            }
+            jsonObject = mapper.writeValueAsString(object);
         } catch (JsonProcessingException jpe) {
-            logger.error("Unable to insert data for object {}", object);
+            logger.error("Unable to insert data for object {} due to json processing", object);
             logger.error(jpe.getMessage(), jpe);
-            return false;
+            return operationStatus;
         }
-        logger.debug("Inserted object {}", object);
-        return true;
+        if (jsonObject == null) {
+            logger.error("Unable to process insert data for object {}", object.toString());
+            return operationStatus;
+        }
+        operationStatus = insertData(uri, jsonObject);
+        return operationStatus;
     }
 
-    protected boolean insertData(String uri, String data) {
+    protected OperationStatus insertData(String uri, String data) {
         ServiceInstance instance = loadBalancer.choose(getEndpointServiceID().toString());
         String host = instance.getHost();
         int port = instance.getPort();
+        OperationStatus operationStatus = new OperationStatus();
         try {
             HttpClientResponse response = client.sendPut(host, port, uri,
                     authHeader, MediaType.APPLICATION_JSON_VALUE, data);
+            operationStatus.setSuccess(true);
+            operationStatus.setMessage("Inserted data: "+data);
             logger.debug("Data creation response code: {} and body: {}",
                     response.getStatus(), response.getBody());
         } catch (Exception e) {
-            logger.error("Error creating sample data");
+            operationStatus.setSuccess(false);
+            operationStatus.setMessage("Error deleting data: "+e.getMessage());
+            logger.error("Error inserting data: "+data);
             logger.error(e.getMessage(),e);
-            return false;
         }
-        return true;
+        return operationStatus;
     }
 
-    public boolean deleteData() {
+    public OperationStatus deleteData() {
         ServiceInstance instance = loadBalancer.choose(getEndpointServiceID().toString());
         String host = instance.getHost();
         int port = instance.getPort();
+        OperationStatus operationStatus = new OperationStatus();
         try {
             String uri = new StringBuilder().append(getServiceURI()).toString();
             HttpClientResponse response = client.sendDelete(host, port, uri, authHeader);
+            operationStatus.setSuccess(true);
+            operationStatus.setMessage("Deleted data");
             logger.info("Data deletion response code: {} and body: {}",
                     response.getStatus(), response.getBody());
         } catch (Exception e) {
+            operationStatus.setSuccess(false);
+            operationStatus.setMessage("Error deleting data: "+e.getMessage());
             logger.error("Error deleting data");
             logger.error(e.getMessage(),e);
-            return false;
         }
-        return true;
+        return operationStatus;
     }
 
     public ServiceStatus getStatus() {

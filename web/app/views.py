@@ -392,8 +392,9 @@ def create_test_data(request):
             req.raise_for_status()
         except HTTPError as http_error:
             logger.error("HTTPError communicating with the backend server for sample data: %s", http_error)
-            return render(request, 'app/error.html',
-                          {'message': 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.'})
+            return render(request, 'app/data.html',
+                          {'message': 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.\n'
+                                      + 'Server Response: ' + str(req.content.decode())})
         except Exception as exception:
             logger.error("Error communicating with a backend server for sample data: %s", exception)
             logger.error(traceback.format_exc())
@@ -418,8 +419,9 @@ def delete_test_data(request):
         req.raise_for_status()
     except HTTPError as http_error:
         logger.error("HTTPError communicating with the backend server for delete data: %s", http_error)
-        return render(request, 'app/error.html',
-                      {'message': 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.'})
+        return render(request, 'app/data.html',
+                      {'message': 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.\n'
+                      + 'Server Response: ' + str(req.content.decode())})
     except Exception as exception:
         logger.error("Error communicating with a backend server for delete data: %s", exception)
         logger.error(traceback.format_exc())
@@ -501,15 +503,16 @@ def get_registry(request):
 
 
 def get_table_data(request):
-    logger.debug('Get table data for '+request.GET['table'])
+    table_name = request.GET['table']
+    logger.debug('Get table data for '+table_name)
     access_token = get_access_token(request)
-    if request.GET['table'] == 'inventory':
+    if table_name == 'inventory':
         url = settings.INVENTORY_ENDPOINT + INVENTORY_URI
-    elif request.GET['table'] == 'auth':
+    elif table_name == 'auth':
         url = settings.AUTH_ENDPOINT + AUTH_USERS_URI
-    elif request.GET['table'] == 'product':
+    elif table_name == 'product':
         url = settings.PRODUCT_ENDPOINT + PRODUCTS_URI
-    elif request.GET['table'] == 'order':
+    elif table_name == 'order':
         url = settings.ORDER_ENDPOINT + ORDERS_URI
     else:
         return HttpResponse("Unknown table")
@@ -518,11 +521,12 @@ def get_table_data(request):
         req = session.get(url, headers={'Authorization': 'Bearer '+access_token}, timeout=settings.HTTP_TIMEOUT)
         req.raise_for_status()
     except HTTPError as http_error:
-        logger.error("HTTPError communicating with the backend server for get table data")
-        return render(request, 'app/error.html',
-                      {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
+        logger.error("HTTPError communicating with the backend server for get %s table data", table_name)
+        return render(request, 'app/data.html',
+                      {'message': 'HTTP Error ' + str(req.status_code) + ' communicating with the backend server.\n'
+                      + 'Server Response: ' + str(req.content.decode())})
     except Exception as e:
-        logger.error("Error communicating with the backend server for get table data")
+        logger.error("Error communicating with the backend server for get %s table data", table_name)
         return render(request, 'app/error.html',
                       {'message': 'Unable to connect to the backend.'})
 
