@@ -497,3 +497,19 @@ services:
         tag: inventory-svc
     depends_on:
       - "fluentd"
+
+
+  spa:
+    build:
+      context: ./spa
+      dockerfile: Dockerfile
+    image: ntw/spa
+    container_name: spa
+    hostname: spa
+    networks:
+      - mynet1
+    ports:
+      - "3000:80"
+    env_file: .env
+    volumes:
+      - app-logs:/var/log/oms
