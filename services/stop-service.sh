@@ -20,7 +20,7 @@ elif [ "$1" == "inventory" ]; then
     echo $(jps | grep -e inventory.war)
     jps | grep -e inventory.war | awk '{print $1}' | xargs kill
 elif [ "$1" == "gateway" ]; then
-    echo $(jps | grep -e inventory.war)
+    echo $(jps | grep -e gateway.war)
     jps | grep -e gateway.war | awk '{print $1}' | xargs kill
 else
     echo "Incorrect service name"

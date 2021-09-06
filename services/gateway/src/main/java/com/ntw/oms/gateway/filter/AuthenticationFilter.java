@@ -25,6 +25,7 @@ import com.ntw.common.security.JwtUtility;
 import com.ntw.common.security.Secured;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,7 +71,8 @@ public class AuthenticationFilter extends ZuulFilter {
         HttpServletRequest request = context.getRequest();
         if (request.getRequestURI().startsWith("/auth/token") ||
                 request.getRequestURI().startsWith("/status") ||
-                request.getRequestURI().startsWith("/admin/status")) {
+                request.getRequestURI().startsWith("/admin/status") ||
+                        HttpMethod.OPTIONS.matches(request.getMethod()) ) {
             return false;
         }
         return true;
