@@ -10,6 +10,6 @@ rm -rf ./node_modules
 
 echo Create PyUI .tar.gz file
 rm -f ./logs/* PyUI.tar.gz
-tar -zcf PyUI.tar.gz ./app ./db.sqlite3 manage.py logs pyui
+tar -zcf PyUI.tar.gz ./app ./db.sqlite3 manage.py pyui
 
 echo Done!!

@@ -1,32 +1,29 @@
-<link rel="stylesheet" type="text/css" href="/static/css/header.css">
+<link rel="stylesheet" type="text/css" href="/static/css/common.css">
   
-<nav class="navbar navbar-default">
+<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light p-3">
   <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" 
-              data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" 
-              aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-        <a class="navbar-brand" href="#">
-            <img src="static/images/ntw-logo.png" class="img-responsive">
-        </a>
-    </div>
 
+    <a class="logo" href="/">
+        <img src="static/images/ntw-logo.png" alt="NewTechWays Logo" />
+    </a>
+    <button class="navbar-toggler" type="button"
+            data-toggle="collapse"
+            data-target="#navbar-data"
+            aria-controls="navbar-data"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon" style="color:#000"></span>
+    </button>
     <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li><a href="home">Home<span class="sr-only">(current)</span></a></li>
-        <li><a href="data">Data<span class="sr-only">(current)</span></a></li>
-        <li><a href="monitor">Monitoring<span class="sr-only">(current)</span></a></li>
+    <div class="collapse navbar-collapse" id="navbar-data">
+      <ul class="nav navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="home">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="data">Data</a></li>
+        <li class="nav-item"><a class="nav-link" href="monitor">Monitoring</a></li>
       </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" role="button" 
+      <ul class="nav navbar-nav mx-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
              aria-haspopup="true" aria-expanded="false">
               {% if user_name %}
               <span>{{user_name}} </span>
@@ -35,15 +32,14 @@
               {% endif %}
               <span class="caret"></span>
           </a>
-          <ul class="dropdown-menu">
+          <div class="dropdown-menu">
               {% if user_name %}
-              <li><a href="/logout">Sign Out</a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="/profile">Profile</a></li>
+              <a class="dropdown-item" href="/logout">Sign Out</a>
+              <a class="dropdown-item" href="/profile">Profile</a>
               {% else %}
-              <li><a href="/loginForm">Sign In</a></li>
+              <a class="dropdown-item" href="/loginForm">Sign In</a>
               {% endif %}
-          </ul>
+          </div>
         </li>
       </ul>
     </div><!-- /.navbar-collapse -->

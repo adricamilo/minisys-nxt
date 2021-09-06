@@ -1,45 +1,35 @@
 {% extends "app/base.html" %}
 {% block content %}
 
-    <link rel="stylesheet" type="text/css" href="/static/css/products.css">
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-xs-12 col-sm-10">
+    <div class="container">
+        <div class="page-header">
+            <h1>Order</h1>
+        </div>
                 <!-- --------- Product Grid ----------------------  -->
-                <div class="row">
-                    <div  class="col-xs-12 col-sm-6">
-                        <h1>Order</h1>
-                    </div>
-                    <div class="col-xs-12">
-                        <h3><a class="label label-primary" href="/order?id={{ order.id }}">{{ order.id }}</a></h3>
-                        <div class="well">
-                            <div class="row">
-                                {% for orderLine in order.orderLines %}
-                                <div class="col-sm-6 col-md-4">
-                                    <div class="thumbnail product-thumbnail">
-                                        <a href="{% url 'views.product' %}?id={{orderLine.product.id}}">
-                                            <img src="{{orderLine.product.imageUrl}}" alt="product name"></a>
-                                        <div class="product-caption">
-                                            <h3 id="name">Product: {{orderLine.productId}}</h3>
-                                            <h3>Price: {{orderLine.product.price}} &#36;</h3>
-                                            <p>Qty: {{orderLine.quantity}}</p>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p>Status: {{ order.status }}</p>
-                                        <p>Created Date: {{ order.createdDate }}</p>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div>
-                            <a href="/orders" class="btn btn-info">Orders</a>
-                        </div>
+        <h3 class="order-id">
+            <a class="label label-primary" href="/order?id={{ order.id }}">{{ order.id }}</a>
+        </h3>
+        <p>
+            <div>Status: {{ order.status }}</div>
+            <div>Created Date: {{ order.createdDate }}</div>
+        </p>
+        <div class="row">
+            {% for orderLine in order.orderLines %}
+            <div class="col-sm-6 col-md-4">
+                <div class="thumbnail product-thumbnail">
+                    <a href="{% url 'views.product' %}?id={{orderLine.product.id}}">
+                        <img src="{{orderLine.product.imageUrl}}" alt="product name"></a>
+                    <div class="product-caption">
+                        <h3 id="name">Product: {{orderLine.productId}}</h3>
+                        <h3>Price: {{orderLine.product.price}} &#36;</h3>
+                        <p>Qty: {{orderLine.quantity}}</p>
                     </div>
                 </div>
             </div>
+            {% endfor %}
+        </div>
+        <div>
+            <a href="/orders" class="btn btn-info">Orders</a>
         </div>
     </div>
 

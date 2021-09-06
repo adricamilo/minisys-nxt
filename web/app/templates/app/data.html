@@ -2,13 +2,15 @@
 {% block content %}
 
 <style>
-  pre{
+  pre {
       white-space: pre-wrap;
   }
   </style>
 
 <div class="container">
-    <h3 style="text-align:center;margin: 1em 0 2em 0;">Data Dashboard</h3>
+    <div class="page-header">
+        <h1>Data Dashboard</h1>
+    </div>
 
     <div class="row">
 
@@ -50,9 +52,7 @@
         </div>
 
         <div class="col-md-9 well">
-            <div style="width:100%; min-height:405px">
-                <div>{{message|safe}}</div>
-            </div>
+            <div>{{message|safe}}</div>
         </div>
 
 

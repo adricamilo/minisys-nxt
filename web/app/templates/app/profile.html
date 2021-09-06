@@ -1,47 +1,65 @@
 {% extends "app/base.html" %}
 {% block content %}
 
-<link rel="stylesheet" type="text/css" href="/static/css/login.css">
-
+<style>
+    .profile-section-header {
+        font-size: 1.2em;
+        color: #666;
+        text-align:center;
+        margin: 2em 0 1em 0;
+    }
+</style>
 <div class="container">
-  <div class="row">
+    <div class="page-header">
+        <h1>Profile</h1>
+    </div>
 
-        <h2 style="text-align:center">{{userProfile.name}}</h2>
-        <h4 style="text-align:center">{{userProfile.id}}</h4>
-        <div class="col-md-12" style="padding:1em">
-          <h3>Contact Details</h3>
-              <ul class="list-group">
-                <li class="list-group-item"><p>Name : {{userProfile.contact.name}}</p></li>
-                <li class="list-group-item"><p>Email : {{userProfile.contact.email}}</p></li>
-                <li class="list-group-item"><p>Phone : {{userProfile.contact.telephone}}</p></li>
-              </ul>
-        </div>
-        <div class="col-md-12">
-          <h3>Address</h3>
-          <div class="well">
-              <p>{{userProfile.address.street}}</p>
-              <p>{{userProfile.address.area}}</p>
-              <p>{{userProfile.address.city}}</p>
-              <p>{{userProfile.address.state}}</p>
-              <p>{{userProfile.address.country}}</p>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-      <h3>Shipping Addresses</h3>
-      {% for address in userProfile.shippingAddresses %}
+    <ul class="list-group">
+        <li class="list-group-item">Name : {{userProfile.name}}</li>
+        <li class="list-group-item">Id : {{userProfile.id}}</li>
+    </ul>
+
+    <h3 class="profile-section-header">Contact Details</h3>
+    <ul class="list-group">
+        <li class="list-group-item">Name : {{userProfile.contact.name}}</li>
+        <li class="list-group-item">Email : {{userProfile.contact.email}}</li>
+        <li class="list-group-item">Phone : {{userProfile.contact.telephone}}</li>
+    </ul>
+    <h3 class="profile-section-header">Address</h3>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <span>{{userProfile.address.street}}, </span>
+            <span>{{userProfile.address.area}}, </span>
+        </li>
+        <li class="list-group-item">
+            <span>{{userProfile.address.city}}</span>
+        </li>
+        <li class="list-group-item">
+            <span>{{userProfile.address.state}}</span>
+        </li>
+        <li class="list-group-item">
+            <span>{{userProfile.address.country}}</span>
+        </li>
+    </ul>
+    <h3 class="profile-section-header">Shipping Addresses</h3>
+    <div class="row">
+    {% for address in userProfile.shippingAddresses %}
         <div class="col-md-6">
-          <h4>Address {{ forloop.counter }}</h4>
-          <div class="well">
-              <p>{{address.street}}</p>
-              <p>{{address.area}}</p>
-              <p>{{address.city}}</p>
-              <p>{{address.state}}</p>
-              <p>{{address.country}}</p>
-          </div>
+            <div class="list-group>">
+                <div class="list-group-item">
+                  <h4>Address {{ forloop.counter }}</h4>
+                  <div>
+                      <p>{{address.street}}</p>
+                      <p>{{address.area}}</p>
+                      <p>{{address.city}}</p>
+                      <p>{{address.state}}</p>
+                      <p>{{address.country}}</p>
+                  </div>
+                </div>
+            </div>
         </div>
-      {% endfor %}
-      </div>
+    {% endfor %}
+    </div>
 
 </div>
 

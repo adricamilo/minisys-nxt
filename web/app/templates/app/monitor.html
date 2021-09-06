@@ -1,12 +1,6 @@
 {% extends "app/base.html" %}
 {% block content %}
 
-<style>
-  pre{
-      white-space: pre-wrap;
-  }
-</style>
-
 <script>
     function open_monitoring() {
         window.open(window.location.protocol+'//'+window.location.hostname+':9090','_blank');
@@ -22,7 +16,9 @@
 </script>
 
 <div class="container">
-    <h3 style="text-align:center;margin: 1em 0 2em 0;">Monitoring Dashboard</h3>
+    <div class="page-header">
+        <h1>Monitoring Dashboard</h1>
+    </div>
 
     <div class="row">
 
@@ -41,7 +37,7 @@
                     </li>
                 </ul>
             </div>
-            <div>
+            <div style="margin:1em 0">
                 <ul class="list-group">
                     <li class="list-group-item">
                         <a href="/registry">Registry Status</a>
@@ -65,12 +61,10 @@
         </div>
 
         <div class="col-md-9 well">
-            <div style="width:100%; min-height:405px">
-                <div>
-                    {% if message %}
-                    {{message|safe}}
-                    {% endif %}
-                </div>
+            <div>
+                {% if message %}
+                {{message|safe}}
+                {% endif %}
             </div>
         </div>
 
