@@ -10,6 +10,9 @@ cp $OMS_STAGING/web/PyUI.tar.gz $OMS_DEPLOY/web/image
 echo Copy PyUI to lb-web
 cp $OMS_STAGING/web/PyUI.tar.gz $OMS_DEPLOY/lb-web/image
 
+echo Copy create-schema.sql to postgres
+cp $OMS_STAGING/schema/*.sql $OMS_DEPLOY/postgres/image
+
 echo Copy Services war files
 test -d $OMS_DEPLOY/services/image/war || mkdir -p $OMS_DEPLOY/services/image/war && \
 	cp $OMS_STAGING/services/*.war $OMS_DEPLOY/services/image/war

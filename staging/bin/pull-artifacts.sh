@@ -8,6 +8,7 @@ test -d $OMS_STAGING/services || mkdir -p $OMS_STAGING/services && \
 test -d $OMS_STAGING/registry || mkdir -p $OMS_STAGING/registry && \
 test -d $OMS_STAGING/web || mkdir -p $OMS_STAGING/web && \
 test -d $OMS_STAGING/tests || mkdir -p $OMS_STAGING/tests && \
+test -d $OMS_STAGING/schema || mkdir -p $OMS_STAGING/schema
 
 echo Copy PyUI .tar.gz file
 cp -r $OMS_ROOT/web/PyUI.tar.gz $OMS_STAGING/web
@@ -20,5 +21,8 @@ cp -r $OMS_ROOT/services/target/discovery.jar $OMS_STAGING/registry
 
 echo Copy Jmeter tests files
 cp -r $OMS_ROOT/tests/jmeter/* $OMS_STAGING/tests
+
+echo Copy create schema script
+cp -r $OMS_ROOT/bin/*.sql $OMS_STAGING/schema
 
 echo Done!!
