@@ -51,6 +51,7 @@ public class ServiceStatus implements Serializable {
     @Override
     public String toString() {
         return "{" +
+                "\"serviceId\":" + (serviceId == null ? "null" : "\"" + serviceId + "\"") + ", " +
                 "\"serviceHost\":" + (serviceHost == null ? "null" : "\"" + serviceHost + "\"") + ", " +
                 "\"serviceTime\":" + (serviceTime == null ? "null" : "\"" + serviceTime + "\"") +
                 "}";
