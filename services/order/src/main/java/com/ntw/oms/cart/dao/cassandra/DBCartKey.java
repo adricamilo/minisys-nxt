@@ -28,15 +28,15 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 public class DBCartKey {
     @PrimaryKeyColumn(name = "cartId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private String cartId;
-    @PrimaryKeyColumn(name = "id", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.ASCENDING)
-    private int id;
+    @PrimaryKeyColumn(name = "cartLineId", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.ASCENDING)
+    private int cartLineId;
 
-    public int getId() {
-        return id;
+    public int getCartLineId() {
+        return cartLineId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCartLineId(int cartLineId) {
+        this.cartLineId = cartLineId;
     }
 
     public String getCartId() {
@@ -51,7 +51,7 @@ public class DBCartKey {
     public String toString() {
         return "{" +
                 "\"cartId\":" + (cartId == null ? "null" : "\"" + cartId + "\"") + ", " +
-                "\"id\":\"" + id + "\"" +
+                "\"id\":\"" + cartLineId + "\"" +
                 "}";
     }
 
@@ -62,7 +62,7 @@ public class DBCartKey {
 
         DBCartKey cartKey = (DBCartKey) o;
 
-        if (id != cartKey.id) return false;
+        if (cartLineId != cartKey.cartLineId) return false;
         return cartId.equals(cartKey.cartId);
 
     }
@@ -70,7 +70,7 @@ public class DBCartKey {
     @Override
     public int hashCode() {
         int result = cartId.hashCode();
-        result = 31 * result + id;
+        result = 31 * result + cartLineId;
         return result;
     }
 }

@@ -18,6 +18,7 @@ package com.ntw.oms.order.dao.sql;
 
 import com.ntw.oms.order.dao.OrderDao;
 import com.ntw.oms.order.entity.Order;
+import com.ntw.oms.order.entity.OrderLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +38,8 @@ import java.util.Map;
 /**
  * Created by anurag on 24/03/17.
  */
-@Component("SQL")
-public class DBOrderLineDao implements OrderDao {
+@Component
+public class DBOrderLineDao {
 
     @Autowired(required = false)
     @Qualifier("orderJdbcTemplate")
@@ -56,12 +57,11 @@ public class DBOrderLineDao implements OrderDao {
 
     private static final String GET_ORDER_SQL = "select * from orderline where orderId=?";
 
-    @Override
-    public Order getOrder(String userId, String id) {
-        List<DBOrderLine> dbOrderLines;
+    public List<OrderLine> getOrderLines(String id) {
+        List<OrderLine> dbOrderLines;
         try {
             dbOrderLines = jdbcTemplate.query(GET_ORDER_SQL, new Object[]{id},
-                    new BeanPropertyRowMapper<>(DBOrderLine.class));
+                    new BeanPropertyRowMapper<>(OrderLine.class));
         } catch (Exception e) {
             logger.error("Exception while fetching order from db; id={}", id);
             logger.error("Exception message: ", e);
@@ -71,83 +71,52 @@ public class DBOrderLineDao implements OrderDao {
             logger.debug("No order lines found; userId={}", GET_ORDER_SQL);
             return null;
         }
-        Order order = DBOrderLine.getOrder(userId, id, dbOrderLines);
-        logger.debug("Fetched order; context={}", order);
-        return order;
-    }
-
-    private static final String GET_ORDERS_SQL = "select * from orderline where userId=?";
-
-    @Override
-    public List<Order> getOrders(String userId) {
-        List<DBOrderLine> dbOrderLines;
-        try {
-            dbOrderLines = jdbcTemplate.query(GET_ORDERS_SQL, new Object[]{userId},
-                    new BeanPropertyRowMapper<>(DBOrderLine.class));
-        } catch (Exception e) {
-            logger.error("Exception while fetching orders from db");
-            logger.error("Exception message: ", e);
-            return null;
-        }
-        if (dbOrderLines.isEmpty()) {
-            logger.debug("No order lines found; userId={}", GET_ORDERS_SQL);
-            return new LinkedList<>();
-        }
-        List<Order> orders = getOrders(dbOrderLines);
-        logger.debug("Fetched orders; context={}", orders);
-        return orders;
+        return dbOrderLines;
     }
 
     private static final String ORDER_INSERT_SQL =
             "insert into OrderLine " +
-                "(orderId, orderLineId, productId, quantity, userId, status, createdDate, createdTime) " +
-                "values(?,?,?,?,?,?,?,?)";
+                "(orderId, orderLineId, productId, quantity) " +
+                "values(?,?,?,?)";
 
-    @Override
-    public boolean saveOrder(Order order) {
-        List<DBOrderLine> dbOrderLines = DBOrderLine.createDBOrder(order);
+    public boolean saveOrderLines(String orderId, List<OrderLine> orderLines) {
         int[] updateStatusArr;
         try {
             updateStatusArr = jdbcTemplate.batchUpdate(ORDER_INSERT_SQL, new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(PreparedStatement ps, int i)
                         throws SQLException {
-                    ps.setString(1, dbOrderLines.get(i).getOrderId());
-                    ps.setInt(2, dbOrderLines.get(i).getOrderLineId());
-                    ps.setString(3, dbOrderLines.get(i).getProductId());
-                    ps.setFloat(4, dbOrderLines.get(i).getQuantity());
-                    ps.setString(5, dbOrderLines.get(i).getUserId());
-                    ps.setString(6, dbOrderLines.get(i).getStatus());
-                    ps.setDate(7, dbOrderLines.get(i).getCreatedDate());
-                    ps.setTime(8, dbOrderLines.get(i).getCreatedTime());
+                    ps.setString(1, orderId);
+                    ps.setInt(2, orderLines.get(i).getId());
+                    ps.setString(3, orderLines.get(i).getProductId());
+                    ps.setFloat(4, orderLines.get(i).getQuantity());
                 }
 
                 @Override
                 public int getBatchSize() {
-                    return dbOrderLines.size();
+                    return orderLines.size();
                 }
             });
         } catch (Exception e) {
-            logger.error("Unable to save order; context={}", order);
+            logger.error("Unable to save order lines; context={}", orderLines);
             logger.error("Exception message: ", e);
             return false;
         }
         if (updateStatusArr.length == 0) {
-            logger.error("Unable to save order; context={}", order);
+            logger.error("Unable to save order lines; context={}", orderLines);
             return false;
         }
-        logger.debug("Saved order; context={}", order);
+        logger.debug("Saved order lines; context={}", orderLines);
         return true;
     }
 
     private static final String DELETE_ORDER_SQL = "delete from orderline where orderId=?";
 
-    @Override
-    public boolean removeOrder(String userId, String id) {
+    public boolean removeOrderLines(String id) {
         try {
             jdbcTemplate.update(DELETE_ORDER_SQL, new Object[]{id});
         } catch (Exception e) {
-            logger.error("Unable to delete order; userId={}, id={}", userId, id);
+            logger.error("Unable to delete order; id={}", id);
             logger.error("Exception message: ", e);
             return false;
         }
@@ -157,37 +126,16 @@ public class DBOrderLineDao implements OrderDao {
 
     private static final String DELETE_ORDERS_SQL = "delete from orderline";
 
-    @Override
-    public boolean removeOrders() {
+    public boolean removeOrdersLines() {
         try {
-        jdbcTemplate.update(DELETE_ORDERS_SQL);
+            jdbcTemplate.update(DELETE_ORDERS_SQL);
         } catch (Exception e) {
-            logger.error("Unable to delete orders");
+            logger.error("Unable to delete order lines");
             logger.error("Exception message: ", e);
             return false;
         }
-        logger.debug("Removed all orders");
+        logger.debug("Removed all order lines");
         return true;
     }
 
-    private List<Order> getOrders(List<DBOrderLine> dbOrderLines) {
-        Map<String,List<DBOrderLine>> orderMap = new HashMap<>(100);
-        for (DBOrderLine dbOrderLine : dbOrderLines) {
-            String orderId = dbOrderLine.getOrderId();
-            List<DBOrderLine> dbUserOrderLines = orderMap.get(orderId);
-            if (dbUserOrderLines == null) {
-                dbUserOrderLines = new LinkedList<>();
-                orderMap.put(orderId, dbUserOrderLines);
-            }
-            dbUserOrderLines.add(dbOrderLine);
-        }
-        List<Order> orderList = new LinkedList<>();
-        for (String orderId : orderMap.keySet()) {
-            List<DBOrderLine> dbUserOrderLines = orderMap.get(orderId);
-            Order order = DBOrderLine.getOrder(dbUserOrderLines.get(0).getUserId(),
-                    dbUserOrderLines.get(0).getOrderId(), dbUserOrderLines);
-            orderList.add(order);
-        }
-        return orderList;
-    }
 }

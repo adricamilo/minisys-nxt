@@ -19,7 +19,6 @@ package com.ntw.auth.core;
 /**
  * Created by anurag on 28/03/17.
  */
-import com.ntw.auth.config.AuthConfig;
 import com.ntw.auth.config.TestConfig;
 import com.ntw.common.entity.Role;
 import com.ntw.common.entity.UserAuth;
@@ -38,13 +37,14 @@ import java.util.List;
 public class LdapAuthTest
         extends TestCase
 {
+    public static final String AUTH_BEAN_NAME = "authBean";
     private static ApplicationContext springContext;
 
     private static AuthMgr authBean;
 
     static {
         springContext = new ClassPathXmlApplicationContext("springBeansLdap.xml");
-        authBean = (AuthMgr) springContext.getBean(AuthConfig.AUTH_BEAN_NAME);
+        authBean = (AuthMgr) springContext.getBean(AUTH_BEAN_NAME);
     }
 
 

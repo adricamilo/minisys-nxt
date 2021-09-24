@@ -18,7 +18,6 @@ package com.ntw.oms.cart.dao.sql;
 
 import com.ntw.oms.cart.dao.CartDao;
 import com.ntw.oms.cart.entity.Cart;
-import com.ntw.oms.cart.entity.CartLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +36,13 @@ import java.util.List;
  * Created by anurag on 24/03/17.
  */
 @Component("CartSQL")
-public class DBCartLineDao implements CartDao {
+public class DBCartDao implements CartDao {
 
     @Autowired(required = false)
     @Qualifier("cartJdbcTemplate")
     private JdbcTemplate jdbcTemplate;
 
-    private static final Logger logger = LoggerFactory.getLogger(DBCartLineDao.class);
+    private static final Logger logger = LoggerFactory.getLogger(DBCartDao.class);
 
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
@@ -53,8 +52,7 @@ public class DBCartLineDao implements CartDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private static String SQL_GET_CARTLINES = "select * from cartLine where cartId=?";
-
+    private static String SQL_GET_CARTLINES = "select * from cart c, cartline cl where c.id=cl.cartid and c.id=?";
     @Override
     public Cart getCart(String id) {
         List<DBCartLine> dbCartLines;
@@ -75,18 +73,33 @@ public class DBCartLineDao implements CartDao {
         return cart;
     }
 
-    private static String SQL_INSERT_CARTLINE =
-            "insert into CartLine (id, cartId, productId, quantity) values (?,?,?,?)";
+    private static String CART_INSERT_SQL =
+            "insert into Cart (id) values (?)";
+    private static String CARTLINE_INSERT_SQL =
+            "insert into CartLine (cartLineId, cartId, productId, quantity) values (?,?,?,?)";
+
     @Override
     public boolean saveCart(Cart cart) {
-        List<DBCartLine> dbCartLines = DBCartLine.createDBCart(cart);
         try {
-            int [] updateStatusArr = jdbcTemplate.batchUpdate(SQL_INSERT_CARTLINE, new BatchPreparedStatementSetter() {
+            int retValue = jdbcTemplate.update(CART_INSERT_SQL,
+                    new Object[]{cart.getId()});
+            if (retValue <= 0) {
+                logger.error("Unable to save cart; context={}", cart);
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error("Unable to save cart; context={}", cart);
+            logger.error("Exception message: {}", e);
+            return false;
+        }
+        List<DBCartLine> dbCartLines = DBCartLine.createDBCartLines(cart);
+        try {
+            int [] updateStatusArr = jdbcTemplate.batchUpdate(CARTLINE_INSERT_SQL, new BatchPreparedStatementSetter() {
 
                 @Override
                 public void setValues(PreparedStatement ps, int i)
                         throws SQLException {
-                    ps.setInt(1, dbCartLines.get(i).getId());
+                    ps.setInt(1, dbCartLines.get(i).getCartLineId());
                     ps.setString(2, dbCartLines.get(i).getCartId());
                     ps.setString(3, dbCartLines.get(i).getProductId());
                     ps.setFloat(4, dbCartLines.get(i).getQuantity());
@@ -123,31 +136,47 @@ public class DBCartLineDao implements CartDao {
         return true;
     }
 
-    private static String SQL_DELETE_CARTLINE = "delete from cartline where cartId=?";
+    private static String DELETE_CART_SQL = "delete from cart where id=?";
+    private static String DELETE_CARTLINE_SQL = "delete from cartline where cartId=?";
 
     @Override
-    public boolean removeCart(String cartId) {
+    public boolean removeCart(String id) {
         try {
-            int rowsUpdated = jdbcTemplate.update(SQL_DELETE_CARTLINE, new Object[]{cartId});
+            int rowsUpdated = jdbcTemplate.update(DELETE_CARTLINE_SQL, new Object[]{id});
             if (rowsUpdated <= 0) {
-                logger.warn("Unable to delete cart with cartId={}", cartId);
+                logger.warn("Unable to delete cartlines with cartId={}", id);
                 return false;
             }
         } catch (Exception e) {
-            logger.error("Unable to remove cart with cartId={}", cartId);
+            logger.error("Unable to remove cartlines with cartId={}", id);
             logger.error("Exception message: ", e);
             return false;
         }
-        logger.debug("Removed cart; cartId={}", cartId);
+        logger.debug("Removed cartlines; cartId={}", id);
+
+        try {
+            int rowsUpdated = jdbcTemplate.update(DELETE_CART_SQL, new Object[]{id});
+            if (rowsUpdated <= 0) {
+                logger.warn("Unable to delete cart with id={}", id);
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error("Unable to delete cart; id={}", id);
+            logger.error("Exception message: ", e);
+            return false;
+        }
+        logger.debug("Removed cart; id={}", id);
+
         return true;
     }
 
-    private static final String SQL_DELETE_CARTLINES = "delete from cartline";
+    private static final String DELETE_CARTS_SQL = "delete from cart";
+    private static final String DELETE_CARTLINES_SQL = "delete from cartline";
 
     @Override
     public boolean removeCarts() {
         try {
-            int rowsUpdated = jdbcTemplate.update(SQL_DELETE_CARTLINES);
+            int rowsUpdated = jdbcTemplate.update(DELETE_CARTLINES_SQL);
             if (rowsUpdated < 0) {
                 logger.warn("No cart lines deleted");
                 return false;
@@ -158,6 +187,19 @@ public class DBCartLineDao implements CartDao {
             return false;
         }
         logger.debug("Removed all cart lines");
+
+        try {
+            int rowsUpdated = jdbcTemplate.update(DELETE_CARTS_SQL);
+            if (rowsUpdated < 0) {
+                logger.warn("No cart lines deleted");
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error("Unable to remove all carts");
+            logger.error("Exception message: ", e);
+            return false;
+        }
+        logger.debug("Removed all carts");
         return true;
     }
 }

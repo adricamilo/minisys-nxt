@@ -26,19 +26,11 @@ import java.util.List;
  * Created by anurag on 19/04/17.
  */
 public class DBCartLine {
-    private int id;
     private String cartId;
+    private int cartLineId;
 
     private String productId;
     private float quantity;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getCartId() {
         return cartId;
@@ -46,6 +38,14 @@ public class DBCartLine {
 
     public void setCartId(String cartId) {
         this.cartId = cartId;
+    }
+
+    public int getCartLineId() {
+        return cartLineId;
+    }
+
+    public void setCartLineId(int cartLineId) {
+        this.cartLineId = cartLineId;
     }
 
     public String getProductId() {
@@ -67,18 +67,18 @@ public class DBCartLine {
     @Override
     public String toString() {
         return "{" +
-                "\"id\":\"" + id + "\"" + ", " +
+                "\"id\":\"" + cartLineId + "\"" + ", " +
                 "\"cartId\":" + (cartId == null ? "null" : "\"" + cartId + "\"") + ", " +
                 "\"productId\":" + (productId == null ? "null" : "\"" + productId + "\"") + ", " +
                 "\"quantity\":\"" + quantity + "\"" +
                 "}";
     }
 
-    public static List<DBCartLine> createDBCart(Cart cart) {
+    public static List<DBCartLine> createDBCartLines(Cart cart) {
         List<DBCartLine> dbCartLines = new LinkedList<>();
         for (CartLine cartLine : cart.getCartLines()) {
             DBCartLine dbCartLine = new DBCartLine();
-            dbCartLine.setId(cartLine.getId());
+            dbCartLine.setCartLineId(cartLine.getId());
             dbCartLine.setCartId(cart.getId());
             dbCartLine.setProductId(cartLine.getProductId());
             dbCartLine.setQuantity(cartLine.getQuantity());
@@ -92,7 +92,7 @@ public class DBCartLine {
         cart.setId(cartId);
         for (DBCartLine dbCartLine : dbCartLines) {
             CartLine cartLine = new CartLine();
-            cartLine.setId(dbCartLine.getId());
+            cartLine.setId(dbCartLine.getCartLineId());
             cartLine.setProductId(dbCartLine.getProductId());
             cartLine.setQuantity(dbCartLine.getQuantity());
             cart.getCartLines().add(cartLine);

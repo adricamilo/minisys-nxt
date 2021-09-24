@@ -64,7 +64,7 @@ public class UserProfileApiClient extends ApiClient {
     }
 
     public OperationStatus insertBootstrapData() {
-        String users[] = {"admin", "anurag", "john", "bob"};
+        String users[] = {"admin", "john"};
         OperationStatus operationStatus = null;
         for (String userId : users) {
             operationStatus = insertData(userId, createUserProfile(userId));

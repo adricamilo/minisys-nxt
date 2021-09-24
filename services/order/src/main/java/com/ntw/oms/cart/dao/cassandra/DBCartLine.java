@@ -72,7 +72,7 @@ public class DBCartLine {
         List<DBCartLine> dbCartLines = new LinkedList<>();
         for (CartLine cartLine : cart.getCartLines()) {
             DBCartKey cartKey = new DBCartKey();
-            cartKey.setId(cartLine.getId());
+            cartKey.setCartLineId(cartLine.getId());
             cartKey.setCartId(cart.getId());
             DBCartLine dbCartLine = new DBCartLine();
             dbCartLine.setCartKey(cartKey);
@@ -88,7 +88,7 @@ public class DBCartLine {
         cart.setId(cartId);
         for (DBCartLine dbCartLine : dbCartLines) {
             CartLine cartLine = new CartLine();
-            cartLine.setId(dbCartLine.getCartKey().getId());
+            cartLine.setId(dbCartLine.getCartKey().getCartLineId());
             cartLine.setProductId(dbCartLine.getProductId());
             cartLine.setQuantity(dbCartLine.getQuantity());
             cart.getCartLines().add(cartLine);
