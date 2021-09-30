@@ -8,45 +8,39 @@ TARGET=$1
 
 echo "-- Start --"
 
+function verify_success {
+    if [ $1 == 0 ]; then
+	echo "-- Build succeeded for $2 --"
+    else
+	echo "-- Build failed for $2. Exiting! --"
+	exit -1;
+    fi
+}
+
 ############################## Clean ####################################
 
 function do_clean {
     echo "-- Clean --"
     cd $OMS_ROOT/services
     mvn clean
-    if [ $? != 0 ]; then
-	echo "Build failed - Clean services"
-	exit -1;
-    fi
+    verify_success $? "services clean"
     
     cd $OMS_ROOT/tests/jmeter
     rm -f *.csv
-    if [ $? != 0 ]; then
-	echo "Build failed - Clean jmeter test data"
-	exit -1;
-    fi
+    verify_success $? "jmeter clean"
 
     if [ "$1" == "all" ]; then
 	cd $OMS_ROOT/staging
 	rm -rf services web registry tests
-	if [ $? != 0 ]; then
-	    echo "Build failed - Clean staging"
-	    exit -1;
-	fi
+	verify_success $? "staging clean"
 	
 	cd $OMS_ROOT/docker/bin
 	./clean-files.sh
-	if [ $? != 0 ]; then
-	    echo "Build failed - Clean docker dirs"
-	    exit -1;
-	fi
+	verify_success $? "docker clean files"
+
 	./clean-images.sh
-	if [ $? != 0 ]; then
-	    echo "Build failed - Clean dangling docker images"
-	    exit -1;
-	fi
+	verify_success $? "docker clean images"
     fi
-	 
     echo "-- Done --"
 }
 
@@ -64,6 +58,8 @@ function do_build {
 	do_create_test_data
 	
 	do_build_web
+
+	do_build_spa
     
     else
 
@@ -85,37 +81,31 @@ function do_build {
 function do_create_test_data {
     cd $OMS_ROOT/tests/jmeter
     ./create-data.sh
-    if [ $? != 0 ]; then
-	echo "Build failed - Create jmeter test data failed"
-	exit -1;
-    fi
+    verify_success $? "jmeter test data"
 }
 
 function do_build_web {
     cd $OMS_ROOT/web
     ./create-build.sh
-    if [ $? != 0 ]; then
-	echo "Build failed - Create Python UI Zip failed"
-	exit -1;
-    fi
+    verify_success $? "web zip"
+}    
+
+function do_build_spa {
+    cd $OMS_ROOT/spa
+    ./create-build.sh
+    verify_success $? "spa"
 }    
 
 function do_build_services {
     cd $OMS_ROOT/services
     mvn package
-    if [ $? != 0 ]; then
-	echo "Build failed - Build Services failed"
-	exit -1;
-    fi
+    verify_success $? "services"
 }
 
 function do_build_service {
     cd $OMS_ROOT/services/$1
     mvn package
-    if [ $? != 0 ]; then
-	echo "Build failed - Build Service $1 failed"
-	exit -1;
-    fi
+    verify_success $? "service $1"
     cp ./target/*.war ../target
 }
 
@@ -126,10 +116,8 @@ function do_stage {
     echo "-- Pull artifacts to Staging --"
     cd $OMS_ROOT/staging/bin
     ./pull-artifacts.sh
-    if [ $? != 0 ]; then
-	echo "Build failed -- Pull artifacts failed"
-	exit -1;
-    fi
+    verify_success $? "staging pull artifacts"
+
     echo "-- Done --"
 }
 
@@ -153,26 +141,17 @@ function do_images {
     echo "-- Pull artifacts from Staging to Docker images dir --"
     cd $OMS_ROOT/docker/bin
     ./pull-artifacts.sh
-    if [ $? != 0 ]; then
-	echo "Build failed -- Docker Pull artifacts failed"
-	exit -1;
-    fi
-    echo "-- Done --"
+    verify_success $? "docker pull artifacts"
 
     echo "-- Build Docker Images --"
     cd $OMS_ROOT/docker
     docker-compose build $1
-    if [ $? != 0 ]; then
-	echo "Build failed - Build images failed"
-	exit -1;
-    fi
+    verify_success $? "docker build $1"
 
     cd $OMS_ROOT/docker/jmeter
     docker-compose build
-    if [ $? != 0 ]; then
-	echo "Build failed - Build jmeter image failed"
-	exit -1;
-    fi
+    verify_success $? "docker jmater build"
+
     echo "-- Done --"
 }
 

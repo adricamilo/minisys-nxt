@@ -7,6 +7,9 @@ OMS_DEPLOY=$OMS_ROOT/docker
 echo Copy PyUI to web
 cp $OMS_STAGING/web/PyUI.tar.gz $OMS_DEPLOY/web/image
 
+echo Copy react app to spa
+cp $OMS_STAGING/spa/reactapp.tar.gz $OMS_DEPLOY/spa/image
+
 echo Copy PyUI to lb-web
 cp $OMS_STAGING/web/PyUI.tar.gz $OMS_DEPLOY/lb-web/image
 
