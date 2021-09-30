@@ -1,8 +1,25 @@
 #!/bin/bash
-  
-sudo su postgres -c "psql -U postgres -d postgres -f create-schema.sql"
+
+# Set PSQL file path manually if psql not in path
+PSQL=$(which psql)
+PSQL="/Users/anurag/Programs/pgsql/bin/psql"
+
+if [ $? == 0 ]; then
+    echo "Using psql: ${PSQL}"
+else
+    echo "psql client not found. set path manually"
+    exit -1
+fi
+
+cp ./create-schema.sql /tmp/create-schema.sql
+pushd /
+
+sudo su postgres -c "${PSQL} -U postgres -d postgres -f /tmp/create-schema.sql"
 if [ $? == 0 ]; then
     echo "Create schema succeeeded"
 else
     echo "Create schema failed"
 fi
+
+rm -f /tmp/create-schema.sql
+popd
