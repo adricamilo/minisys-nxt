@@ -2,7 +2,6 @@
 
 # Set PSQL file path manually if psql not in path
 PSQL=$(which psql)
-PSQL="/Users/anurag/Programs/pgsql/bin/psql"
 
 if [ $? == 0 ]; then
     echo "Using psql: ${PSQL}"
