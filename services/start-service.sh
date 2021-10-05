@@ -36,5 +36,5 @@ elif [ "$1" == "order" ]; then
 elif [ "$1" == "inventory" ]; then
     start_service inventory 8085 6005
 else
-    echo "Incorrect service name"
+    echo "Incorrect service name $1"
 fi

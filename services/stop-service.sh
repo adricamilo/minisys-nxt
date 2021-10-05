@@ -1,27 +1,33 @@
 #!/bin/bash
-
-echo "Killing"
+function stop_service {
+    SERVICE=$1
+    PID=$(ps -eaf | grep -e ${SERVICE}.war | grep -v grep | awk '{print $2}')
+    if [ -n "$PID" ]; then
+        echo "Killing service $SERVICE with pid $PID"
+        echo $PID | xargs kill
+    else
+        echo "$SERVICE service not running"
+    fi
+}
 if [ "$1" == "all" ]; then
-    echo $(jps | grep -e auth.war -e admin.war -e product.war -e order.war -e inventory.war)
-    jps | grep -e auth.war -e admin.war -e product.war -e order.war -e inventory.war -e gateway.war | awk '{print $1}' | xargs kill
+    stop_service auth
+    stop_service product
+    stop_service order
+    stop_service inventory
+    stop_service gateway
+    stop_service admin
 elif [ "$1" == "admin" ]; then
-    echo $(jps | grep -e admin.war)
-    jps | grep -e admin.war | awk '{print $1}' | xargs kill
+    stop_service admin
 elif [ "$1" == "auth" ]; then
-    echo $(jps | grep -e auth.war)
-    jps | grep -e auth.war | awk '{print $1}' | xargs kill
+    stop_service auth
 elif [ "$1" == "product" ]; then
-    echo $(jps | grep -e product.war)
-    jps | grep -e product.war | awk '{print $1}' | xargs kill
+    stop_service product
 elif [ "$1" == "order" ]; then
-    echo $(jps | grep -e order.war)
-    jps | grep -e order.war | awk '{print $1}' | xargs kill
+    stop_service order
 elif [ "$1" == "inventory" ]; then
-    echo $(jps | grep -e inventory.war)
-    jps | grep -e inventory.war | awk '{print $1}' | xargs kill
+    stop_service inventory
 elif [ "$1" == "gateway" ]; then
-    echo $(jps | grep -e gateway.war)
-    jps | grep -e gateway.war | awk '{print $1}' | xargs kill
+    stop_service gateway
 else
-    echo "Incorrect service name"
+    echo "Incorrect service name $1"
 fi

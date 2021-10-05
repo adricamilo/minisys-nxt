@@ -1,3 +1,5 @@
+alter user postgres password 'postgres';
+
 create database oms;
 
 \c oms
@@ -26,4 +28,3 @@ create table Inventory(productId varchar, quantity numeric, primary key (product
 
 INSERT INTO UserAuth (id, name, password, emailId) values ('admin','Admin','$2a$12$/E4.9dBmbgkHyd4Sz4WNP.eu.KCejt1.sqr7OrSjjGaow4CXmIYUi', 'admin@test.com');
 INSERT INTO UserRole (id, role) VALUES ('admin','Admin');
-
