@@ -19,12 +19,14 @@ alter table CartLine add constraint cartline_cartid_fk FOREIGN KEY (cartId) REFE
 alter table CartLine add constraint cartline_productid_fk FOREIGN KEY (productId) REFERENCES Product (id) on delete cascade;
 
 create table OrderMaster(id varchar, userId varchar, status varchar, createdDate date, createdTime time, primary key (id));
+alter table OrderMaster add constraint order_userid_fk FOREIGN KEY (userId) REFERENCES UserAuth (id) on delete cascade;
 create index order_user_id on OrderMaster (userId);
 create table OrderLine(orderId varchar, orderLineId varchar, productId varchar, quantity integer, primary key (orderId, orderLineId));
 alter table OrderLine add constraint orderline_orderid_fk FOREIGN KEY (orderId) REFERENCES OrderMaster (id) on delete cascade;
 alter table OrderLine add constraint orderline_productid_fk FOREIGN KEY (productId) REFERENCES Product (id) on delete cascade;
 
 create table Inventory(productId varchar, quantity numeric, primary key (productId));
+alter table Inventory add constraint inventory_productid_fk FOREIGN KEY (productId) REFERENCES Product (id) on delete cascade;
 
 INSERT INTO UserAuth (id, name, password, emailId) values ('admin','Admin','$2a$12$/E4.9dBmbgkHyd4Sz4WNP.eu.KCejt1.sqr7OrSjjGaow4CXmIYUi', 'admin@test.com');
 INSERT INTO UserRole (id, role) VALUES ('admin','Admin');

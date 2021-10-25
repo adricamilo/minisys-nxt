@@ -137,11 +137,11 @@ SERVICES_CLIENT_SECRET = os.environ.get('auth.client.secret','secret')
 SERVICES_ENDPOINT = 'http://'+SERVICES_HOST+':'+SERVICES_PORT
 
 if os.environ.get('DJANGO_DEBUG') is None or os.environ.get('DJANGO_DEBUG').lower() == 'true':
-    ADMIN_ENDPOINT = 'http://localhost:8081'
-    AUTH_ENDPOINT = 'http://localhost:8082'
-    PRODUCT_ENDPOINT = 'http://localhost:8083'
-    ORDER_ENDPOINT = 'http://localhost:8084'
-    INVENTORY_ENDPOINT = 'http://localhost:8085'
+    ADMIN_ENDPOINT = 'http://'+SERVICES_HOST+':8081'
+    AUTH_ENDPOINT = 'http://'+SERVICES_HOST+':8082'
+    PRODUCT_ENDPOINT = 'http://'+SERVICES_HOST+':8083'
+    ORDER_ENDPOINT = 'http://'+SERVICES_HOST+':8084'
+    INVENTORY_ENDPOINT = 'http://'+SERVICES_HOST+':8085'
 else:
     ADMIN_ENDPOINT = SERVICES_ENDPOINT
     AUTH_ENDPOINT = SERVICES_ENDPOINT
