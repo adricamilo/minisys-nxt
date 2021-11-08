@@ -129,25 +129,36 @@ STATIC_URL = '/static/'
 
 REGISTRY_URL = os.environ.get('REGISTRY_URL','http://localhost:8761/eureka/apps')
 
-SERVICES_HOST = os.environ.get('SERVICES_HOST','localhost')
-SERVICES_PORT = os.environ.get('SERVICES_PORT','8080')
 SERVICES_CLIENT_ID = os.environ.get('auth.client.id','web-client')
 SERVICES_CLIENT_SECRET = os.environ.get('auth.client.secret','secret')
 
-SERVICES_ENDPOINT = 'http://'+SERVICES_HOST+':'+SERVICES_PORT
+HTTP_PROTOCOL = 'http://'
 
-if os.environ.get('DJANGO_DEBUG') is None or os.environ.get('DJANGO_DEBUG').lower() == 'true':
-    ADMIN_ENDPOINT = 'http://'+SERVICES_HOST+':8081'
-    AUTH_ENDPOINT = 'http://'+SERVICES_HOST+':8082'
-    PRODUCT_ENDPOINT = 'http://'+SERVICES_HOST+':8083'
-    ORDER_ENDPOINT = 'http://'+SERVICES_HOST+':8084'
-    INVENTORY_ENDPOINT = 'http://'+SERVICES_HOST+':8085'
+if os.environ.get('SERVICES_HOST') is None:
+    ADMIN_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('ADMIN_HOST', 'localhost') + ':'
+    AUTH_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('AUTH_HOST', 'localhost') + ':'
+    PRODUCT_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('PRODUCT_HOST', 'localhost') + ':'
+    ORDER_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('ORDER_HOST', 'localhost') + ':'
+    INVENTORY_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('INVENTORY_HOST', 'localhost') + ':'
 else:
-    ADMIN_ENDPOINT = SERVICES_ENDPOINT
-    AUTH_ENDPOINT = SERVICES_ENDPOINT
-    PRODUCT_ENDPOINT = SERVICES_ENDPOINT
-    ORDER_ENDPOINT = SERVICES_ENDPOINT
-    INVENTORY_ENDPOINT = SERVICES_ENDPOINT
+    ADMIN_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('SERVICES_HOST') + ':'
+    AUTH_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('SERVICES_HOST') + ':'
+    PRODUCT_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('SERVICES_HOST') + ':'
+    ORDER_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('SERVICES_HOST') + ':'
+    INVENTORY_SVC_ORIGIN = HTTP_PROTOCOL + os.environ.get('SERVICES_HOST') + ':'
+
+if os.environ.get('SERVICES_PORT') is None:
+    ADMIN_SVC_ORIGIN += os.environ.get('ADMIN_PORT', '8081')
+    AUTH_SVC_ORIGIN += os.environ.get('ADMIN_PORT', '8082')
+    PRODUCT_SVC_ORIGIN += os.environ.get('ADMIN_PORT', '8083')
+    ORDER_SVC_ORIGIN += os.environ.get('ADMIN_PORT', '8084')
+    INVENTORY_SVC_ORIGIN += os.environ.get('ADMIN_PORT', '8085')
+else:
+    ADMIN_SVC_ORIGIN += os.environ.get('SERVICES_PORT')
+    AUTH_SVC_ORIGIN += os.environ.get('SERVICES_PORT')
+    PRODUCT_SVC_ORIGIN += os.environ.get('SERVICES_PORT')
+    ORDER_SVC_ORIGIN += os.environ.get('SERVICES_PORT')
+    INVENTORY_SVC_ORIGIN += os.environ.get('SERVICES_PORT')
 
 HTTP_TIMEOUT = 20
 HTTP_SAMPLE_DATA_TIMEOUT = 120

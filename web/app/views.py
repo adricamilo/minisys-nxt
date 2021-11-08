@@ -70,7 +70,7 @@ def is_admin_user(request):
 
 
 def get_product(product_id, access_token):
-    req = session.get(settings.PRODUCT_ENDPOINT + PRODUCTS_URI + '/' + product_id,
+    req = session.get(settings.PRODUCT_SVC_ORIGIN + PRODUCTS_URI + '/' + product_id,
                        headers={'Authorization': 'Bearer '+access_token},
                        timeout=settings.HTTP_TIMEOUT)
     return req
@@ -85,14 +85,14 @@ def get_cart_id(request):
 
 
 def get_cart(cart_id, access_token):
-    req = session.get(settings.ORDER_ENDPOINT + CARTS_URI + '/' + cart_id,
+    req = session.get(settings.ORDER_SVC_ORIGIN + CARTS_URI + '/' + cart_id,
                        headers={'Authorization': 'Bearer ' + access_token},
                        timeout=settings.HTTP_TIMEOUT)
     return req
 
 
 def get_order(order_id, access_token):
-    req = session.get(settings.ORDER_ENDPOINT + ORDERS_URI + '/' + order_id,
+    req = session.get(settings.ORDER_SVC_ORIGIN + ORDERS_URI + '/' + order_id,
                        headers={'Authorization': 'Bearer '+access_token},
                        timeout=settings.HTTP_TIMEOUT)
     return req
@@ -159,7 +159,7 @@ def login(request):
         client_auth_b64_bytes = base64.b64encode(client_auth_bytes)
         client_auth_b64 = client_auth_b64_bytes.decode('ascii')
         try:
-            auth_token_res = session.post(settings.AUTH_ENDPOINT + AUTH_TOKEN_URI,
+            auth_token_res = session.post(settings.AUTH_SVC_ORIGIN + AUTH_TOKEN_URI,
                                            headers={'Authorization': 'Basic ' + client_auth_b64},
                                            data={'username': username, 'password': password},
                                            timeout=settings.HTTP_TIMEOUT)
@@ -191,7 +191,7 @@ def login(request):
             response.set_cookie(AUTH_TOKEN_COOKIE, auth_token_res.content.decode())
             logger.debug('User token fetched | context=%s', auth_token_res.content.decode())
             access_token = auth_token_res.json()['access_token']
-            user_auth_res = session.get(settings.AUTH_ENDPOINT + AUTH_TOKEN_USER_URI + '?access_token='+access_token,
+            user_auth_res = session.get(settings.AUTH_SVC_ORIGIN + AUTH_TOKEN_USER_URI + '?access_token='+access_token,
                                          timeout=settings.HTTP_TIMEOUT)
             if user_auth_res.status_code == 200:
                 response.set_cookie(AUTH_USER_COOKIE, user_auth_res.content.decode())
@@ -225,7 +225,7 @@ def monitoring_page(request):
 def profile(request):
     access_token = get_access_token(request)
     user_id = get_user(request)
-    req = session.get(settings.AUTH_ENDPOINT + USERS_PROFILE_URI +'/'+ user_id,
+    req = session.get(settings.AUTH_SVC_ORIGIN + USERS_PROFILE_URI +'/'+ user_id,
                        headers={'Authorization':'Bearer '+access_token},
                        timeout=settings.HTTP_TIMEOUT)
     if req.status_code == 200:
@@ -246,7 +246,7 @@ def home(request):
 def products(request):
     access_token = get_access_token(request)
     try:
-        req = session.get(settings.PRODUCT_ENDPOINT + PRODUCTS_URI,
+        req = session.get(settings.PRODUCT_SVC_ORIGIN + PRODUCTS_URI,
                            headers={'Authorization': 'Bearer '+access_token},
                            timeout=settings.HTTP_TIMEOUT)
         req.raise_for_status()
@@ -309,7 +309,7 @@ def cart(request):
         if action == 'remove':
             quantity = 0
         try:
-            req = session.post(settings.ORDER_ENDPOINT + CARTS_URI,
+            req = session.post(settings.ORDER_SVC_ORIGIN + CARTS_URI,
                                 data={'id': cart_id, 'productId': product_id, 'quantity': quantity},
                                 headers={'Authorization': 'Bearer ' + access_token},
                                 timeout=settings.HTTP_TIMEOUT)
@@ -334,7 +334,7 @@ def cart(request):
 
 def orders(request):
     access_token = get_access_token(request)
-    req = session.get(settings.ORDER_ENDPOINT + ORDERS_URI,
+    req = session.get(settings.ORDER_SVC_ORIGIN + ORDERS_URI,
                        headers={'Authorization': 'Bearer '+access_token},
                        timeout=settings.HTTP_TIMEOUT)
     if req.status_code == 200:
@@ -364,7 +364,7 @@ def create_order(request):
 
     cart_id = get_cart_id(request)
 
-    req = session.post(settings.ORDER_ENDPOINT + ORDER_CARTS_URI + '/'+cart_id,
+    req = session.post(settings.ORDER_SVC_ORIGIN + ORDER_CARTS_URI + '/'+cart_id,
                         params={}, headers={'Authorization': 'Bearer ' + access_token},
                         timeout=settings.HTTP_TIMEOUT)
     if req.status_code == 201:
@@ -385,7 +385,7 @@ def create_test_data(request):
     logger.debug('Create data | userCount=%s productCount=%s', userCount, productCount);
     if userCount and productCount:
         try:
-            req = session.post(settings.ADMIN_ENDPOINT + ADMIN_URI + '/dataset',
+            req = session.post(settings.ADMIN_SVC_ORIGIN + ADMIN_URI + '/dataset',
                                data={'userCount': ''+userCount, 'productCount': ''+productCount},
                                headers={'Authorization': 'Bearer ' + access_token},
                                timeout=settings.HTTP_SAMPLE_DATA_TIMEOUT)
@@ -413,7 +413,7 @@ def delete_test_data(request):
     logger.info('Deleting test data')
     access_token = get_access_token(request)
     try:
-        req = session.delete(settings.ADMIN_ENDPOINT + ADMIN_URI + '/dataset',
+        req = session.delete(settings.ADMIN_SVC_ORIGIN + ADMIN_URI + '/dataset',
                            params={}, headers={'Authorization': 'Bearer ' + access_token},
                            timeout=settings.HTTP_SAMPLE_DATA_TIMEOUT)
         req.raise_for_status()
@@ -438,23 +438,25 @@ def delete_test_data(request):
 def get_status(request):
     logger.debug('Get Web Status')
     status = { 'serviceId': 'WebApp', 'serviceHost': settings.HOSTNAME,
-               'serviceTime': time.ctime(time.time()) }
+               'serviceTime': time.ctime(time.time())}
     return HttpResponse(json.dumps(status, indent=2))
 
 
 def get_system_status(request):
     logger.debug('Get System Status')
     if request.GET['layer'] == 'services':
-        url = settings.ADMIN_ENDPOINT + ADMIN_URI + STATUS_SERVICES
+        url = settings.ADMIN_SVC_ORIGIN + ADMIN_URI + STATUS_SERVICES
+        logger.info('Getting status from: '+url)
     elif request.GET['layer'] == 'databases':
-        url = settings.ADMIN_ENDPOINT + ADMIN_URI + STATUS_DATABASES
+        url = settings.ADMIN_SVC_ORIGIN + ADMIN_URI + STATUS_DATABASES
+        logger.info('Getting status from: '+url)
     elif request.GET['layer'] == 'web':
         status = [{'serviceId': 'WebApp', 'serviceHost': settings.HOSTNAME,
                    'serviceTime': time.ctime(time.time())}]
         return render(request, 'app/monitor.html',
                       {'message': '<pre>' + json.dumps(status, indent=4) + '</pre>'})
     else:
-        return HttpResponse("Unknown table")
+        return HttpResponse("Unknown request parameter")
 
     try:
         req = session.get(url, timeout=settings.HTTP_TIMEOUT)
@@ -507,13 +509,13 @@ def get_table_data(request):
     logger.debug('Get table data for '+table_name)
     access_token = get_access_token(request)
     if table_name == 'inventory':
-        url = settings.INVENTORY_ENDPOINT + INVENTORY_URI
+        url = settings.INVENTORY_SVC_ORIGIN + INVENTORY_URI
     elif table_name == 'auth':
-        url = settings.AUTH_ENDPOINT + AUTH_USERS_URI
+        url = settings.AUTH_SVC_ORIGIN + AUTH_USERS_URI
     elif table_name == 'product':
-        url = settings.PRODUCT_ENDPOINT + PRODUCTS_URI
+        url = settings.PRODUCT_SVC_ORIGIN + PRODUCTS_URI
     elif table_name == 'order':
-        url = settings.ORDER_ENDPOINT + ORDERS_URI
+        url = settings.ORDER_SVC_ORIGIN + ORDERS_URI
     else:
         return HttpResponse("Unknown table")
 
