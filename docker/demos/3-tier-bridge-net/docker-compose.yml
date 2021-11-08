@@ -34,7 +34,7 @@ services:
       
   postgres:
     build:
-      context: ./postgres
+      context: ../../postgres
       dockerfile: Dockerfile
     image: ntw/postgres
     container_name: postgres
@@ -51,7 +51,7 @@ services:
 
   services:
     build:
-      context: ./services
+      context: ../../services
       dockerfile: Dockerfile
     image: ntw/services
     container_name: services-build
@@ -129,7 +129,7 @@ services:
 
   spa:
     build:
-      context: ./spa
+      context: ../../spa
       dockerfile: Dockerfile
     image: ntw/spa
     container_name: spa
