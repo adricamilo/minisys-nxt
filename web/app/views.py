@@ -464,11 +464,11 @@ def get_system_status(request):
     except HTTPError as http_error:
         print("Http Error:", http_error)
         logger.error("HTTPError communicating with the backend server for get status")
-        res_error = 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'
+        res_error = 'HTTP Error '+str(req.status_code)+' communicating with the backend server:\n'+str(http_error)
     except Exception as exception:
         print("Exception connecting:", exception)
         logger.error("Exception communicating with a backend server for get status")
-        res_error = 'Unable to connect to the backend'
+        res_error = 'Unable to connect to the backend:\n'+str(exception)
     else:
         # if req.status_code == 200:
         return render(request, 'app/monitor.html', {'message': '<pre>' + json.dumps(req.json(), indent=4) + '</pre>'})
