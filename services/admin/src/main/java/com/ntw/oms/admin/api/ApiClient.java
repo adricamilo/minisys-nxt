@@ -103,10 +103,16 @@ public abstract class ApiClient {
     }
 
     protected OperationStatus insertData(String uri, String data) {
+        OperationStatus operationStatus = new OperationStatus();
+        operationStatus.setSuccess(false);
         ServiceInstance instance = loadBalancer.choose(getEndpointServiceID().toString());
+        if (instance == null) {
+            operationStatus.setMessage("Unknown host for: "+getEndpointServiceID().toString());
+            logger.error("Service not available: "+getEndpointServiceID().toString());
+            return operationStatus;
+        }
         String host = instance.getHost();
         int port = instance.getPort();
-        OperationStatus operationStatus = new OperationStatus();
         try {
             HttpClientResponse response = client.sendPut(host, port, uri,
                     authHeader, MediaType.APPLICATION_JSON_VALUE, data);
@@ -115,7 +121,6 @@ public abstract class ApiClient {
             logger.debug("Data creation response code: {} and body: {}",
                     response.getStatus(), response.getBody());
         } catch (Exception e) {
-            operationStatus.setSuccess(false);
             operationStatus.setMessage("Error deleting data: "+e.getMessage());
             logger.error("Error inserting data: "+data);
             logger.error(e.getMessage(),e);
@@ -124,10 +129,16 @@ public abstract class ApiClient {
     }
 
     public OperationStatus deleteData() {
+        OperationStatus operationStatus = new OperationStatus();
+        operationStatus.setSuccess(false);
         ServiceInstance instance = loadBalancer.choose(getEndpointServiceID().toString());
+        if (instance == null) {
+            operationStatus.setMessage("Unknown host for: "+getEndpointServiceID().toString());
+            logger.error("Service not available: "+getEndpointServiceID().toString());
+            return operationStatus;
+        }
         String host = instance.getHost();
         int port = instance.getPort();
-        OperationStatus operationStatus = new OperationStatus();
         try {
             String uri = new StringBuilder().append(getServiceURI()).toString();
             HttpClientResponse response = client.sendDelete(host, port, uri, authHeader);
@@ -146,6 +157,12 @@ public abstract class ApiClient {
 
     public ServiceStatus getStatus() {
         ServiceInstance instance = loadBalancer.choose(getEndpointServiceID().toString());
+        ServiceStatus serviceStatus = new ServiceStatus(getEndpointServiceID().toString());
+        if (instance == null) {
+            serviceStatus.setServiceHost("Unknown");
+            serviceStatus.setServiceTime("Service not available");
+            return serviceStatus;
+        }
         String host = instance.getHost();
         int port = instance.getPort();
         try {
@@ -157,7 +174,6 @@ public abstract class ApiClient {
             return (new Gson()).fromJson(status, ServiceStatus.class);
         } catch (Exception e) {
             logger.error("Error fetching server status: {}", e.getMessage());
-            ServiceStatus serviceStatus = new ServiceStatus(getEndpointServiceID().toString());
             serviceStatus.setServiceHost(host+":"+port);
             serviceStatus.setServiceTime("Not Reachable: "+e.getMessage());
             return serviceStatus;

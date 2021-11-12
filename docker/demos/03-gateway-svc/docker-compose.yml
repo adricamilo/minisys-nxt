@@ -32,29 +32,38 @@ services:
       - app-logs:/var/log/oms
 
       
-  postgres:
-    build:
-      context: ../../postgres
-      dockerfile: Dockerfile
-    image: ntw/postgres
-    container_name: postgres
-    hostname: postgres
-    networks:
-      - mynet1
-    ports:
-      - "5432:5432"
-    env_file: .env
-    volumes:
-      - postgres-logs:/var/log/postgresql
-      - postgres-data:/var/lib/postgresql/data
-
-
   services:
     build:
       context: ../../services
       dockerfile: Dockerfile
     image: ntw/services
     container_name: services-build
+
+  gateway-svc:
+    image: ntw/services
+    container_name: gateway-svc
+    hostname: gateway-svc
+    networks:
+      - mynet1
+    ports:
+      - "8080:8080"
+    env_file: .env
+    volumes:
+      - app-logs:/var/log/oms
+    command: gateway
+
+  admin-svc:
+    image: ntw/services
+    container_name: admin-svc
+    hostname: admin-svc
+    networks:
+      - mynet1
+    ports:
+      - "8081:8080"
+    command: admin
+    env_file: .env
+    volumes:
+      - app-logs:/var/log/oms
 
   auth-svc:
     image: ntw/services
@@ -108,24 +117,6 @@ services:
     volumes:
       - app-logs:/var/log/oms
 
-  admin-svc:
-    image: ntw/services
-    container_name: admin-svc
-    hostname: admin-svc
-    networks:
-      - mynet1
-    ports:
-      - "8081:8080"
-    command: admin
-    env_file: .env
-    environment:
-      - AuthSvc.ribbon.listOfServers=http://auth-svc:8080
-      - ProductSvc.ribbon.listOfServers=http://product-svc:8080
-      - OrderSvc.ribbon.listOfServers=http://order-svc:8080
-      - InventorySvc.ribbon.listOfServers=http://inventory-svc:8080
-    volumes:
-      - app-logs:/var/log/oms
-
 
   spa:
     build:
@@ -138,3 +129,22 @@ services:
       - mynet1
     ports:
       - "3000:80"
+
+      
+  postgres:
+    build:
+      context: ../../postgres
+      dockerfile: Dockerfile
+    image: ntw/postgres
+    container_name: postgres
+    hostname: postgres
+    networks:
+      - mynet1
+    ports:
+      - "5432:5432"
+    env_file: .env
+    volumes:
+      - postgres-logs:/var/log/postgresql
+      - postgres-data:/var/lib/postgresql/data
+
+
