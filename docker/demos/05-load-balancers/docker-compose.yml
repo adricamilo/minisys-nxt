@@ -27,7 +27,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      - SERVER_HOSTS=web
+      - SERVER_HOSTS=web-1,web-2
       - SERVER_PORT=8000
       - USE_SSL=false
     volumes:
@@ -44,23 +44,39 @@ services:
     ports:
       - "81:80"
     environment:
-      - SERVER_HOSTS=gateway-svc
+      - SERVER_HOSTS=gateway-svc-1,gateway-svc-2
       - SERVER_PORT=8080
     volumes:
       - app-logs:/var/log/oms
 
     
-  web:
+  web-1:
     build:
       context: ../../web
       dockerfile: Dockerfile
     image: ntw/web
-    container_name: web
-    hostname: web
+    container_name: web-1
+    hostname: web-1
     networks:
       - mynet1
     ports:
       - "8000:8000"
+    command: python3 manage.py runserver 0.0.0.0:8000
+    env_file: .env
+    volumes:
+      - app-logs:/var/log/oms
+
+  web-2:
+    build:
+      context: ../../web
+      dockerfile: Dockerfile
+    image: ntw/web
+    container_name: web-2
+    hostname: web-2
+    networks:
+      - mynet1
+    ports:
+      - "8001:8000"
     command: python3 manage.py runserver 0.0.0.0:8000
     env_file: .env
     volumes:
@@ -94,17 +110,32 @@ services:
     volumes:
       - app-logs:/usr/local/tomcat/logs
 
-  gateway-svc:
+  gateway-svc-1:
     image: ntw/services
-    container_name: gateway-svc
-    hostname: gateway-svc
+    container_name: gateway-svc-1
+    hostname: gateway-svc-1
     networks:
       - mynet1
     ports:
       - "8080:8080"
     env_file: .env
     environment:
-      - eureka.instance.hostname=gateway-svc
+      - eureka.instance.hostname=gateway-svc-1
+    volumes:
+      - app-logs:/var/log/oms
+    command: gateway
+
+  gateway-svc-2:
+    image: ntw/services
+    container_name: gateway-svc-2
+    hostname: gateway-svc-2
+    networks:
+      - mynet1
+    ports:
+      - "8090:8080"
+    env_file: .env
+    environment:
+      - eureka.instance.hostname=gateway-svc-2
     volumes:
       - app-logs:/var/log/oms
     command: gateway
@@ -139,10 +170,10 @@ services:
     volumes:
       - app-logs:/var/log/oms
 
-  product-svc:
+  product-svc-1:
     image: ntw/services
-    container_name: product-svc
-    hostname: product-svc
+    container_name: product-svc-1
+    hostname: product-svc-1
     networks:
       - mynet1
     ports:
@@ -150,10 +181,25 @@ services:
     command: product
     env_file: .env
     environment:
-      - eureka.instance.hostname=product-svc
+      - eureka.instance.hostname=product-svc-1
     volumes:
       - app-logs:/var/log/oms
 
+  product-svc-2:
+    image: ntw/services
+    container_name: product-svc-2
+    hostname: product-svc-2
+    networks:
+      - mynet1
+    ports:
+      - "8093:8080"
+    command: product
+    env_file: .env
+    environment:
+      - eureka.instance.hostname=product-svc-2
+    volumes:
+      - app-logs:/var/log/oms
+      
   order-svc:
     image: ntw/services
     container_name: order-svc
@@ -169,10 +215,10 @@ services:
     volumes:
       - app-logs:/var/log/oms
 
-  inventory-svc:
+  inventory-svc-1:
     image: ntw/services
-    container_name: inventory-svc
-    hostname: inventory-svc
+    container_name: inventory-svc-1
+    hostname: inventory-svc-1
     networks:
       - mynet1
     ports:
@@ -180,7 +226,22 @@ services:
     command: inventory
     env_file: .env
     environment:
-      - eureka.instance.hostname=inventory-svc
+      - eureka.instance.hostname=inventory-svc-1
+    volumes:
+      - app-logs:/var/log/oms
+
+  inventory-svc-2:
+    image: ntw/services
+    container_name: inventory-svc-2
+    hostname: inventory-svc-2
+    networks:
+      - mynet1
+    ports:
+      - "8095:8080"
+    command: inventory
+    env_file: .env
+    environment:
+      - eureka.instance.hostname=inventory-svc-2
     volumes:
       - app-logs:/var/log/oms
 
@@ -216,3 +277,4 @@ services:
 
 
       
+
