@@ -16,7 +16,6 @@
 
 package com.ntw.oms.order;
 
-import com.ntw.oms.order.processor.OrderProcessor;
 import com.ntw.oms.order.queue.*;
 import io.opentracing.Tracer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,35 +38,36 @@ public class OrderMQConfiguration {
     private Environment environment;
 
     @Autowired
-    OrderProcessor orderProcessor;
+    OrderConsumer orderConsumer;
 
     @Autowired
     private Tracer tracer;
 
     @Bean
-    public MQClient getMessageQueueProducerBean() throws IOException, TimeoutException {
-        if (environment.getProperty("order.queue.type").equals("local")) {
-            return LocalMQ.getInstance();
+    public MQProducer getMessageQueueProducerBean() throws IOException, TimeoutException {
+        if (environment.getProperty("order.queue.type").equals("rabbitmq")) {
+            return new RabbitMQProducer(environment.getProperty("order.queue.host"),
+                    environment.getProperty("order.queue.name"));
         }
-        return new RabbitMQClient(environment.getProperty("order.queue.host"),
-                environment.getProperty("order.queue.name"));
+        // order.queue.type=local
+        return LocalMQ.getInstance();
     }
 
     @Bean
-    public MQReciever getMessageQueueConsumerBean() throws IOException, TimeoutException {
-        MQReciever receiver =
-        (environment.getProperty("order.queue.type").equals("local")) ?
-            LocalMQ.getInstance() :
-            new RabbitMQReceiver(environment.getProperty("order.queue.host"),
-                    environment.getProperty("order.queue.name"));
-        receiver.setOrderProcessor(orderProcessor);
-        receiver.setTracer(tracer);
+    public MQConsumer getMessageQueueConsumerBean() throws IOException, TimeoutException {
+        MQConsumer mqConsumer =
+        (environment.getProperty("order.queue.type").equals("rabbitmq")) ?
+            new RabbitMQConsumer(environment.getProperty("order.queue.host"),
+                    environment.getProperty("order.queue.name")) :
+                LocalMQ.getInstance();
+        mqConsumer.setOrderConsumer(orderConsumer);
+        mqConsumer.setTracer(tracer);
         try {
-            receiver.startReceiver();
+            mqConsumer.startConsumer();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return receiver;
+        return mqConsumer;
     }
 
 }

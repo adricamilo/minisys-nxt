@@ -1,6 +1,5 @@
 package com.ntw.oms.order.queue;
 
-import com.ntw.oms.order.processor.OrderProcessor;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import org.slf4j.Logger;
@@ -9,14 +8,14 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class LocalMQ implements MQClient, MQReciever {
+public class LocalMQ implements MQProducer, MQConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalMQ.class);
 
     private static LocalMQ messageQueue = new LocalMQ();
 
     private Queue<String> queue;
-    private OrderProcessor orderProcessor;
+    private OrderConsumer orderProcessor;
     private Tracer tracer;
 
     private LocalMQ() {
@@ -27,12 +26,12 @@ public class LocalMQ implements MQClient, MQReciever {
         return messageQueue;
     }
 
-    public OrderProcessor getOrderProcessor() {
+    public OrderConsumer getOrderProcessor() {
         return orderProcessor;
     }
 
     @Override
-    public void setOrderProcessor(OrderProcessor orderProcessor) {
+    public void setOrderConsumer(OrderConsumer orderProcessor) {
         this.orderProcessor = orderProcessor;
     }
 
@@ -49,8 +48,8 @@ public class LocalMQ implements MQClient, MQReciever {
     }
 
     @Override
-    public void startReceiver() {
-        (new Thread(new LocalMQProcessor())).start();
+    public void startConsumer() {
+        (new Thread(new LocalMQConsumer())).start();
     }
 
     public void processMessage(String message) {
@@ -60,7 +59,7 @@ public class LocalMQ implements MQClient, MQReciever {
         orderProcessor.processOrder(message);
     }
 
-    class LocalMQProcessor implements Runnable {
+    class LocalMQConsumer implements Runnable {
         @Override
         public void run() {
             while (true) {

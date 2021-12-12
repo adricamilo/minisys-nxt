@@ -3,22 +3,21 @@ package com.ntw.oms.order.queue;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-public class RabbitMQClient implements MQClient {
+public class RabbitMQProducer implements MQProducer {
 
-    private static final Logger logger = LoggerFactory.getLogger(RabbitMQClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(RabbitMQProducer.class);
 
     private String queueName;
     private Connection connection;
     private Channel channel;
 
-    public RabbitMQClient(String hostName, String queueName) throws IOException, TimeoutException {
+    public RabbitMQProducer(String hostName, String queueName) throws IOException, TimeoutException {
         this.queueName = queueName;
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(hostName);

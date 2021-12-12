@@ -16,6 +16,7 @@
 
 package com.ntw.oms.order.service;
 
+import com.ntw.oms.order.processor.OrderProcessor;
 import com.ntw.oms.order.util.OrderIdGenerator;
 import com.ntw.oms.cart.entity.Cart;
 import com.ntw.oms.cart.entity.CartLine;
@@ -59,10 +60,13 @@ public class OrderServiceImpl {
     private CartServiceImpl cartServiceBean;
 
     @Autowired
-    private OrderQueueClient orderQueueClient;
+    private OrderProcessor orderProcessor;
 
     @Value("${database.type}")
     private String orderDBType;
+
+    @Value("${order.process.async}")
+    private Boolean asyncOrderProcessing;
 
     @PostConstruct
     public void postConstruct() throws Exception {
@@ -159,11 +163,16 @@ public class OrderServiceImpl {
         order.setStatus(OrderStatus.IN_PROCESS);
         logger.debug("Prepared order; context={}", order);
         try {
-            orderQueueClient.enqueue(order, authHeader);
+            if (asyncOrderProcessing) {
+                orderProcessor.queueOrder(order, authHeader);
+                logger.info("Queued order for processing; context={}", order);
+            } else {
+                orderProcessor.processOrder(order, authHeader);
+                logger.info("Processed order; context={}", order);
+            }
         } catch (Exception e) {
             logger.error("Unable to publish order {}", order);
         }
-        logger.info("Queued order for processing; context={}", order);
         // empty cart
         if(! getCartServiceBean().removeCart(cartId)) {
             logger.error("Cannot empty cart; context={}", cartId);

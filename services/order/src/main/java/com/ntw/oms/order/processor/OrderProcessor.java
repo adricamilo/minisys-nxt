@@ -1,13 +1,12 @@
 package com.ntw.oms.order.processor;
 
-import com.google.gson.Gson;
 import com.ntw.oms.order.dao.OrderDao;
 import com.ntw.oms.order.dao.OrderDaoFactory;
 import com.ntw.oms.order.entity.InventoryReservation;
 import com.ntw.oms.order.entity.Order;
 import com.ntw.oms.order.entity.OrderLine;
 import com.ntw.oms.order.entity.OrderStatus;
-import com.ntw.oms.order.queue.QueueOrder;
+import com.ntw.oms.order.queue.OrderProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,9 @@ public class OrderProcessor {
     private String orderDBType;
 
     @Autowired
+    private OrderProducer orderProducer;
+
+    @Autowired
     private InventoryClient inventoryClientBean;
 
     @PostConstruct
@@ -51,27 +53,17 @@ public class OrderProcessor {
         return inventoryClientBean;
     }
 
-    public QueueOrder getOrder(String serializedOrderString) {
-        return (new Gson()).fromJson(serializedOrderString, QueueOrder.class);
-    }
-
-    public boolean processOrder(String orderJSON) {
-        QueueOrder queueOrder = getOrder(orderJSON);
-        if (queueOrder == null) {
-            logger.error("Unable to deserialize order received for the order queue.");
+    public boolean queueOrder(Order order, String authHeader) {
+        try {
+            orderProducer.enqueue(order, authHeader);
+        } catch (Exception e) {
             return false;
         }
-        return processOrder(queueOrder);
-    }
-
-    public boolean processOrder(QueueOrder queueOrder) {
-        // reserve inventory
-        if (! reserveInventory(queueOrder.getOrder(), queueOrder.getAuthHeader())) {
-            logger.error("Unable to reserve inventory for order; context={}", queueOrder);
-            return false;
-        }
-        logger.info("Processed order: {}", queueOrder.getOrder());
         return true;
+    }
+
+    public boolean processOrder(Order order, String authHeader) {
+        return reserveInventory(order, authHeader);
     }
 
     private boolean reserveInventory(Order order, String authHeader) {

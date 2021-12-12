@@ -72,6 +72,7 @@ public class AuthenticationFilter extends ZuulFilter {
         if (request.getRequestURI().startsWith("/auth/token") ||
                 request.getRequestURI().startsWith("/status") ||
                 request.getRequestURI().startsWith("/admin/status") ||
+                request.getRequestURI().startsWith("/actuator/prometheus") ||
                         HttpMethod.OPTIONS.matches(request.getMethod()) ) {
             return false;
         }
