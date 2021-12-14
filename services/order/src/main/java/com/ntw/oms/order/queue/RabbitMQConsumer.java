@@ -1,8 +1,6 @@
 package com.ntw.oms.order.queue;
 
 import com.rabbitmq.client.*;
-import io.opentracing.Span;
-import io.opentracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,12 +10,7 @@ import java.util.concurrent.TimeoutException;
 class RabbitMQCallback implements DeliverCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(RabbitMQCallback.class);
-    private Tracer tracer;
     private OrderConsumer orderConsumer;
-
-    public void setTracer(Tracer tracer) {
-        this.tracer = tracer;
-    }
 
     public void setOrderConsumer(OrderConsumer orderConsumer) {
         this.orderConsumer = orderConsumer;
@@ -25,12 +18,9 @@ class RabbitMQCallback implements DeliverCallback {
 
     @Override
     public void handle(String s, Delivery delivery) throws IOException {
-        Span span = tracer.buildSpan("order-processing").start();
-        tracer.activateSpan(span);
         String message = new String(delivery.getBody(), "UTF-8");
         logger.debug("Received message from order queue: message={}", message);
         orderConsumer.processOrder(message);
-        span.finish();
     }
 
 }
@@ -44,7 +34,6 @@ public class RabbitMQConsumer implements MQConsumer {
     private Channel channel;
 
     private OrderConsumer orderConsumer;
-    private Tracer tracer;
 
     public OrderConsumer getOrderConsumer() {
         return orderConsumer;
@@ -53,15 +42,6 @@ public class RabbitMQConsumer implements MQConsumer {
     @Override
     public void setOrderConsumer(OrderConsumer orderProcessor) {
         this.orderConsumer = orderProcessor;
-    }
-
-    public Tracer getTracer() {
-        return tracer;
-    }
-
-    @Override
-    public void setTracer(Tracer tracer) {
-        this.tracer = tracer;
     }
 
     public RabbitMQConsumer(String hostName, String queueName)
@@ -83,7 +63,6 @@ public class RabbitMQConsumer implements MQConsumer {
     public void startConsumer() throws IOException {
         RabbitMQCallback callback = new RabbitMQCallback();
         callback.setOrderConsumer(getOrderConsumer());
-        callback.setTracer(getTracer());
         try {
             logger.info("Waiting for messages.");
             channel.basicConsume(queueName, true, callback, consumerTag -> {});

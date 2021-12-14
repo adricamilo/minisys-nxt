@@ -40,9 +40,6 @@ public class OrderMQConfiguration {
     @Autowired
     OrderConsumer orderConsumer;
 
-    @Autowired
-    private Tracer tracer;
-
     @Bean
     public MQProducer getMessageQueueProducerBean() throws IOException, TimeoutException {
         if (environment.getProperty("order.queue.type").equals("rabbitmq")) {
@@ -61,7 +58,6 @@ public class OrderMQConfiguration {
                     environment.getProperty("order.queue.name")) :
                 LocalMQ.getInstance();
         mqConsumer.setOrderConsumer(orderConsumer);
-        mqConsumer.setTracer(tracer);
         try {
             mqConsumer.startConsumer();
         } catch (Exception e) {

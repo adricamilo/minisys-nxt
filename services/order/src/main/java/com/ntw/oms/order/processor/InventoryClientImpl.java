@@ -96,11 +96,11 @@ public class InventoryClientImpl implements InventoryClient {
                 .post(body);
         String authHeader = OrderServiceImpl.getThreadLocal().get();
         requestBuilder.addHeader("Authorization", authHeader);
-        tracer.inject(tracer.activeSpan().context(),
+        Span invRemoteCallSpan = tracer.buildSpan("reserveInventoryRemote").asChildOf(tracer.activeSpan()).start();
+        tracer.inject(invRemoteCallSpan.context(),
                     Format.Builtin.HTTP_HEADERS,
                     new RequestBuilderCarrier(requestBuilder));
         Request request = requestBuilder.build();
-        Span childSpan = tracer.buildSpan("reserveInventory").asChildOf(tracer.activeSpan()).start();
         try (Response response = client.newCall(request).execute()) {
             if (response.code() == 200) {
                 logger.debug("Reserved inventory successfully; context={}", inventoryReservation);
@@ -115,7 +115,7 @@ public class InventoryClientImpl implements InventoryClient {
             throw e;
         }
         finally {
-            childSpan.finish();
+            invRemoteCallSpan.finish();
         }
     }
 }

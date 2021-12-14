@@ -2,16 +2,21 @@ package com.ntw.oms.order.queue;
 
 import com.ntw.oms.order.entity.Order;
 
+import java.util.HashMap;
+
 public class QueueOrder {
     private Order order;
     private String authHeader;
+    private HashMap<String, String> tracingContextMap;
 
     public QueueOrder() {
+        this.tracingContextMap = new HashMap<>();
     }
 
     public QueueOrder(Order order, String authHeader) {
         this.order = order;
         this.authHeader = authHeader;
+        this.tracingContextMap = new HashMap<>();
     }
 
     public Order getOrder() {
@@ -30,11 +35,20 @@ public class QueueOrder {
         this.authHeader = authHeader;
     }
 
+    public HashMap<String, String> getTracingContextMap() {
+        return tracingContextMap;
+    }
+
+    public void setTracingContextMap(HashMap<String, String> tracingContextMap) {
+        this.tracingContextMap = tracingContextMap;
+    }
+
     @Override
     public String toString() {
         return "{" +
                 "\"order\":" + (order == null ? "null" : order) + ", " +
-                "\"authHeader\":" + (authHeader == null ? "null" : "\"" + authHeader + "\"") +
+                "\"authHeader\":" + (authHeader == null ? "null" : "\"" + authHeader + "\"") + ", " +
+                "\"tracingContextMap\":" + (tracingContextMap == null ? "null" : "\"" + tracingContextMap + "\"") +
                 "}";
     }
 }

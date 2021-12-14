@@ -1,7 +1,5 @@
 package com.ntw.oms.order.queue;
 
-import io.opentracing.Span;
-import io.opentracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +14,6 @@ public class LocalMQ implements MQProducer, MQConsumer {
 
     private Queue<String> queue;
     private OrderConsumer orderProcessor;
-    private Tracer tracer;
 
     private LocalMQ() {
         queue =new LinkedList<>();
@@ -36,11 +33,6 @@ public class LocalMQ implements MQProducer, MQConsumer {
     }
 
     @Override
-    public void setTracer(Tracer tracer) {
-        this.tracer = tracer;
-    }
-
-    @Override
     public void send(String message) {
         if (!queue.offer(message)) {
             logger.error("Unable to insert message into queue: message={}", message);
@@ -54,8 +46,6 @@ public class LocalMQ implements MQProducer, MQConsumer {
 
     public void processMessage(String message) {
         logger.debug("Received message from order queue: message={}", message);
-        Span span = tracer.buildSpan("order-processing").start();
-        tracer.activateSpan(span);
         orderProcessor.processOrder(message);
     }
 
