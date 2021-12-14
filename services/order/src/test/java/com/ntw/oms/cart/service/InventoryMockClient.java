@@ -26,7 +26,7 @@ import java.io.IOException;
  */
 public class InventoryMockClient implements InventoryClient {
     @Override
-    public boolean reserveInventory(InventoryReservation invRes, String authHeader) throws IOException {
+    public boolean reserveInventory(InventoryReservation invRes) throws IOException {
         return true;
     }
 }

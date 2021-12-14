@@ -65,12 +65,22 @@ public class OrderServiceImpl {
     @Value("${database.type}")
     private String orderDBType;
 
-    @Value("${order.process.async}")
-    private Boolean asyncOrderProcessing;
+    @Value("${order.process.async:false}")
+    private boolean asyncOrderProcessing;
 
     @PostConstruct
     public void postConstruct() throws Exception {
         this.orderDaoBean = orderDaoFactory.getOrderDao(orderDBType);
+    }
+
+    private static ThreadLocal<String> threadLocal = new ThreadLocal<>();
+
+    public static ThreadLocal<String> getThreadLocal() {
+        return threadLocal;
+    }
+
+    public static void setThreadLocal(ThreadLocal<String> threadLocal) {
+        OrderServiceImpl.threadLocal = threadLocal;
     }
 
     public OrderDao getOrderDaoBean() {
@@ -87,6 +97,14 @@ public class OrderServiceImpl {
 
     public void setCartServiceBean(CartServiceImpl cartServiceBean) {
         this.cartServiceBean = cartServiceBean;
+    }
+
+    public OrderProcessor getOrderProcessor() {
+        return orderProcessor;
+    }
+
+    public void setOrderProcessor(OrderProcessor orderProcessor) {
+        this.orderProcessor = orderProcessor;
     }
 
     /**
@@ -140,6 +158,7 @@ public class OrderServiceImpl {
      * @return          created order
      */
     public Order createOrder(String cartId, String authHeader) throws IOException {
+        threadLocal.set(authHeader);
         // get items from the cart
         Cart cart = getCartServiceBean().getCart(cartId);
         if (cart == null || cart.getCartLines().size() == 0) {
@@ -164,14 +183,14 @@ public class OrderServiceImpl {
         logger.debug("Prepared order; context={}", order);
         try {
             if (asyncOrderProcessing) {
-                orderProcessor.queueOrder(order, authHeader);
+                orderProcessor.queueOrder(order);
                 logger.info("Queued order for processing; context={}", order);
             } else {
-                orderProcessor.processOrder(order, authHeader);
+                orderProcessor.processOrder(order);
                 logger.info("Processed order; context={}", order);
             }
         } catch (Exception e) {
-            logger.error("Unable to publish order {}", order);
+            logger.error("Unable to publish order {} due to an exception: ", order, e);
         }
         // empty cart
         if(! getCartServiceBean().removeCart(cartId)) {

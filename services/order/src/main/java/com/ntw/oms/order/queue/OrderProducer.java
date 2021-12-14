@@ -2,6 +2,7 @@ package com.ntw.oms.order.queue;
 
 import com.google.gson.Gson;
 import com.ntw.oms.order.entity.Order;
+import com.ntw.oms.order.service.OrderServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,8 @@ public class OrderProducer {
         this.MQProducer = MQProducer;
     }
 
-    public void enqueue(Order order, String authHeader) throws Exception {
+    public void enqueue(Order order) throws Exception {
+        String authHeader = OrderServiceImpl.getThreadLocal().get();
         QueueOrder queueOrder = new QueueOrder(order, authHeader);
         String message = (new Gson()).toJson(queueOrder);
         try {

@@ -2,6 +2,7 @@ package com.ntw.oms.order.queue;
 
 import com.google.gson.Gson;
 import com.ntw.oms.order.processor.OrderProcessor;
+import com.ntw.oms.order.service.OrderServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,8 @@ public class OrderConsumer {
 
     private boolean processOrder(QueueOrder queueOrder) {
         // reserve inventory
-        if (! orderProcessor.processOrder(queueOrder.getOrder(), queueOrder.getAuthHeader())) {
+        OrderServiceImpl.getThreadLocal().set(queueOrder.getAuthHeader());
+        if (! orderProcessor.processOrder(queueOrder.getOrder())) {
             logger.error("Unable to reserve inventory for order; context={}", queueOrder);
             return false;
         }

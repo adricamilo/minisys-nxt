@@ -20,7 +20,9 @@ import com.ntw.oms.cart.config.TestConfig;
 import com.ntw.oms.cart.dao.CartMockDao;
 import com.ntw.oms.cart.dao.OrderMockDao;
 import com.ntw.oms.cart.entity.Cart;
+import com.ntw.oms.order.dao.OrderDao;
 import com.ntw.oms.order.entity.Order;
+import com.ntw.oms.order.processor.OrderProcessor;
 import com.ntw.oms.order.service.OrderServiceImpl;
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -52,8 +54,12 @@ public class OrderServiceImplTest extends TestCase {
         CartServiceImpl cartService = new CartServiceImpl();
         cartService.setCartDaoBean(new CartMockDao());
         orderService.setCartServiceBean(cartService);
-        //orderService.setInventoryClientBean(new InventoryMockClient());
-        orderService.setOrderDaoBean(new OrderMockDao());
+        OrderProcessor orderProcessor = new OrderProcessor();
+        orderProcessor.setInventoryClientBean(new InventoryMockClient());
+        orderService.setOrderProcessor(orderProcessor);
+        OrderDao orderDao = new OrderMockDao();
+        orderService.setOrderDaoBean(orderDao);
+        orderService.getOrderProcessor().setOrderDaoBean(orderDao);
     }
 
     public void testDummy() {
@@ -95,7 +101,7 @@ public class OrderServiceImplTest extends TestCase {
 
     public void testCreateOrderFromCart() throws IOException {
         Cart cart = TestConfig.createCart(TestConfig.TEST_USER_ID);
-        Order order = orderService.createOrder(TestConfig.TEST_USER_ID, null);
+        Order order = orderService.createOrder(TestConfig.TEST_USER_ID, "null");
         Assert.assertNotNull(order);
         Assert.assertNotNull(order.getId());
         Assert.assertEquals(TestConfig.TEST_USER_ID, order.getUserId());

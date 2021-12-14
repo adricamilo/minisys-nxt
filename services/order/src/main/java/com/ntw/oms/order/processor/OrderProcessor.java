@@ -49,31 +49,36 @@ public class OrderProcessor {
         this.orderDaoBean = orderDaoBean;
     }
 
+    public void setInventoryClientBean(InventoryClient inventoryClientBean) {
+        this.inventoryClientBean = inventoryClientBean;
+    }
+
     public InventoryClient getInventoryClientBean() {
         return inventoryClientBean;
     }
 
-    public boolean queueOrder(Order order, String authHeader) {
+    public boolean queueOrder(Order order) {
         try {
-            orderProducer.enqueue(order, authHeader);
+            orderProducer.enqueue(order);
         } catch (Exception e) {
+            logger.error("Unable to queue order", e);
             return false;
         }
         return true;
     }
 
-    public boolean processOrder(Order order, String authHeader) {
-        return reserveInventory(order, authHeader);
+    public boolean processOrder(Order order) {
+        return reserveInventory(order);
     }
 
-    private boolean reserveInventory(Order order, String authHeader) {
+    private boolean reserveInventory(Order order) {
         List<OrderLine> orderLines = order.getOrderLines();
         InventoryReservation inventoryReservation = new InventoryReservation();
         for (OrderLine ol : orderLines) {
             inventoryReservation.addInvResLine(ol.getProductId(), ol.getQuantity());
         }
         try {
-            if (!getInventoryClientBean().reserveInventory(inventoryReservation, authHeader)) {
+            if (!getInventoryClientBean().reserveInventory(inventoryReservation)) {
                 logger.error("Unable to reserve inventory; context={}", inventoryReservation);
                 return false;
             }

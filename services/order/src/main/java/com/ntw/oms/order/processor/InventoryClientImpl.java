@@ -78,7 +78,7 @@ public class InventoryClientImpl implements InventoryClient {
     }
 
     @Override
-    public boolean reserveInventory(InventoryReservation inventoryReservation, String authHeader) throws IOException {
+    public boolean reserveInventory(InventoryReservation inventoryReservation) throws IOException {
         ServiceInstance instance = getLoadBalancer().choose(ServiceID.InventorySvc.toString());
         if (instance == null) {
             logger.error("Unable to reserve inventory, as inventory service is not available");
@@ -94,6 +94,7 @@ public class InventoryClientImpl implements InventoryClient {
         Request.Builder requestBuilder = new Request.Builder()
                 .url(url.toString())
                 .post(body);
+        String authHeader = OrderServiceImpl.getThreadLocal().get();
         requestBuilder.addHeader("Authorization", authHeader);
         tracer.inject(tracer.activeSpan().context(),
                     Format.Builtin.HTTP_HEADERS,
