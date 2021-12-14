@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os, socket, logging
+from jaeger_client import Config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -236,3 +237,24 @@ try:
 except:
     HOSTNAME = 'localhost'
 
+
+
+# Jaeger Tracing settings
+
+config = Config(
+    config={ # usually read from some yaml config
+        'sampler': {
+            'type': 'const',
+            'param': 1,
+        },
+        'local_agent': {
+            'reporting_host': 'jaeger-agent',
+            'reporting_port': '6831',
+        },
+        'logging': True,
+    },
+    service_name='WebApp',
+    validate=True,
+)
+
+TRACER = config.initialize_tracer()

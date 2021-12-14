@@ -18,7 +18,7 @@ from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.conf import settings
 from requests.exceptions import ConnectionError, HTTPError, Timeout, RequestException
 
-import requests, json, logging, time, base64, os, traceback
+import requests, json, logging, time, base64, os, traceback, opentracing
 
 AUTH_TOKEN_COOKIE = 'auth_token'
 AUTH_USER_COOKIE = 'user_auth'
@@ -41,6 +41,8 @@ session = requests.session()
 adapter = requests.adapters.HTTPAdapter(pool_connections=20, pool_maxsize=20)
 session.mount('http://', adapter)
 
+tracer = settings.TRACER
+Format = opentracing.Format
 
 def get_access_token(request):
     if AUTH_TOKEN_COOKIE in request.COOKIES:
@@ -223,16 +225,19 @@ def monitoring_page(request):
 
 
 def profile(request):
-    access_token = get_access_token(request)
-    user_id = get_user(request)
-    req = session.get(settings.AUTH_SVC_ORIGIN + USERS_PROFILE_URI +'/'+ user_id,
-                       headers={'Authorization':'Bearer '+access_token},
-                       timeout=settings.HTTP_TIMEOUT)
-    if req.status_code == 200:
-        logger.info('User profile fetched | context=%s' + req.content.decode())
-        return render(request, 'app/profile.html', {'userProfile': req.json()})
-    logger.error('Unable to get user profile | userId=%s', user_id)
-    return HttpResponse('Unable to get user profile for ' + user_id)
+    with tracer.start_span('getUserProfile') as span:
+        access_token = get_access_token(request)
+        user_id = get_user(request)
+        req_headers = {}
+        tracer.inject(span.context, Format.TEXT_MAP, req_headers)
+        req_headers['Authorization'] = 'Bearer ' + access_token
+        req = session.get(settings.AUTH_SVC_ORIGIN + USERS_PROFILE_URI +'/'+ user_id,
+                           headers=req_headers, timeout=settings.HTTP_TIMEOUT)
+        if req.status_code == 200:
+            logger.info('User profile fetched | context=%s' + req.content.decode())
+            return render(request, 'app/profile.html', {'userProfile': req.json()})
+        logger.error('Unable to get user profile | userId=%s', user_id)
+        return HttpResponse('Unable to get user profile for ' + user_id)
 
 
 def home(request):
@@ -244,51 +249,59 @@ def home(request):
 
 
 def products(request):
-    access_token = get_access_token(request)
-    try:
-        req = session.get(settings.PRODUCT_SVC_ORIGIN + PRODUCTS_URI,
-                           headers={'Authorization': 'Bearer '+access_token},
-                           timeout=settings.HTTP_TIMEOUT)
-        req.raise_for_status()
-    except HTTPError as http_error:
-        logger.error("HTTPError communicating with the backend server for get products: %s", http_error)
-        return render(request, 'app/error.html',
-                      {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
-    except Exception as exception:
-        logger.error("Error communicating with a backend server for get products: %s", exception)
-        logger.error(traceback.format_exc())
-        return render(request, 'app/error.html',
-                      {'message': 'Error communicating with the backend server.'})
+    with tracer.start_span('getProducts') as span:
+        access_token = get_access_token(request)
+        try:
+            req_headers = {}
+            tracer.inject(span.context, Format.TEXT_MAP, req_headers)
+            req_headers['Authorization']='Bearer '+access_token
+            req = session.get(settings.PRODUCT_SVC_ORIGIN + PRODUCTS_URI,
+                              headers=req_headers, timeout=settings.HTTP_TIMEOUT)
+            req.raise_for_status()
+        except HTTPError as http_error:
+            logger.error("HTTPError communicating with the backend server for get products: %s", http_error)
+            return render(request, 'app/error.html',
+                          {'message': 'HTTP Error '+str(req.status_code)+' communicating with the backend server.'})
+        except Exception as exception:
+            logger.error("Error communicating with a backend server for get products: %s", exception)
+            logger.error(traceback.format_exc())
+            return render(request, 'app/error.html',
+                          {'message': 'Error communicating with the backend server.'})
 
-    if req.status_code == 200:
-        logger.info('Products fetched | context=%s', req.content.decode())
-        products = req.json()
-        for product in products:
-            product['imageUrl'] = get_product_image_url(product['id'])
-        return render(request, 'app/products.html', {'products': products})
-    logger.error('Unable to fetch products from service | userId=%s', get_user(request))
-    return HttpResponse("Unable to get products")
+        if req.status_code == 200:
+            logger.info('Products fetched | context=%s', req.content.decode())
+            products = req.json()
+            for product in products:
+                product['imageUrl'] = get_product_image_url(product['id'])
+            return render(request, 'app/products.html', {'products': products})
+        logger.error('Unable to fetch products from service | userId=%s', get_user(request))
+        return HttpResponse("Unable to get products")
 
 
 def product(request):
-    product_id = request.GET.get('id')
-    logger.debug('Get product | productId=%s', product_id)
-    access_token = get_access_token(request)
-    req = get_product(product_id, access_token)
-    if req.status_code == 200:
-        logger.info('Product fetched | context=%s', req.content.decode())
-        product = req.json()
-        product['imageUrl'] = get_product_image_url(product_id)
-        cart_id = get_cart_id(request)
-        in_cart = is_product_in_cart(cart_id, product_id, access_token)
-        remove_button_visibility = 'hidden'
-        if in_cart:
-            remove_button_visibility = 'visible'
-        return render(request, 'app/product.html',
-                      {'product': product,
-                       'removeButtonVisibility': remove_button_visibility})
-    logger.error('Unable to get product from service | productId=%s', product_id)
-    return HttpResponse("Unable to get product")
+    with tracer.start_span('getProduct') as span:
+        product_id = request.GET.get('id')
+        logger.debug('Get product | productId=%s', product_id)
+        access_token = get_access_token(request)
+        req_headers = {}
+        tracer.inject(span.context, Format.TEXT_MAP, req_headers)
+        req_headers['Authorization'] = 'Bearer ' + access_token
+        req = session.get(settings.PRODUCT_SVC_ORIGIN + PRODUCTS_URI + '/' + product_id,
+                          headers=req_headers, timeout=settings.HTTP_TIMEOUT)
+        if req.status_code == 200:
+            logger.info('Product fetched | context=%s', req.content.decode())
+            product = req.json()
+            product['imageUrl'] = get_product_image_url(product_id)
+            cart_id = get_cart_id(request)
+            in_cart = is_product_in_cart(cart_id, product_id, access_token)
+            remove_button_visibility = 'hidden'
+            if in_cart:
+                remove_button_visibility = 'visible'
+            return render(request, 'app/product.html',
+                          {'product': product,
+                           'removeButtonVisibility': remove_button_visibility})
+        logger.error('Unable to get product from service | productId=%s', product_id)
+        return HttpResponse("Unable to get product")
 
 
 def cart(request):
@@ -333,16 +346,19 @@ def cart(request):
 
 
 def orders(request):
-    access_token = get_access_token(request)
-    req = session.get(settings.ORDER_SVC_ORIGIN + ORDERS_URI,
-                       headers={'Authorization': 'Bearer '+access_token},
-                       timeout=settings.HTTP_TIMEOUT)
-    if req.status_code == 200:
-        logger.info('Orders fetched | context=%s', req.content.decode())
-        dec_orders = decorate_orders(req.json(), access_token)
-        return render(request, 'app/orders.html', {'orders': dec_orders})
-    logger.error('Unable to fetch orders from service | userId=%s', get_user(request))
-    return HttpResponse("Unable to get orders")
+    with tracer.start_span('getOrders') as span:
+        access_token = get_access_token(request)
+        req_headers = {}
+        tracer.inject(span.context, Format.TEXT_MAP, req_headers)
+        req_headers['Authorization'] = 'Bearer ' + access_token
+        req = session.get(settings.ORDER_SVC_ORIGIN + ORDERS_URI,
+                           headers=req_headers, timeout=settings.HTTP_TIMEOUT)
+        if req.status_code == 200:
+            logger.info('Orders fetched | context=%s', req.content.decode())
+            dec_orders = decorate_orders(req.json(), access_token)
+            return render(request, 'app/orders.html', {'orders': dec_orders})
+        logger.error('Unable to fetch orders from service | userId=%s', get_user(request))
+        return HttpResponse("Unable to get orders")
 
 
 def order(request):
@@ -360,21 +376,22 @@ def order(request):
 
 
 def create_order(request):
-    access_token = get_access_token(request)
-
-    cart_id = get_cart_id(request)
-
-    req = session.post(settings.ORDER_SVC_ORIGIN + ORDER_CARTS_URI + '/'+cart_id,
-                        params={}, headers={'Authorization': 'Bearer ' + access_token},
-                        timeout=settings.HTTP_TIMEOUT)
-    if req.status_code == 201:
-        logger.info('Created order | order=%s', req.json())
-    else:
-        logger.error('Unable to create order | cart=%s', cart)
-        return render(request, 'app/error.html',
-                      {'message': 'Unable to create order due to backend server.'})
-    order_dec = decorate_order(req.json(), access_token)
-    return render(request, 'app/order.html', {'order': order_dec})
+    with tracer.start_span('createOrder') as span:
+        access_token = get_access_token(request)
+        cart_id = get_cart_id(request)
+        req_headers = {}
+        tracer.inject(span.context, Format.TEXT_MAP, req_headers)
+        req_headers['Authorization'] = 'Bearer ' + access_token
+        req = session.post(settings.ORDER_SVC_ORIGIN + ORDER_CARTS_URI + '/'+cart_id,
+                            params={}, headers=req_headers, timeout=settings.HTTP_TIMEOUT)
+        if req.status_code == 201:
+            logger.info('Created order | order=%s', req.json())
+        else:
+            logger.error('Unable to create order | cart=%s', cart)
+            return render(request, 'app/error.html',
+                          {'message': 'Unable to create order due to backend server.'})
+        order_dec = decorate_order(req.json(), access_token)
+        return render(request, 'app/order.html', {'order': order_dec})
 
 
 def create_test_data(request):

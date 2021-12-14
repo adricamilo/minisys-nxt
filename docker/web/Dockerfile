@@ -34,10 +34,9 @@ RUN apt-get update && \
     pip3 install django && \
     pip3 install gunicorn
 
-# ?? To avoid runtime error of missing requests package
-# ?? Should explore to remove it
-RUN pip3 install requests
-RUN pip3 install python-json-logger
+RUN pip3 install requests && \
+    pip3 install python-json-logger && \
+    pip3 install opentracing jaeger-client
 
 # Copy Python UI code
 RUN mkdir /usr/src/PyUI

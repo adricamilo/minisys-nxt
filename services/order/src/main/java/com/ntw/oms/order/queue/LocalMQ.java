@@ -54,7 +54,7 @@ public class LocalMQ implements MQProducer, MQConsumer {
         public void run() {
             while (true) {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     logger.error("LocalMQProcessor sleep interrupted: {}", e);
                 }
