@@ -9,8 +9,9 @@ scrape_configs:
     scrape_interval: 5s
     eureka_sd_configs:
       - server: http://eureka:8761/eureka
-#    static_configs:
-#      - targets:
+    static_configs:
+      - targets:
+        - eureka:8761
 #        - auth-svc:8080
 #        - product-svc:8080
 #        - order-svc:8080

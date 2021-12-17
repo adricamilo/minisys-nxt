@@ -38,6 +38,8 @@ RUN pip3 install requests && \
     pip3 install python-json-logger && \
     pip3 install opentracing jaeger-client
 
+RUN pip3 install django-prometheus
+
 # Copy Python UI code
 RUN mkdir /usr/src/PyUI
 WORKDIR /usr/src/PyUI
