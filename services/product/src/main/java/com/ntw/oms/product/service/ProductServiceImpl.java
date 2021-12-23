@@ -103,6 +103,55 @@ public class ProductServiceImpl {
         return products;
     }
 
+    public List<Product> getProducts(List<String> ids) {
+        List<Product> products;
+        List<Object> productObjects = null;
+        List<Object> idObjects = new LinkedList<>();
+        ids.forEach(id -> idObjects.add(id));
+        // Get as many from cache
+        try {
+            if (redisTemplate != null) {
+                productObjects = redisTemplate.opsForHash().multiGet(REDIS_PRODUCTS_MAP_KEY, idObjects);
+            }
+        } catch(Exception e) {
+            logger.error("Unable to access redis cache for getProducts: ", e);
+        }
+        if (productObjects == null || productObjects.size() == 0) {
+            // Get all from DB
+            products = getProductDaoBean().getProducts(ids);
+            return products;
+        }
+        if (productObjects.size() == ids.size()) {
+            // All products found in cache
+            products = new LinkedList<>();
+            productObjects.forEach(productObj -> {
+                Product product = (Product) productObj;
+                products.add(product);
+            });
+            return products;
+        }
+        // Find missing products in cache
+        Map<String, Product> productMap = new HashMap<>();
+        productObjects.forEach(productObj -> {
+            Product product = (Product)productObj;
+            productMap.put(product.getId(), product);
+        });
+        List<String> missingIds = new LinkedList<>();
+        ids.forEach(id -> {
+            Product product = productMap.get(id);
+            if (product == null) missingIds.add(id);
+        });
+        // Get missing products from DB
+        List<Product> mapProducts = new LinkedList<>();
+        products = getProductDaoBean().getProducts(missingIds);
+        products.forEach(product -> productMap.put(product.getId(), product));
+        // Get all products from map in the order of ids
+        ids.forEach(id -> {
+            mapProducts.add(productMap.get(id));
+        });
+        return mapProducts;
+    }
+
     public Product getProduct(String id) {
         Product product = null;
         try {

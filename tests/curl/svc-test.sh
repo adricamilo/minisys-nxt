@@ -31,7 +31,11 @@ curl -X GET -H "Authorization: Bearer $ACCESS_TOKEN" -D - ${SERVICES_HOST}:${SER
 
 echo -e '\n-------Get Product-----------\n'
 
-curl -X GET -H "Authorization: Bearer $ACCESS_TOKEN" -D - ${SERVICES_HOST}:${SERVICES_PORT}/products/Test-Product-00001
+curl -X GET -H "Authorization: Bearer $ACCESS_TOKEN" -D - ${SERVICES_HOST}:${SERVICES_PORT}/products/test-product-00001
+
+echo -e '\n-------Get Products by Ids-----------\n'
+
+curl -X POST -H "Authorization: Bearer $ACCESS_TOKEN" -H "Content-Type: application/json" --data '["test-product-00001","test-product-00002"]' -D - ${SERVICES_HOST}:${SERVICES_PORT}/products/ids
 
 echo -e '\n-------Post Add to Cart-----------\n'
 

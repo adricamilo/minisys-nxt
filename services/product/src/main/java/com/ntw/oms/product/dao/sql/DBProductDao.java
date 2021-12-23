@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by anurag on 24/03/17.
@@ -50,20 +51,38 @@ public class DBProductDao implements ProductDao {
     @Override
     public List<Product> getProducts() {
         String allProductSql = "select * from Product";
+        return queryProducts(allProductSql);
+    }
+
+    private List<Product> queryProducts(String query) {
         List<Product> products;
         try {
-            products = jdbcTemplate.query(allProductSql, new BeanPropertyRowMapper<>(Product.class));
+            products = jdbcTemplate.query(query, new BeanPropertyRowMapper<>(Product.class));
         } catch (Exception e) {
             logger.error("Exception fetching products: ", e);
             return null;
         }
         if (products.isEmpty()) {
-            logger.error("Unable to get Products; context={}", allProductSql);
+            logger.error("Unable to get Products; context={}", query);
             return new LinkedList<>();
         }
         logger.debug("Fetched {} products", products.size());
         logger.debug("Fetched products; context={}", products);
         return products;
+    }
+
+    @Override
+    public List<Product> getProducts(List<String> ids) {
+        StringBuilder productSql = new StringBuilder("select * from product where id IN ");
+        productSql.append("(");
+        AtomicInteger i= new AtomicInteger(0);
+        ids.forEach(id -> {
+            productSql.append(id);
+            if (i.getAndSet(i.get()+1) < ids.size())
+                productSql.append(",");
+        });
+        productSql.append(")");
+        return queryProducts(productSql.toString());
     }
 
     @Override

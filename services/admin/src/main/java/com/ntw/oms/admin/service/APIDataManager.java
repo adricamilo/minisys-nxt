@@ -48,7 +48,6 @@ public class APIDataManager {
     private int apiThreadPoolSize;
 
     public OperationStatus createAppData(int userCount, int productCount, String authHeader) {
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(apiThreadPoolSize);
         List<DataInsertTask> insertTasks = new LinkedList<>();
         for (ServiceID serviceID : ServiceID.values()) {
             if (serviceID == ServiceID.AdminSvc || serviceID == ServiceID.GatewaySvc)
@@ -62,17 +61,18 @@ public class APIDataManager {
             } else {
                 size = 0;
             }
+            ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(apiThreadPoolSize);
             for (int i = 1; i <= size; i++) {
                 DataInsertTask task = new DataInsertTask(apiClient, i);
                 insertTasks.add(task);
                 executor.execute(task);
             }
-        }
-        executor.shutdown();
-        try {
-            executor.awaitTermination(300, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            executor.shutdown();
+            try {
+                executor.awaitTermination(300, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         for (DataInsertTask task : insertTasks) {
             logger.info(task.getOperationStatus().toString());

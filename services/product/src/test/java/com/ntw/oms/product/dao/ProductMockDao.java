@@ -49,6 +49,11 @@ public class ProductMockDao implements ProductDao {
     }
 
     @Override
+    public List<Product> getProducts(List<String> ids) {
+        return null;
+    }
+
+    @Override
     public boolean addProduct(Product product) {
         if (product.getId().equals(TestConfig.productTestId_Bad)) {
             logger.debug("Unable to add product; context={}", product.getId());

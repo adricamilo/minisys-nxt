@@ -71,11 +71,25 @@ def is_admin_user(request):
     return ''
 
 
+def get_products(product_ids, access_token):
+    req = session.post(settings.PRODUCT_SVC_ORIGIN + PRODUCTS_URI + '/ids',
+                       headers={'Authorization': 'Bearer ' + access_token, 'Content-Type': 'application/json'},
+                       data=json.dumps(product_ids),
+                       timeout=settings.HTTP_TIMEOUT)
+    logger.info(req.json())
+    if req.status_code == 200:
+        return req.json()
+    else:
+        logger.error('Unable to get product from service | productIds=%s', json.dumps(product_ids))
+        return
+
+
 def get_product(product_id, access_token):
     req = session.get(settings.PRODUCT_SVC_ORIGIN + PRODUCTS_URI + '/' + product_id,
                        headers={'Authorization': 'Bearer '+access_token},
                        timeout=settings.HTTP_TIMEOUT)
     return req
+
 
 def get_product_image_url(product_id):
     postfix_char = product_id[-1]
@@ -115,24 +129,28 @@ def is_product_in_cart(cart_id, product_id, access_token):
 
 
 def decorate_cart(cart, access_token):
+    product_ids = []
     for cart_line in cart['cartLines']:
-        req = get_product(cart_line['productId'], access_token)
-        if req.status_code == 200:
-            cart_line['product'] = req.json()
-            cart_line['product']['imageUrl'] = get_product_image_url(cart_line['productId'])
-        else:
-            logger.error('Unable to get product from service | productId=%s', cart_line['productId'])
+        product_ids.append(cart_line['productId'])
+    res = get_products(product_ids, access_token)
+    i = 0
+    for cart_line in cart['cartLines']:
+        cart_line['product'] = res[i]
+        cart_line['product']['imageUrl'] = get_product_image_url(cart_line['productId'])
+        i += 1
     return cart
 
 
 def decorate_order(order, access_token):
+    product_ids = []
     for order_line in order['orderLines']:
-        req = get_product(order_line['productId'], access_token)
-        if req.status_code == 200:
-            order_line['product'] = req.json()
-            order_line['product']['imageUrl'] = get_product_image_url(order_line['productId'])
-        else:
-            logger.error('Unable to get product from service | productId=%s', order_line['productId'])
+        product_ids.append(order_line['productId'])
+    res = get_products(product_ids, access_token)
+    i=0
+    for order_line in order['orderLines']:
+        order_line['product'] = res[i]
+        order_line['product']['imageUrl'] = get_product_image_url(order_line['productId'])
+        i += 1
     return order
 
 

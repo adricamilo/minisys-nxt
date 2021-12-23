@@ -16,6 +16,7 @@
 
 package com.ntw.oms.product.service;
 
+import com.google.gson.Gson;
 import com.ntw.common.config.AppConfig;
 import com.ntw.common.entity.Role;
 import com.ntw.common.security.Secured;
@@ -65,6 +66,19 @@ public class ProductService {
             // Avoid a large log of products - print just one
             logger.info("First product; context={}", products.get(0));
         }
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
+    /**
+     * Get products for a list of ids
+     * @return
+     */
+    @Secured({Role.ADMIN,Role.USER})
+    @PostMapping(path="/ids", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<List<Product>> getProducts(@RequestBody List<String> ids) {
+        logger.debug("Request for get products by ids");
+        List<Product> products = getProductServiceBean().getProducts(ids);
+        logger.info("Fetched products: ", (new Gson()).toJson(products));
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 

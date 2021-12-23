@@ -121,7 +121,7 @@ public abstract class ApiClient {
             logger.debug("Data creation response code: {} and body: {}",
                     response.getStatus(), response.getBody());
         } catch (Exception e) {
-            operationStatus.setMessage("Error deleting data: "+e.getMessage());
+            operationStatus.setMessage("Error inserting data: "+e.getMessage());
             logger.error("Error inserting data: "+data);
             logger.error(e.getMessage(),e);
         }

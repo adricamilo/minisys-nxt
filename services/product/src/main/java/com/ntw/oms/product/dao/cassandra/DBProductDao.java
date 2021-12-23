@@ -25,6 +25,7 @@ import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.cql.CqlTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -72,6 +73,13 @@ public class DBProductDao implements ProductDao {
             return null;
         }
         logger.debug("Fetched all products; context={}", products);
+        return products;
+    }
+
+    @Override
+    public List<Product> getProducts(List<String> ids) {
+        List<Product> products = new LinkedList<>();
+        ids.forEach(id -> products.add(getProduct(id)));
         return products;
     }
 
