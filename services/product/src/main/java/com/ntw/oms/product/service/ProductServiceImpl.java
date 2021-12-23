@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -65,34 +66,15 @@ public class ProductServiceImpl {
         return productDaoBean;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // Redis Product cache is set to no eviction policy which is also the default policy //
+    ///////////////////////////////////////////////////////////////////////////////////////
+
     public List<Product> getProducts() {
-        List<Product> products = null;
-        Map<Object, Object> productMap = null;
-        try {
-            if (redisTemplate != null) {
-                productMap = redisTemplate.opsForHash().entries(REDIS_PRODUCTS_MAP_KEY);
-            }
-        } catch(Exception e) {
-            logger.error("Unable to access redis cache for getProducts: ", e);
-        }
-        if (productMap != null && productMap.values().size() > 0) {
-            products = new ArrayList<>();
-            for (Object productObj : productMap.values()) {
-                products.add((Product)productObj);
-            }
-        } else {
+        List<Product> products = getProductsFromCache();
+        if (products == null || products.size() == 0) {
             products = getProductDaoBean().getProducts();
-            productMap = new HashMap<>();
-            for (Product product : products) {
-                productMap.put(product.getId(), product);
-            }
-            try {
-                if (redisTemplate != null) {
-                    redisTemplate.opsForHash().putAll(REDIS_PRODUCTS_MAP_KEY, productMap);
-                }
-            } catch (Exception e) {
-                logger.error("Unable to access redis cache for setProducts: ", e);
-            }
+            addProductsToCache(products);
         }
         products.sort(new Comparator<Product>() {
             @Override
@@ -103,37 +85,21 @@ public class ProductServiceImpl {
         return products;
     }
 
-    public List<Product> getProducts(List<String> ids) {
-        List<Product> products;
-        List<Object> productObjects = null;
-        List<Object> idObjects = new LinkedList<>();
-        ids.forEach(id -> idObjects.add(id));
-        // Get as many from cache
-        try {
-            if (redisTemplate != null) {
-                productObjects = redisTemplate.opsForHash().multiGet(REDIS_PRODUCTS_MAP_KEY, idObjects);
-            }
-        } catch(Exception e) {
-            logger.error("Unable to access redis cache for getProducts: ", e);
-        }
-        if (productObjects == null || productObjects.size() == 0) {
+    public List<Product> getProductsByIds(List<String> ids) {
+        List<Product> products = getProductsFromCache(ids);
+        if (products == null || products.size() == 0) {
             // Get all from DB
             products = getProductDaoBean().getProducts(ids);
+            addProductsToCache(products);
             return products;
         }
-        if (productObjects.size() == ids.size()) {
+        if (products.size() == ids.size()) {
             // All products found in cache
-            products = new LinkedList<>();
-            productObjects.forEach(productObj -> {
-                Product product = (Product) productObj;
-                products.add(product);
-            });
             return products;
         }
         // Find missing products in cache
         Map<String, Product> productMap = new HashMap<>();
-        productObjects.forEach(productObj -> {
-            Product product = (Product)productObj;
+        products.forEach(product -> {
             productMap.put(product.getId(), product);
         });
         List<String> missingIds = new LinkedList<>();
@@ -144,6 +110,8 @@ public class ProductServiceImpl {
         // Get missing products from DB
         List<Product> mapProducts = new LinkedList<>();
         products = getProductDaoBean().getProducts(missingIds);
+        addProductsToCache(products);
+        // Put missing products in map to make it complete
         products.forEach(product -> productMap.put(product.getId(), product));
         // Get all products from map in the order of ids
         ids.forEach(id -> {
@@ -153,28 +121,51 @@ public class ProductServiceImpl {
     }
 
     public Product getProduct(String id) {
-        Product product = null;
-        try {
-            if (redisTemplate != null) {
-                product = (Product) redisTemplate.opsForHash().get(REDIS_PRODUCTS_MAP_KEY, id);
-            }
-        } catch(Exception e) {
-            logger.error("Unable to access redis cache for getProduct: ", e);
-        }
+        Product product = getProductFromCache(id);
         if (product == null) {
             product = getProductDaoBean().getProduct(id);
-            try {
-                if (product != null && redisTemplate != null) {
-                    redisTemplate.opsForHash().put(REDIS_PRODUCTS_MAP_KEY, product.getId(), product);
-                }
-            } catch (Exception e) {
-                logger.error("Unable to access redis cache for setProduct: ", e);
-            }
+            addProductToCache(product);
         }
         return product;
     }
 
     public boolean addProduct(Product product) {
+        boolean success = getProductDaoBean().addProduct(product);
+        if (success)
+            addProductToCache(product);
+        return success;
+    }
+
+    public Product modifyProduct(Product product) {
+        product = getProductDaoBean().modifyProduct(product);
+        if (product != null)
+            addProductToCache(product);
+        return product;
+    }
+
+    public boolean removeProduct(String id) {
+        removeProductFromCache(id);
+        return getProductDaoBean().removeProduct(id);
+    }
+
+    public boolean removeProducts() {
+        removeProductsFromCache();
+        return getProductDaoBean().removeProducts();
+    }
+
+    private void addProductsToCache(List<Product> products) {
+        Map<String, Product> productMap = new HashMap<>();
+        products.forEach(product -> productMap.put(product.getId(), product));
+        try {
+            if (redisTemplate != null) {
+                redisTemplate.opsForHash().putAll(REDIS_PRODUCTS_MAP_KEY, productMap);
+            }
+        } catch (Exception e) {
+            logger.error("Unable to access redis cache for setProducts: ", e);
+        }
+    }
+
+    private void addProductToCache(Product product) {
         try {
             if (redisTemplate != null) {
                 redisTemplate.opsForHash().put(REDIS_PRODUCTS_MAP_KEY, product.getId(), product);
@@ -182,32 +173,52 @@ public class ProductServiceImpl {
         } catch(Exception e) {
             logger.error("Unable to access redis cache for addProduct: ", e);
         }
-        return getProductDaoBean().addProduct(product);
     }
 
-    public Product modifyProduct(Product product) {
+    private List<Product> getProductsFromCache() {
+        List<Product> products = new LinkedList<>();
+        Map<String, Product> productMap = null;
         try {
             if (redisTemplate != null) {
-                redisTemplate.opsForHash().put(REDIS_PRODUCTS_MAP_KEY, product.getId(), product);
+                HashOperations<String, String, Product> hashOps = redisTemplate.opsForHash();
+                productMap = hashOps.entries(REDIS_PRODUCTS_MAP_KEY);
             }
         } catch(Exception e) {
-            logger.error("Unable to access redis cache for modifyProduct: ", e);
+            logger.error("Unable to access redis cache for getProducts: ", e);
         }
-        return getProductDaoBean().modifyProduct(product);
+        if (productMap != null) {
+            productMap.values().forEach(product -> products.add(product));
+        }
+        return products;
     }
 
-    public boolean removeProduct(String id) {
+    private List<Product> getProductsFromCache(List<String> ids) {
+        List<Product> products = new LinkedList<>();
         try {
             if (redisTemplate != null) {
-                redisTemplate.opsForHash().put(REDIS_PRODUCTS_MAP_KEY, id, null);
+                HashOperations<String, String, Product> hashOps = redisTemplate.opsForHash();
+                products = hashOps.multiGet(REDIS_PRODUCTS_MAP_KEY, ids);
             }
         } catch(Exception e) {
-            logger.error("Unable to access redis cache for removeProduct: ", e);
+            logger.error("Unable to access redis cache for getProductsByIds: ", e);
         }
-        return getProductDaoBean().removeProduct(id);
+        return products;
     }
 
-    public boolean removeProducts() {
+    private Product getProductFromCache(String id) {
+        Product product = null;
+        try {
+            if (redisTemplate != null) {
+                HashOperations<String, String, Product> hashOps = redisTemplate.opsForHash();
+                product = hashOps.get(REDIS_PRODUCTS_MAP_KEY, id);
+            }
+        } catch(Exception e) {
+            logger.error("Unable to access redis cache for getProduct: ", e);
+        }
+        return product;
+    }
+
+    private void removeProductsFromCache() {
         try {
             if (redisTemplate != null) {
                 redisTemplate.delete(REDIS_PRODUCTS_MAP_KEY);
@@ -215,6 +226,16 @@ public class ProductServiceImpl {
         } catch(Exception e) {
             logger.error("Unable to access redis cache for removeProducts: ", e);
         }
-        return getProductDaoBean().removeProducts();
     }
+
+    private void removeProductFromCache(String id) {
+        try {
+            if (redisTemplate != null) {
+                redisTemplate.opsForHash().put(REDIS_PRODUCTS_MAP_KEY, id, null);
+            }
+        } catch(Exception e) {
+            logger.error("Unable to access redis cache for removeProduct: ", e);
+        }
+    }
+
 }

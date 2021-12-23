@@ -75,9 +75,9 @@ public class ProductService {
      */
     @Secured({Role.ADMIN,Role.USER})
     @PostMapping(path="/ids", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<List<Product>> getProducts(@RequestBody List<String> ids) {
+    public ResponseEntity<List<Product>> getProductsByIds(@RequestBody List<String> ids) {
         logger.debug("Request for get products by ids");
-        List<Product> products = getProductServiceBean().getProducts(ids);
+        List<Product> products = getProductServiceBean().getProductsByIds(ids);
         logger.info("Fetched products: ", (new Gson()).toJson(products));
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
