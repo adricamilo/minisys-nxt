@@ -4,6 +4,12 @@ global:
   # scrape_timeout is set to the global default (10s).
 
 scrape_configs:
+  - job_name: 'web-app-metrics'
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - web:8000
   - job_name: 'services-metrics'
     metrics_path: '/actuator/prometheus'
     scrape_interval: 5s
