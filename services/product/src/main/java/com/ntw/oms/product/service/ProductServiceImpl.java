@@ -154,22 +154,22 @@ public class ProductServiceImpl {
     }
 
     private void addProductsToCache(List<Product> products) {
+        if (redisTemplate == null)
+            return;
         Map<String, Product> productMap = new HashMap<>();
         products.forEach(product -> productMap.put(product.getId(), product));
         try {
-            if (redisTemplate != null) {
-                redisTemplate.opsForHash().putAll(REDIS_PRODUCTS_MAP_KEY, productMap);
-            }
+            redisTemplate.opsForHash().putAll(REDIS_PRODUCTS_MAP_KEY, productMap);
         } catch (Exception e) {
             logger.error("Unable to access redis cache for setProducts: ", e);
         }
     }
 
     private void addProductToCache(Product product) {
+        if (redisTemplate == null)
+            return;
         try {
-            if (redisTemplate != null) {
-                redisTemplate.opsForHash().put(REDIS_PRODUCTS_MAP_KEY, product.getId(), product);
-            }
+            redisTemplate.opsForHash().put(REDIS_PRODUCTS_MAP_KEY, product.getId(), product);
         } catch(Exception e) {
             logger.error("Unable to access redis cache for addProduct: ", e);
         }
@@ -177,62 +177,62 @@ public class ProductServiceImpl {
 
     private List<Product> getProductsFromCache() {
         List<Product> products = new LinkedList<>();
-        Map<String, Product> productMap = null;
-        try {
-            if (redisTemplate != null) {
+        if (redisTemplate != null) {
+            Map<String, Product> productMap = null;
+            try {
                 HashOperations<String, String, Product> hashOps = redisTemplate.opsForHash();
                 productMap = hashOps.entries(REDIS_PRODUCTS_MAP_KEY);
+            } catch (Exception e) {
+                logger.error("Unable to access redis cache for getProducts: ", e);
             }
-        } catch(Exception e) {
-            logger.error("Unable to access redis cache for getProducts: ", e);
-        }
-        if (productMap != null) {
-            productMap.values().forEach(product -> products.add(product));
+            if (productMap != null) {
+                productMap.values().forEach(product -> products.add(product));
+            }
         }
         return products;
     }
 
     private List<Product> getProductsFromCache(List<String> ids) {
         List<Product> products = new LinkedList<>();
-        try {
-            if (redisTemplate != null) {
+        if (redisTemplate != null) {
+            try {
                 HashOperations<String, String, Product> hashOps = redisTemplate.opsForHash();
                 products = hashOps.multiGet(REDIS_PRODUCTS_MAP_KEY, ids);
+            } catch (Exception e) {
+                logger.error("Unable to access redis cache for getProductsByIds: ", e);
             }
-        } catch(Exception e) {
-            logger.error("Unable to access redis cache for getProductsByIds: ", e);
         }
         return products;
     }
 
     private Product getProductFromCache(String id) {
         Product product = null;
-        try {
-            if (redisTemplate != null) {
+        if (redisTemplate != null) {
+            try {
                 HashOperations<String, String, Product> hashOps = redisTemplate.opsForHash();
                 product = hashOps.get(REDIS_PRODUCTS_MAP_KEY, id);
+            } catch (Exception e) {
+                logger.error("Unable to access redis cache for getProduct: ", e);
             }
-        } catch(Exception e) {
-            logger.error("Unable to access redis cache for getProduct: ", e);
         }
         return product;
     }
 
     private void removeProductsFromCache() {
+        if (redisTemplate == null)
+            return;
         try {
-            if (redisTemplate != null) {
-                redisTemplate.delete(REDIS_PRODUCTS_MAP_KEY);
-            }
+            redisTemplate.delete(REDIS_PRODUCTS_MAP_KEY);
         } catch(Exception e) {
             logger.error("Unable to access redis cache for removeProducts: ", e);
         }
     }
 
     private void removeProductFromCache(String id) {
+        if (redisTemplate == null)
+            return;
         try {
-            if (redisTemplate != null) {
-                redisTemplate.opsForHash().put(REDIS_PRODUCTS_MAP_KEY, id, null);
-            }
+            redisTemplate.opsForHash().put(REDIS_PRODUCTS_MAP_KEY, id, null);
         } catch(Exception e) {
             logger.error("Unable to access redis cache for removeProduct: ", e);
         }
