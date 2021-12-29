@@ -59,6 +59,11 @@ public class RequestFilter extends ZuulFilter {
         RequestContext context = RequestContext.getCurrentContext();
         HttpServletRequest request = context.getRequest();
 
+        if (request.getRequestURI().startsWith("/status") ||
+                request.getRequestURI().startsWith("/actuator/prometheus")) {
+            return null;
+        }
+
         String body = null;
         try {
             body = IOUtils.toString(request.getReader());
