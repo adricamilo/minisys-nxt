@@ -4,6 +4,10 @@ if [ -z "${REPLICATION_FACTOR}" ]; then
     REPLICATION_FACTOR=1
 fi
 
+if [ -z "${SCHEMA_SEED_INSTANCE}" ]; then
+    SCHEMA_SEED_INSTANCE="cassandra"
+fi
+
 function create_schema {
     COUNTER=0
     until cat /create-schema.cql | cqlsh; do

@@ -17,7 +17,8 @@
 package com.ntw.oms.order;
 
 import com.ntw.oms.order.queue.*;
-import io.opentracing.Tracer;
+import com.ntw.oms.order.queue.local.LocalMQConsumer;
+import com.ntw.oms.order.queue.local.LocalMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,9 +38,6 @@ public class OrderMQConfiguration {
     @Autowired
     private Environment environment;
 
-    @Autowired
-    OrderConsumer orderConsumer;
-
     @Bean
     public MQProducer getMessageQueueProducerBean() throws IOException, TimeoutException {
         if (environment.getProperty("order.queue.type").equals("rabbitmq")) {
@@ -47,7 +45,7 @@ public class OrderMQConfiguration {
                     environment.getProperty("order.queue.name"));
         }
         // order.queue.type=local
-        return LocalMQ.getInstance();
+        return new LocalMQProducer();
     }
 
     @Bean
@@ -56,8 +54,8 @@ public class OrderMQConfiguration {
         (environment.getProperty("order.queue.type").equals("rabbitmq")) ?
             new RabbitMQConsumer(environment.getProperty("order.queue.host"),
                     environment.getProperty("order.queue.name")) :
-                LocalMQ.getInstance();
-        mqConsumer.setOrderConsumer(orderConsumer);
+                new LocalMQConsumer();
+        mqConsumer.setOrderConsumer(new OrderConsumer());
         try {
             mqConsumer.startConsumer();
         } catch (Exception e) {

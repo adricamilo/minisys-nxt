@@ -41,24 +41,12 @@ public class DBCartLineDao implements CartDao {
     @Qualifier("cartCassandraOperations")
     private CassandraOperations cassandraOperations;
 
-    @Autowired(required = false)
-    @Qualifier("cartCqlTemplate")
-    private CqlTemplate cqlTemplate;
-
     public CassandraOperations getCassandraOperations() {
         return cassandraOperations;
     }
 
     public void setCassandraOperations(CassandraOperations cassandraOperations) {
         this.cassandraOperations = cassandraOperations;
-    }
-
-    public CqlTemplate getCqlTemplate() {
-        return cqlTemplate;
-    }
-
-    public void setCqlTemplate(CqlTemplate cqlTemplate) {
-        this.cqlTemplate = cqlTemplate;
     }
 
     @Override
@@ -112,10 +100,14 @@ public class DBCartLineDao implements CartDao {
 
     @Override
     public boolean removeCarts() {
-        String cql = "truncate userauth";
-        cqlTemplate.execute(cql);
-        logger.debug("Deleted test data; executed query={}",cql);
-        return false;
+        try {
+            getCassandraOperations().truncate(DBCartLine.class);
+        } catch (Exception e) {
+            logger.error("Error deleting cart data");
+            return false;
+        }
+        logger.debug("Truncated cartline data");
+        return true;
     }
 
 }

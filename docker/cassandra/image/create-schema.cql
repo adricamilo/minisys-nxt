@@ -4,7 +4,7 @@ CREATE TABLE oms.UserAuth (id varchar, name varchar, password varchar, roles lis
 CREATE TABLE oms.UserAddress (userProfileId varchar, type varchar, id int, street varchar, area varchar, city varchar, state varchar, country varchar, contactName varchar, contactTelephone varchar, contactEmail varchar, PRIMARY KEY(userProfileId, type, id));
 CREATE TABLE oms.UserProfile (id varchar, name varchar, email varchar, PRIMARY KEY(id));
 CREATE TABLE oms.Product (id varchar, name varchar, price float, imageUrl varchar, PRIMARY KEY(id));
-CREATE TABLE oms.CartLine (id int, cartId varchar, productId varchar, quantity float, PRIMARY KEY(cartId, id));
+CREATE TABLE oms.CartLine (cartLineId int, cartId varchar, productId varchar, quantity float, PRIMARY KEY(cartId, cartLineId));
 CREATE TABLE oms.OrderLine (userId varchar, id varchar, orderLineId int, productId varchar, quantity float, status varchar, createdDate date, createdTime time, PRIMARY KEY(userId, id, orderLineId));
 CREATE TABLE oms.Inventory (productId varchar, quantity float, PRIMARY KEY(productId));
 

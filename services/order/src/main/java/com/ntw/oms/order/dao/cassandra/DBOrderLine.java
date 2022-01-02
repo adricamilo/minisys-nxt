@@ -23,6 +23,10 @@ import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,8 +41,8 @@ public class DBOrderLine {
     private String productId;
     private float quantity;
     private String status;
-    private Date createdDate;
-    private Time createdTime;
+    private LocalDate createdDate;
+    private LocalTime createdTime;
 
     public DBOrderKey getOrderKey() {
         return orderKey;
@@ -72,19 +76,19 @@ public class DBOrderLine {
         this.status = status;
     }
 
-    public Date getCreatedDate() {
+    public LocalDate getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(LocalDate createdDate) {
         this.createdDate = createdDate;
     }
 
-    public Time getCreatedTime() {
+    public LocalTime getCreatedTime() {
         return createdTime;
     }
 
-    public void setCreatedTime(Time createdTime) {
+    public void setCreatedTime(LocalTime createdTime) {
         this.createdTime = createdTime;
     }
 
@@ -102,6 +106,8 @@ public class DBOrderLine {
 
     public static List<DBOrderLine> createDBOrder(Order order) {
         List<DBOrderLine> dbOrderLines = new LinkedList<>();
+        LocalDate localDate = new java.sql.Date(order.getCreatedDate().getTime()).toLocalDate();
+        LocalTime localTime = new java.sql.Time(order.getCreatedDate().getTime()).toLocalTime();
         for (OrderLine orderLine : order.getOrderLines()) {
             DBOrderKey orderKey = new DBOrderKey();
             orderKey.setUserId(order.getUserId());
@@ -113,8 +119,8 @@ public class DBOrderLine {
             dbOrderLine.setQuantity(orderLine.getQuantity());
             dbOrderLine.setStatus(order.getStatus().toString());
             if (order.getCreatedDate() != null) {
-                dbOrderLine.setCreatedDate(new Date(order.getCreatedDate().getTime()));
-                dbOrderLine.setCreatedTime(new Time(order.getCreatedDate().getTime()));
+                dbOrderLine.setCreatedDate(localDate);
+                dbOrderLine.setCreatedTime(localTime);
             }
             dbOrderLines.add(dbOrderLine);
         }
@@ -129,12 +135,10 @@ public class DBOrderLine {
             order.setId(dbOrderLines.get(0).getOrderKey().getId());
             order.setUserId(dbOrderLines.get(0).getOrderKey().getUserId());
             order.setStatus(dbOrderLines.get(0).getStatus());
-            long time = 0;
-            if (dbOrderLines.get(0).getCreatedDate() != null)
-                time = dbOrderLines.get(0).getCreatedDate().getTime();
-            if (dbOrderLines.get(0).getCreatedTime() != null)
-                time += dbOrderLines.get(0).getCreatedTime().getTime();
-            order.setCreatedDate(new java.util.Date(time));
+            LocalDateTime localDateTime = LocalDateTime.of(dbOrderLines.get(0).getCreatedDate(),
+                    dbOrderLines.get(0).getCreatedTime());
+            Date createdDate = new Date(java.sql.Timestamp.valueOf(localDateTime).getTime());
+            order.setCreatedDate(createdDate);
         }
         for (DBOrderLine dbOrderLine : dbOrderLines) {
             OrderLine orderLine = new OrderLine();

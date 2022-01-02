@@ -11,16 +11,17 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <jdk.version>1.11</jdk.version>
     <oms.version>1.0-SNAPSHOT</oms.version>
     <servletapi.version>4.0.1</servletapi.version>
-    <spring.jdbc.version>5.1.8.RELEASE</spring.jdbc.version>
-    <spring.redis.version>2.5.2</spring.redis.version>
-    <jedis.version>3.6.1</jedis.version>
+    <spring.jdbc.version>5.3.14</spring.jdbc.version>
+    <jedis.version>3.8.0</jedis.version>
     <postgres.version>42.2.2</postgres.version>
     <dbcp2.version>2.6.0</dbcp2.version>
     <disruptor.version>3.4.2</disruptor.version>
+    <metrics.core.version>4.2.7</metrics.core.version>
     <junit.version>3.8.1</junit.version>
     <start-class>com.ntw.oms.product.WebApplication</start-class>
   </properties>
@@ -28,7 +29,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.2.13.RELEASE</version>
+    <version>2.6.2</version>
   </parent>
   
   <dependencies>
@@ -77,13 +78,12 @@
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-core</artifactId>
-      <version>3.2.2</version>
+      <version>${metrics.core.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-redis</artifactId>
-      <version>${spring.redis.version}</version>
       <exclusions>
         <exclusion>
           <groupId>io.lettuce</groupId>
@@ -91,6 +91,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>redis.clients</groupId>
       <artifactId>jedis</artifactId>
@@ -120,6 +121,12 @@
     </dependency>
 
     <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
@@ -133,7 +140,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.3.2</version>
         <configuration>
           <attachClasses>true</attachClasses>
           <classesClassifier>classes</classesClassifier>

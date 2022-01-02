@@ -5,7 +5,6 @@ import com.ntw.oms.order.entity.Order;
 import com.ntw.oms.order.service.OrderServiceImpl;
 import io.opentracing.Span;
 import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMap;
 import io.opentracing.propagation.TextMapAdapter;
 import io.opentracing.util.GlobalTracer;
 import org.slf4j.Logger;
@@ -14,22 +13,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 @Component
 public class OrderProducer {
     private static final Logger logger = LoggerFactory.getLogger(OrderProducer.class);
 
     @Autowired
-    private MQProducer MQProducer;
+    private MQProducer mqProducer;
 
     public MQProducer getMessageQueue() {
-        return MQProducer;
+        return mqProducer;
     }
 
     public void setMessageQueue(MQProducer MQProducer) {
-        this.MQProducer = MQProducer;
+        this.mqProducer = MQProducer;
     }
 
     public void enqueue(Order order) throws Exception {
@@ -41,7 +38,7 @@ public class OrderProducer {
         queueOrder.setTracingContextMap(contextMap);
         String message = (new Gson()).toJson(queueOrder);
         try {
-            MQProducer.send(message);
+            mqProducer.send(message);
             logger.debug("Published order to message queue; order={}",queueOrder);
         } catch (Exception e) {
             logger.error("Exception publishing order to queue", e);
