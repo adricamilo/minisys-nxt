@@ -22,7 +22,8 @@ import com.ntw.oms.cart.dao.OrderMockDao;
 import com.ntw.oms.cart.entity.Cart;
 import com.ntw.oms.order.dao.OrderDao;
 import com.ntw.oms.order.entity.Order;
-import com.ntw.oms.order.processor.OrderProcessor;
+import com.ntw.oms.order.processor.OrderPostProcessor;
+import com.ntw.oms.order.processor.OrderPreProcessor;
 import com.ntw.oms.order.service.OrderServiceImpl;
 import junit.framework.Assert;
 import junit.framework.Test;
@@ -54,12 +55,14 @@ public class OrderServiceImplTest extends TestCase {
         CartServiceImpl cartService = new CartServiceImpl();
         cartService.setCartDaoBean(new CartMockDao());
         orderService.setCartServiceBean(cartService);
-        OrderProcessor orderProcessor = new OrderProcessor();
-        orderProcessor.setInventoryClientBean(new InventoryMockClient());
-        orderService.setOrderProcessor(orderProcessor);
+        OrderPreProcessor orderPreProcessor = new OrderPreProcessor();
+        OrderPostProcessor orderPostProcessor = new OrderPostProcessor();
+        orderPostProcessor.setInventoryClientBean(new InventoryMockClient());
+        orderService.setOrderPreProcessor(orderPreProcessor);
+        orderService.setOrderPostProcessor(orderPostProcessor);
         OrderDao orderDao = new OrderMockDao();
         orderService.setOrderDaoBean(orderDao);
-        orderService.getOrderProcessor().setOrderDaoBean(orderDao);
+        orderService.getOrderPostProcessor().setOrderDaoBean(orderDao);
     }
 
     public void testDummy() {

@@ -1,5 +1,7 @@
-package com.ntw.oms.order.queue;
+package com.ntw.oms.order.queue.rabbitmq;
 
+import com.ntw.oms.order.queue.MQConsumer;
+import com.ntw.oms.order.queue.OrderConsumer;
 import com.rabbitmq.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

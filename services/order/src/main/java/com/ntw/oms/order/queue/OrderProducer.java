@@ -34,12 +34,12 @@ public class OrderProducer {
         Span span = GlobalTracer.get().activeSpan();
         HashMap<String, String> contextMap = new HashMap<>();
         GlobalTracer.get().inject(span.context(), Format.Builtin.TEXT_MAP, new TextMapAdapter(contextMap));
-        QueueOrder queueOrder = new QueueOrder(order, authHeader);
-        queueOrder.setTracingContextMap(contextMap);
-        String message = (new Gson()).toJson(queueOrder);
+        MQOrder mqOrder = new MQOrder(order, authHeader);
+        mqOrder.setTracingContextMap(contextMap);
+        String message = (new Gson()).toJson(mqOrder);
         try {
             mqProducer.send(message);
-            logger.debug("Published order to message queue; order={}",queueOrder);
+            logger.debug("Published order to message queue; order={}", mqOrder);
         } catch (Exception e) {
             logger.error("Exception publishing order to queue", e);
             throw e;

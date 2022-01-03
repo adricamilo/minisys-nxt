@@ -6,7 +6,6 @@ import com.ntw.oms.order.entity.InventoryReservation;
 import com.ntw.oms.order.entity.Order;
 import com.ntw.oms.order.entity.OrderLine;
 import com.ntw.oms.order.entity.OrderStatus;
-import com.ntw.oms.order.queue.OrderProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,9 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-public class OrderProcessor {
+public class OrderPostProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrderProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderPostProcessor.class);
 
     @Autowired
     private OrderDaoFactory orderDaoFactory;
@@ -29,9 +28,6 @@ public class OrderProcessor {
 
     @Value("${database.type}")
     private String orderDBType;
-
-    @Autowired
-    private OrderProducer orderProducer;
 
     @Autowired
     private InventoryClient inventoryClientBean;
@@ -55,16 +51,6 @@ public class OrderProcessor {
 
     public InventoryClient getInventoryClientBean() {
         return inventoryClientBean;
-    }
-
-    public boolean queueOrder(Order order) {
-        try {
-            orderProducer.enqueue(order);
-        } catch (Exception e) {
-            logger.error("Unable to queue order", e);
-            return false;
-        }
-        return true;
     }
 
     public boolean processOrder(Order order) {

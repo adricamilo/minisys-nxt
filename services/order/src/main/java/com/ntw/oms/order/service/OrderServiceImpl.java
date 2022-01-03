@@ -16,7 +16,8 @@
 
 package com.ntw.oms.order.service;
 
-import com.ntw.oms.order.processor.OrderProcessor;
+import com.ntw.oms.order.processor.OrderPostProcessor;
+import com.ntw.oms.order.processor.OrderPreProcessor;
 import com.ntw.oms.order.util.OrderIdGenerator;
 import com.ntw.oms.cart.entity.Cart;
 import com.ntw.oms.cart.entity.CartLine;
@@ -60,7 +61,10 @@ public class OrderServiceImpl {
     private CartServiceImpl cartServiceBean;
 
     @Autowired
-    private OrderProcessor orderProcessor;
+    private OrderPreProcessor orderPreProcessor;
+
+    @Autowired
+    private OrderPostProcessor orderPostProcessor;
 
     @Value("${database.type}")
     private String orderDBType;
@@ -99,12 +103,20 @@ public class OrderServiceImpl {
         this.cartServiceBean = cartServiceBean;
     }
 
-    public OrderProcessor getOrderProcessor() {
-        return orderProcessor;
+    public OrderPreProcessor getOrderPreProcessor() {
+        return orderPreProcessor;
     }
 
-    public void setOrderProcessor(OrderProcessor orderProcessor) {
-        this.orderProcessor = orderProcessor;
+    public void setOrderPreProcessor(OrderPreProcessor orderPreProcessor) {
+        this.orderPreProcessor = orderPreProcessor;
+    }
+
+    public OrderPostProcessor getOrderPostProcessor() {
+        return orderPostProcessor;
+    }
+
+    public void setOrderPostProcessor(OrderPostProcessor orderPostProcessor) {
+        this.orderPostProcessor = orderPostProcessor;
     }
 
     /**
@@ -183,10 +195,10 @@ public class OrderServiceImpl {
         logger.debug("Prepared order; context={}", order);
         try {
             if (asyncOrderProcessing) {
-                orderProcessor.queueOrder(order);
+                orderPreProcessor.queueOrder(order);
                 logger.info("Queued order for processing; context={}", order);
             } else {
-                orderProcessor.processOrder(order);
+                orderPostProcessor.processOrder(order);
                 logger.info("Processed order; context={}", order);
             }
         } catch (Exception e) {

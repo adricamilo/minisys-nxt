@@ -1,7 +1,7 @@
 package com.ntw.oms.order.queue;
 
 import com.google.gson.Gson;
-import com.ntw.oms.order.processor.OrderProcessor;
+import com.ntw.oms.order.processor.OrderPostProcessor;
 import com.ntw.oms.order.service.OrderServiceImpl;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -22,43 +22,43 @@ public class OrderConsumer {
     private static final Logger logger = LoggerFactory.getLogger(OrderConsumer.class);
 
     @Autowired
-    OrderProcessor orderProcessor;
+    OrderPostProcessor orderProcessor;
 
-    public OrderProcessor getOrderProcessor() {
+    public OrderPostProcessor getOrderProcessor() {
         return orderProcessor;
     }
 
-    public void setOrderProcessor(OrderProcessor orderProcessor) {
+    public void setOrderProcessor(OrderPostProcessor orderProcessor) {
         this.orderProcessor = orderProcessor;
     }
 
-    public QueueOrder getOrder(String serializedOrderString) {
-        return (new Gson()).fromJson(serializedOrderString, QueueOrder.class);
+    public MQOrder getOrder(String serializedOrderString) {
+        return (new Gson()).fromJson(serializedOrderString, MQOrder.class);
     }
 
     public boolean processOrder(String orderJSON) {
-        QueueOrder queueOrder = getOrder(orderJSON);
-        if (queueOrder == null) {
+        MQOrder mqOrder = getOrder(orderJSON);
+        if (mqOrder == null) {
             logger.error("Unable to deserialize order received for the order queue.");
             return false;
         }
-        return processOrder(queueOrder);
+        return processOrder(mqOrder);
     }
 
-    private boolean processOrder(QueueOrder queueOrder) {
+    private boolean processOrder(MQOrder mqOrder) {
         // reserve inventory
-        HashMap<String, String> contextMap = queueOrder.getTracingContextMap();
+        HashMap<String, String> contextMap = mqOrder.getTracingContextMap();
         Tracer tracer = GlobalTracer.get();
         SpanContext spanContext = tracer.extract(Format.Builtin.TEXT_MAP, new TextMapAdapter(contextMap));
         Span span = tracer.buildSpan("orderProcessing").asChildOf(spanContext).start();
         tracer.activateSpan(span);
-        OrderServiceImpl.getThreadLocal().set(queueOrder.getAuthHeader());
+        OrderServiceImpl.getThreadLocal().set(mqOrder.getAuthHeader());
         boolean success=true;
-        if (! getOrderProcessor().processOrder(queueOrder.getOrder())) {
-            logger.error("Unable to reserve inventory for order; context={}", queueOrder);
+        if (! getOrderProcessor().processOrder(mqOrder.getOrder())) {
+            logger.error("Unable to reserve inventory for order; context={}", mqOrder);
             success = false;
         }
-        logger.info("Processed order: {}", queueOrder.getOrder());
+        logger.info("Processed order: {}", mqOrder.getOrder());
         span.finish();
         return success;
     }

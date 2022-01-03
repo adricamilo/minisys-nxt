@@ -4,16 +4,16 @@ import com.ntw.oms.order.entity.Order;
 
 import java.util.HashMap;
 
-public class QueueOrder {
+public class MQOrder {
     private Order order;
     private String authHeader;
     private HashMap<String, String> tracingContextMap;
 
-    public QueueOrder() {
+    public MQOrder() {
         this.tracingContextMap = new HashMap<>();
     }
 
-    public QueueOrder(Order order, String authHeader) {
+    public MQOrder(Order order, String authHeader) {
         this.order = order;
         this.authHeader = authHeader;
         this.tracingContextMap = new HashMap<>();
