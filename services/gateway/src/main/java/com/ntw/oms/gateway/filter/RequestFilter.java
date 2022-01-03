@@ -19,12 +19,14 @@ package com.ntw.oms.gateway.filter;
 import com.google.gson.Gson;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StreamUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,8 +67,8 @@ public class RequestFilter extends ZuulFilter {
         }
 
         String body = null;
-        try {
-            body = IOUtils.toString(request.getReader());
+        try (final InputStream requestDataStream = context.getRequest().getInputStream()) {
+            body = StreamUtils.copyToString(requestDataStream, Charset.forName("UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }
