@@ -28,7 +28,7 @@ import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -48,7 +48,7 @@ import javax.servlet.ServletContextListener;
 @EnableDiscoveryClient
 @SpringBootApplication(scanBasePackages = {"com.ntw.oms.order", "com.ntw.oms.cart"})
 @PropertySource(value = { "classpath:config.properties" })
-@EnableAutoConfiguration(exclude={CassandraDataAutoConfiguration.class})
+@EnableAutoConfiguration(exclude={CassandraAutoConfiguration.class})
 public class WebApplication extends SpringBootServletInitializer {
 
     @Autowired

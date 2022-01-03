@@ -59,8 +59,8 @@ public class LocalRequestHandler {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
         Map<String, String> statusMap = new HashMap<>();
-        statusMap.put("serviceID", "GatewaySvc");
-        statusMap.put("hostname", HOSTNAME);
+        statusMap.put("serviceId", "GatewaySvc");
+        statusMap.put("serviceHost", HOSTNAME);
         statusMap.put("serviceTime", dateFormat.format(cal.getTime()));
         String status = (new Gson()).toJson(statusMap);
         RequestContext requestContext = RequestContext.getCurrentContext();
