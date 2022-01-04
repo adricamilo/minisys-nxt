@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.cassandra.core.CassandraOperations;
+import org.springframework.data.cassandra.core.cql.CqlTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
@@ -38,12 +39,23 @@ public class DBProductDao implements ProductDao {
     @Autowired(required = false)
     private CassandraOperations cassandraOperations;
 
+    @Autowired(required = false)
+    private CqlTemplate cqlTemplate;
+
     public CassandraOperations getCassandraOperations() {
         return cassandraOperations;
     }
 
     public void setCassandraOperations(CassandraOperations cassandraOperations) {
         this.cassandraOperations = cassandraOperations;
+    }
+
+    public CqlTemplate getCqlTemplate() {
+        return cqlTemplate;
+    }
+
+    public void setCqlTemplate(CqlTemplate cqlTemplate) {
+        this.cqlTemplate = cqlTemplate;
     }
 
     @Override
@@ -142,7 +154,6 @@ public class DBProductDao implements ProductDao {
 
     @Override
     public boolean removeProducts() {
-        String removeProductsCql = "truncate product";
         try {
             getCassandraOperations().truncate(Product.class);
         } catch (Exception e) {

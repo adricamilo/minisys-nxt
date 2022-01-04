@@ -43,12 +43,24 @@ public class DBOrderLineDao implements OrderDao {
     @Qualifier("orderCassandraOperations")
     private CassandraOperations cassandraOperations;
 
+    @Autowired(required = false)
+    @Qualifier("orderCqlTemplate")
+    private CqlTemplate cqlTemplate;
+
     public CassandraOperations getCassandraOperations() {
         return cassandraOperations;
     }
 
     public void setCassandraOperations(CassandraOperations cassandraOperations) {
         this.cassandraOperations = cassandraOperations;
+    }
+
+    public CqlTemplate getCqlTemplate() {
+        return cqlTemplate;
+    }
+
+    public void setCqlTemplate(CqlTemplate cqlTemplate) {
+        this.cqlTemplate = cqlTemplate;
     }
 
     @Override
@@ -110,7 +122,8 @@ public class DBOrderLineDao implements OrderDao {
 
     @Override
     public boolean removeOrders() {
-        getCassandraOperations().truncate(DBOrderLine.class);
+        String cql = "truncate orderline";
+        cqlTemplate.execute(cql);
         logger.debug("Removed all orders");
         return true;
     }

@@ -16,7 +16,6 @@
 
 package com.ntw.oms.inventory;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,12 +23,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.data.cassandra.config.CqlSessionFactoryBean;
+import org.springframework.data.cassandra.config.CassandraCqlClusterFactoryBean;
+import org.springframework.data.cassandra.config.CassandraCqlSessionFactoryBean;
+import org.springframework.data.cassandra.config.CassandraSessionFactoryBean;
+import org.springframework.data.cassandra.config.SchemaAction;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.data.cassandra.core.convert.CassandraConverter;
 import org.springframework.data.cassandra.core.convert.MappingCassandraConverter;
 import org.springframework.data.cassandra.core.cql.CqlTemplate;
+import org.springframework.data.cassandra.core.mapping.BasicCassandraMappingContext;
 import org.springframework.data.cassandra.core.mapping.CassandraMappingContext;
 import org.springframework.data.cassandra.core.mapping.SimpleUserTypeResolver;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -52,38 +55,59 @@ public class DBConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "database.type", havingValue = "CQL")
-    public CqlSessionFactoryBean session() {
-        CqlSessionFactoryBean session = new CqlSessionFactoryBean();
-        session.setContactPoints(environment.getProperty("database.cassandra.hosts"));
+    public CassandraCqlClusterFactoryBean cluster() {
+        CassandraCqlClusterFactoryBean cluster = new CassandraCqlClusterFactoryBean();
+        cluster.setContactPoints(environment.getProperty("database.cassandra.hosts"));
+        cluster.setPort(Integer.parseInt(environment.getProperty("database.cassandra.port")));
+        return cluster;
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "database.type", havingValue = "CQL")
+    public CassandraCqlSessionFactoryBean cqlSession() {
+        CassandraCqlSessionFactoryBean session = new CassandraCqlSessionFactoryBean();
+        session.setCluster(cluster().getObject());
         session.setKeyspaceName(getKeyspaceName());
-        session.setLocalDatacenter("datacenter1");
         return session;
     }
 
     @Bean
     @ConditionalOnProperty(name = "database.type", havingValue = "CQL")
-    public CassandraMappingContext mappingContext(CqlSession cqlSession) {
-        CassandraMappingContext mappingContext =  new CassandraMappingContext();
-        mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cqlSession));
+    public CqlTemplate cqlTemplate() throws Exception {
+        return new CqlTemplate(cqlSession().getObject());
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "database.type", havingValue = "CQL")
+    public CassandraMappingContext mappingContext() {
+        BasicCassandraMappingContext mappingContext =  new BasicCassandraMappingContext();
+        mappingContext.setUserTypeResolver(new SimpleUserTypeResolver(cluster().getObject(),
+                getKeyspaceName()));
+
         return mappingContext;
     }
 
     @Bean
     @ConditionalOnProperty(name = "database.type", havingValue = "CQL")
-    public CassandraConverter converter(CassandraMappingContext mappingContext) {
-        return new MappingCassandraConverter(mappingContext);
+    public CassandraConverter converter() {
+        return new MappingCassandraConverter(mappingContext());
     }
 
     @Bean
     @ConditionalOnProperty(name = "database.type", havingValue = "CQL")
-    public CassandraOperations cassandraTemplate(CqlSession cqlSession) throws Exception {
-        return new CassandraTemplate(cqlSession);
+    public CassandraSessionFactoryBean session() throws Exception {
+        CassandraSessionFactoryBean session = new CassandraSessionFactoryBean();
+        session.setCluster(cluster().getObject());
+        session.setKeyspaceName(getKeyspaceName());
+        session.setConverter(converter());
+        session.setSchemaAction(SchemaAction.NONE);
+        return session;
     }
 
     @Bean
     @ConditionalOnProperty(name = "database.type", havingValue = "CQL")
-    public CqlTemplate cqlTemplate(CqlSession cqlSession) throws Exception {
-        return new CqlTemplate(cqlSession);
+    public CassandraOperations cassandraTemplate() throws Exception {
+        return new CassandraTemplate(session().getObject());
     }
 
     private String getDriverClass() {

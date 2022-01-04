@@ -9,18 +9,14 @@
   <name>Admin Service</name>
   <url>http://maven.apache.org</url>
   <properties>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
-    <jdk.version>1.11</jdk.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <oms.version>1.0-SNAPSHOT</oms.version>
-    <servletapi.version>4.0.1</servletapi.version>
-    <spring.jdbc.version>5.3.14</spring.jdbc.version>
+    <spring.jdbc.version>5.1.8.RELEASE</spring.jdbc.version>
     <postgres.version>42.2.2</postgres.version>
     <dbcp2.version>2.6.0</dbcp2.version>
     <disruptor.version>3.4.2</disruptor.version>
-    <metrics.core.version>4.2.7</metrics.core.version>
     <httpclient.version>4.5.13</httpclient.version>
-    <ribbon.client.version>2.2.10.RELEASE</ribbon.client.version>
     <junit.version>3.8.1</junit.version>
     <commons.lang.version>3.9</commons.lang.version>
     <start-class>com.ntw.oms.admin.WebApplication</start-class>
@@ -29,7 +25,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.2</version>
+    <version>2.2.13.RELEASE</version>
   </parent>
 
   <dependencies>
@@ -71,7 +67,7 @@
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-core</artifactId>
-      <version>${metrics.core.version}</version>
+      <version>3.2.2</version>
     </dependency>
 
     <dependency>
@@ -100,23 +96,6 @@
       <groupId>com.lmax</groupId>
       <artifactId>disruptor</artifactId>
       <version>${disruptor.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
-      <version>${ribbon.client.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.cloud</groupId>
-          <artifactId>spring-cloud-starter</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter</artifactId>
-      <version>3.1.0</version>
     </dependency>
 
     <dependency>

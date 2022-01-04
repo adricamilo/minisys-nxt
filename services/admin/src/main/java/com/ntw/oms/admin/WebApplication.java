@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -43,7 +43,7 @@ import javax.servlet.ServletContextListener;
 @EnableDiscoveryClient
 @SpringBootApplication
 @PropertySource(value = { "classpath:config.properties" })
-@EnableAutoConfiguration(exclude={CassandraAutoConfiguration.class})
+@EnableAutoConfiguration(exclude={CassandraDataAutoConfiguration.class})
 public class WebApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

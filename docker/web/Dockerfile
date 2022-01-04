@@ -31,7 +31,7 @@ RUN apt-get clean
 # Install pythong, django and gunicorn
 RUN apt-get update && \
     apt-get install -y python3-pip && \
-    pip3 install django && \
+    pip3 install "django>=3.2,<4" && \
     pip3 install gunicorn
 
 RUN pip3 install requests && \
