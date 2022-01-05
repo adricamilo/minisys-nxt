@@ -4,6 +4,9 @@ if [ -z "$1" ]; then
     echo "**** ERROR: Missing service id argument ****"
     exit -1
 else
+    if [ "$1" == "bash" ]; then
+	exec "/bin/bash"
+    fi
     SERVICE_ID=$1
     echo "Running service ${SERVICE_ID}"
 fi
@@ -35,12 +38,14 @@ jstatd -p ${JSTATD_PORT} -J-Djava.security.policy=/usr/jstatd.policy -J-Djava.rm
 # Wait for cassandra/postgres
 if [ -n "${WAIT_TIME_FOR_DB}" ]; then
     count=0
+    echo "Waiting for Cassandra DB"
     while [ $count -lt ${WAIT_TIME_FOR_DB} ]
     do
 	sleep 1
-	echo "=>"
+	printf "$(($WAIT_TIME_FOR_DB - $count)) -> "
 	count=$(( $count + 1 ))
     done
+    echo "0"
 fi
 
 JAVA_GC_OPTIONS="-XX:NewRatio=1 -XX:+UseConcMarkSweepGC -XX:SoftRefLRUPolicyMSPerMB=1 -Xloggc:gc.log -XX:+PrintGCDetails"

@@ -8,15 +8,24 @@ if [ -z "${SCHEMA_SEED_INSTANCE}" ]; then
     SCHEMA_SEED_INSTANCE="cassandra"
 fi
 
+CMD="cqlsh -f ./create-schema.cql"
+SLEEP_DURATION=5
 function create_schema {
-    COUNTER=0
-    until cat /create-schema.cql | cqlsh; do
-	echo "cqlsh: Cassandra is unavailable - retry later"
-	(( COUNTER++ ))
-	if (( COUNTER >  50 )); then
-	    exit -1
+    $CMD
+    EXIT_CODE=$?
+    while [ $EXIT_CODE != 0 ]; do
+        sleep $SLEEP_DURATION
+        $CMD
+        EXIT_CODE=$?
+	if [ $EXIT_CODE == 0 ]; then
+	    echo "++++++++++++++++++++ SCHEMA CREATED ++++++++++++++++++++"
+	elif [ $EXIT_CODE == 2 ]; then
+            echo "?????????? Schema script error or schema already exists. Aborting. ??????????"
+            exit 2
+        else
+	    echo "-------------- Cqlsh client connect error. Exit code: $EXIT_CODE  ---------------"
+	    echo "-------------- Will try again connecting after $SLEEP_DURATION sec.    ---------------"
 	fi
-	sleep 2
     done
 }
 
