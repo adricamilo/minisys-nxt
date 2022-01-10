@@ -75,12 +75,11 @@ public class DBProductDao implements ProductDao {
     public List<Product> getProducts(List<String> ids) {
         StringBuilder productSql = new StringBuilder("select * from product where id IN ");
         productSql.append("(");
-        AtomicInteger i= new AtomicInteger(0);
-        ids.forEach(id -> {
-            productSql.append(id);
-            if (i.getAndSet(i.get()+1) < ids.size())
-                productSql.append(",");
-        });
+        int i=0;
+        for (String id : ids) {
+            productSql.append("'").append(id).append("'");
+            if (++i < ids.size()) productSql.append(",");
+        }
         productSql.append(")");
         return queryProducts(productSql.toString());
     }
