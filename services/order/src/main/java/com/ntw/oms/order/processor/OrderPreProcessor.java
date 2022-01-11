@@ -17,7 +17,7 @@ public class OrderPreProcessor {
 
     public boolean queueOrder(Order order) {
         try {
-            orderProducer.enqueue(order);
+            orderProducer.queueOrder(order);
         } catch (Exception e) {
             logger.error("Unable to queue order", e);
             return false;

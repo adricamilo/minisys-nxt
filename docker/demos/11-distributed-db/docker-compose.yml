@@ -316,7 +316,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: admin-svc
     depends_on:
       - "fluentd"
 
@@ -338,7 +338,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: auth-svc
     depends_on:
       - "fluentd"
 
@@ -360,7 +360,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: product-svc
     depends_on:
       - "fluentd"
 
@@ -382,7 +382,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: order-svc
     depends_on:
       - "fluentd"
       - "rabbitmq"
@@ -405,7 +405,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: inventory-svc
     depends_on:
       - "fluentd"
 

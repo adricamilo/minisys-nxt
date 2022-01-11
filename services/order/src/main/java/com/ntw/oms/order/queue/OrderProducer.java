@@ -29,7 +29,7 @@ public class OrderProducer {
         this.mqProducer = MQProducer;
     }
 
-    public void enqueue(Order order) throws Exception {
+    public void queueOrder(Order order) throws Exception {
         String authHeader = OrderServiceImpl.getThreadLocal().get();
         Span span = GlobalTracer.get().activeSpan();
         HashMap<String, String> contextMap = new HashMap<>();

@@ -13,6 +13,10 @@
     function open_logging() {
         window.open(window.location.protocol+'//'+window.location.hostname+':5601','_blank');
     };
+
+    function open_rabbitmq() {
+        window.open(window.location.protocol+'//'+window.location.hostname+':15672','_blank');
+    };
 </script>
 
 <div class="container">
@@ -54,6 +58,9 @@
                     </li>
                     <li class="list-group-item">
                         <a style="cursor:pointer" onclick="open_logging();return false;">Logging - Kibana</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a style="cursor:pointer" onclick="open_rabbitmq();return false;">Message Queue</a>
                     </li>
                 </ul>
             </div>

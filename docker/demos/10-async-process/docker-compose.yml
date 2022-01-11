@@ -305,7 +305,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: admin-svc
     depends_on:
       - "fluentd"
 
@@ -327,7 +327,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: auth-svc
     depends_on:
       - "fluentd"
 
@@ -349,14 +349,14 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: product-svc
     depends_on:
       - "fluentd"
 
-  order-svc:
+  order-svc-1:
     image: ntw/services
-    container_name: order-svc
-    hostname: order-svc
+    container_name: order-svc-1
+    hostname: order-svc-1
     networks:
       - mynet1
     ports:
@@ -364,14 +364,37 @@ services:
     command: order
     env_file: .env
     environment:
-      - eureka.instance.hostname=order-svc
+      - eureka.instance.hostname=order-svc-1
     volumes:
       - app-logs:/var/log/oms
     logging:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: order-svc
+    depends_on:
+      - "fluentd"
+      - "rabbitmq"
+
+  order-svc-2:
+    image: ntw/services
+    container_name: order-svc-2
+    hostname: order-svc-2
+    networks:
+      - mynet1
+    ports:
+      - "8184:8080"
+    command: order
+    env_file: .env
+    environment:
+      - eureka.instance.hostname=order-svc-2
+    volumes:
+      - app-logs:/var/log/oms
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "127.0.0.1:24224"
+        tag: order-svc
     depends_on:
       - "fluentd"
       - "rabbitmq"
@@ -394,7 +417,7 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: "127.0.0.1:24224"
-        tag: gateway-svc
+        tag: inventory-svc
     depends_on:
       - "fluentd"
 
