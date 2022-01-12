@@ -40,6 +40,11 @@ scrape_configs:
       - targets:
         - es-exporter:9114
         - pg-exporter:9187
+        - cassandra-1:7070
+        - cassandra-2:7070
+        - cassandra-3:7070
+        - rabbitmq:15692
+        - redis-exporter:9121 
 
 rule_files:
   - rules.yml
