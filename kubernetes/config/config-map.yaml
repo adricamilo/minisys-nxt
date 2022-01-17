@@ -28,6 +28,14 @@ data:
   server.log.path: "/var/log/oms"
   server.log.level: INFO
   JAVA_HEAP_MEMORY: "-Xms256M -Xmx512M"
+  order.process.async: "true"
+  order.queue.type: "rabbitmq"
+  order.queue.host: "rabbitmq"
+  order.queue.name: "order-queue"
+  redis.enabled: "true"
+  redis.hostname: "redis"
+  redis.port: "6379"
+
 ---
 apiVersion: v1
 kind: ConfigMap

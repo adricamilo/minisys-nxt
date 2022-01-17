@@ -65,9 +65,10 @@ public class DBOrderLineDao implements OrderDao {
 
     @Override
     public Order getOrder(String userId, String id) {
-        String cql = "select * from orderline where userId='"+userId+"' and id='"+id+"'";
+        StringBuilder cql = new StringBuilder("select * from orderline where userId='")
+                                            .append(userId).append("' and id='"+id+"'");
         List<DBOrderLine> dbOrderLines = getCassandraOperations().
-                select(cql, DBOrderLine.class);
+                select(cql.toString(), DBOrderLine.class);
         if (dbOrderLines == null || dbOrderLines.size() == 0) {
             logger.debug("No order lines found; userId={}", cql);
             return null;
@@ -79,9 +80,10 @@ public class DBOrderLineDao implements OrderDao {
 
     @Override
     public List<Order> getOrders(String userId) {
-        String cql = "select * from orderline where userId='"+userId+"'";
+        StringBuilder cql = new StringBuilder("select * from orderline where userId='")
+                                            .append(userId).append("'");
         List<DBOrderLine> dbOrderLines = getCassandraOperations().
-                select(cql, DBOrderLine.class);
+                select(cql.toString(), DBOrderLine.class);
         if (dbOrderLines == null || dbOrderLines.size() == 0) {
             logger.debug("No order lines found; userId={}", cql);
             return new LinkedList<>();
@@ -114,8 +116,9 @@ public class DBOrderLineDao implements OrderDao {
 
     @Override
     public boolean removeOrder(String userId, String id) {
-        String cql = "delete from orderline where userId='"+userId+"' and id='"+id+"'";
-        getCassandraOperations().delete(cql);
+        StringBuilder cql = new StringBuilder("delete from orderline where userId='")
+                            .append(userId).append("' and id='").append(id).append("'");
+        getCassandraOperations().delete(cql.toString());
         logger.debug("Removed order; orderId={}", id);
         return true;
     }

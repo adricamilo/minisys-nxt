@@ -2,6 +2,7 @@
 
 if [ -z "$1" ]; then
     echo "Usage push-images.sh <REGISTRY_PATH>"
+    echo "Example: push-images.sh asia.gcr.io/<project-name>"
     exit -1
 fi
 
@@ -10,7 +11,7 @@ REGISTRY_PATH=$1
 function tag_and_push {
 
     echo "Tag image ntw/$1"
-    docker tag ntw/$1 ${REGISTRY_PATH}/$1:latest
+    docker tag $1 ${REGISTRY_PATH}/$1:latest
     if [ $? != 0 ]; then
         echo "Tag image failed - $1"
         exit -1;
@@ -25,11 +26,9 @@ function tag_and_push {
 
 }
 
-declare -a arr=("cassandra" "postgres" "services" "web" "lb-services" "lb-web" "jmeter" "eureka" "fluentd" "prometheus")
-
-for i in "${arr[@]}"
+for image in $(docker images --format={{.Repository}} | grep "ntw")
 do
-    tag_and_push $i
+    tag_and_push $image
 done
 
 echo "-- Done --"
