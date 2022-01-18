@@ -20,7 +20,7 @@ metadata:
   labels:
     app: cassandra
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: cassandra
@@ -57,6 +57,13 @@ spec:
           volumeMounts:
             - mountPath: "/var/lib/cassandra"
               name: cassandra-storage-claim
+      topologySpreadConstraints:                                                                                                                     
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: cassandra
   volumeClaimTemplates:
   - metadata:
       name: cassandra-storage-claim

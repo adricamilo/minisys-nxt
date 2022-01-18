@@ -60,8 +60,6 @@ spec:
         env:
           - name: database.type
             value: CQL
-#          - name: auth.password.plain
-#            value: "true"
         livenessProbe:
           httpGet:
             path: /status
@@ -79,6 +77,13 @@ spec:
       volumes:
         - name: log-data
           emptyDir: {}
+      topologySpreadConstraints:                                                                                                                     
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: auth-svc-pods
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler

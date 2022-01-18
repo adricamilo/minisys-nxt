@@ -87,6 +87,13 @@ spec:
       volumes:
         - name: log-data
           emptyDir: {}
+      topologySpreadConstraints:                                                                                                                     
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: inventory-svc-pods
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
