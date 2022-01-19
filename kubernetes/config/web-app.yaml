@@ -46,25 +46,11 @@ spec:
             value: localhost
           - name: WEB_PORT
             value: "8000"
-        resources:
-          requests:
-            cpu: "200m"
-            memory: "128Mi"
-          limits:
-            cpu: "500m"
-            memory: "256Mi"
       - name: web-app-dynamic-cont
         image: IMAGE_REGISTRY_PATH/web:REVISION_ID
         imagePullPolicy: Always
         ports:
           - containerPort: 8000
-        resources:
-          requests:
-            cpu: "250m"
-            memory: "250Mi"
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
         envFrom:
           - configMapRef:
               name: web-config

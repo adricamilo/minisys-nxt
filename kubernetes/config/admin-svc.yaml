@@ -47,13 +47,6 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 8080
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "512Mi"
-          limits:
-            cpu: "1000m"
-            memory: "768Mi"
         volumeMounts:
           - name: log-data
             mountPath: /var/log/oms
