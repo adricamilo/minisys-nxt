@@ -47,13 +47,17 @@ spec:
       volumeMounts:
         - mountPath: "/usr/share/elasticsearch/data"
           name: elasticsearch-storage
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 9200
+        initialDelaySeconds: 180
       readinessProbe:
         httpGet:
           path: /
           port: 9200
-        initialDelaySeconds: 20
-        periodSeconds: 5
-        successThreshold: 1
+        initialDelaySeconds: 30
+        periodSeconds: 2
       env:
         - name: discovery.type
           value: "single-node"
@@ -102,6 +106,10 @@ metadata:
   labels:
     app: kibana
 spec:
+  initContainers:
+  - name: wait-for-es
+    image: curlimages/curl
+    command: ['sh', '-c', 'until curl http://elasticsearch:9200; do echo Waiting for ES; sleep 2; done;']
   containers:
     - name: kibana-cont
       image: kibana:7.13.2
@@ -112,10 +120,14 @@ spec:
       env:
         - name: ELASTICSEARCH_HOSTS
           value: "http://elasticsearch:9200"
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 5601
+        initialDelaySeconds: 60
       readinessProbe:
         httpGet:
           path: /
           port: 5601
         initialDelaySeconds: 20
-        periodSeconds: 5
-        successThreshold: 1
+        periodSeconds: 2

@@ -37,15 +37,21 @@ spec:
           ports:
             - protocol: TCP
               containerPort: 9042
+          livenessProbe:
+            exec:
+               command:
+               - /bin/bash
+               - -c
+               - /check-readiness.sh
+            initialDelaySeconds: 180
           readinessProbe:
             exec:
                command:
                - /bin/bash
                - -c
                - /check-readiness.sh
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            successThreshold: 1
+            initialDelaySeconds: 60
+            periodSeconds: 2
           envFrom:
             - configMapRef:
                 name: cassandra-config

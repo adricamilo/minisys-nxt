@@ -36,7 +36,10 @@ spec:
       initContainers:
       - name: wait-for-postgres
         image: postgres
-        command: [ '/bin/bash','-c', 'until pg_isready -h postgres; do echo waiting for postgres; sleep 1; done;' ]
+        command: [ '/bin/bash','-c', 'until pg_isready -h postgres; do echo waiting for postgres; sleep 2; done;' ]
+      - name: wait-for-cassandra
+        image: cassandra
+        command: [ '/bin/bash','-c', 'until echo exit | cqlsh cassandra; do echo waiting for cassandra; sleep 5; done;' ]
       containers:
       - name: order-svc-cont
         image: IMAGE_REGISTRY_PATH/services:REVISION_ID
@@ -74,10 +77,7 @@ spec:
           httpGet:
             path: /status
             port: 8080
-          initialDelaySeconds: 120
-          periodSeconds: 5
-          failureThreshold: 3
-          timeoutSeconds: 2
+          initialDelaySeconds: 180
         readinessProbe:
           httpGet:
             path: /status

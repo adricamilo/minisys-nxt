@@ -36,9 +36,16 @@ spec:
         - name: redis
           protocol: TCP
           containerPort: 6379
+      livenessProbe:
+        exec:
+          command:
+          - redis-cli
+          - ping
+        initialDelaySeconds: 120	
       readinessProbe:
         exec:
           command:
           - redis-cli
           - ping
-        initialDelaySeconds: 5	
+        initialDelaySeconds: 30	
+        periodSeconds: 2

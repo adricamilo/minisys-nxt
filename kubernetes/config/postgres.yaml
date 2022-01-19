@@ -42,15 +42,21 @@ spec:
         - mountPath: "/var/lib/postgresql/data"
           name: postgres-storage
           subPath: postgres
+      livenessProbe:
+        exec:
+           command:
+           - /bin/bash
+           - -c
+           - /check-readiness.sh
+        initialDelaySeconds: 120
       readinessProbe:
         exec:
            command:
            - /bin/bash
            - -c
            - /check-readiness.sh
-        initialDelaySeconds: 10
+        initialDelaySeconds: 30
         periodSeconds: 5
-        successThreshold: 1
       env:
         - name: POSTGRES_USER
           valueFrom:

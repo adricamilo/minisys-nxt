@@ -37,6 +37,17 @@ spec:
       - name: config-volume-2
         mountPath: /etc/prometheus/rules.yml
         subPath: rules.yml
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 9090
+        initialDelaySeconds: 120
+      readinessProbe:
+        httpGet:
+          path: /
+          port: 9090
+        initialDelaySeconds: 30
+        periodSeconds: 2
   volumes:
     - name: config-volume-1
       configMap:

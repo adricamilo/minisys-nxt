@@ -15,7 +15,7 @@ fi
 REVISION_ID=latest
 
 if [ -z "${IMAGE_REGISTRY_PATH}" ]; then
-    IMAGE_REGISTRY_PATH="asia.gcr.io\/$(gcloud config get-value project)/ntw"
+    IMAGE_REGISTRY_PATH="asia.gcr.io\/$(gcloud config get-value project)\/ntw"
 fi
 echo "Docker Image Registry Path: ${IMAGE_REGISTRY_PATH}"
 

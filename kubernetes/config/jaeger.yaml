@@ -32,6 +32,10 @@ spec:
       labels:
         app: jaeger-agent
     spec:
+      initContainers:
+      - name: wait-for-jaeger-collector
+        image: curlimages/curl
+        command: ['sh', '-c', 'until curl http://jaeger-collector:14250; do echo Waiting for Jaeger Collector; sleep 2; done;']
       containers:
       - name: jaeger-agent-cont
         image: jaegertracing/jaeger-agent:REVISION_ID
@@ -46,7 +50,15 @@ spec:
           - name: SPAN_STORAGE_TYPE
             value: "elasticsearch"
         args: ["--reporter.grpc.host-port=jaeger-collector:14250"]
-
+        livenessProbe:
+          tcpSocket:
+            port: 14721
+          initialDelaySeconds: 120
+        readinessProbe:
+          tcpSocket:
+            port: 14721
+          initialDelaySeconds: 30
+          periodSeconds: 2
 
 
 ---
@@ -71,6 +83,10 @@ metadata:
   labels:
     app: jaeger-collector
 spec:
+  initContainers:
+  - name: wait-for-elasticsearch
+    image: curlimages/curl
+    command: ['sh', '-c', 'until curl http://elasticsearch:9200; do echo Waiting for ES; sleep 2; done;']
   containers:
     - name: jaeger-collector-cont
       image: jaegertracing/jaeger-collector:latest
@@ -87,7 +103,15 @@ spec:
         "--es.num-replicas=0",
         "--log-level=error"
       ]
-
+      livenessProbe:
+        tcpSocket:
+          port: 14250
+        initialDelaySeconds: 120
+      readinessProbe:
+        tcpSocket:
+          port: 14250
+        initialDelaySeconds: 30
+        periodSeconds: 2
 
 
 ---
@@ -119,6 +143,10 @@ metadata:
   labels:
     app: jaeger-query
 spec:
+  initContainers:
+  - name: wait-for-elasticsearch
+    image: curlimages/curl
+    command: ['sh', '-c', 'until curl http://elasticsearch:9200; do echo Waiting for ES; sleep 2; done;']
   containers:
     - name: jaeger-query-cont
       image: jaegertracing/jaeger-query:latest
@@ -134,3 +162,14 @@ spec:
         "--span-storage.type=elasticsearch",
         "--log-level=debug"
       ]
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 16686
+        initialDelaySeconds: 120
+      readinessProbe:
+        httpGet:
+          path: /
+          port: 16686
+        initialDelaySeconds: 30
+        periodSeconds: 2
