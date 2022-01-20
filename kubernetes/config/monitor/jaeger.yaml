@@ -3,12 +3,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jaeger-agent
+  namespace: monitor
   labels:
     app: jaeger-agent
 spec:
   clusterIP: None
   ports:
-    - port: 14721
+    - port: 14271
       protocol: TCP
       name: tcp
     - port: 6831
@@ -20,7 +21,8 @@ spec:
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: tracing-pods-jaeger-agent
+  name: jaeger-agent-pod
+  namespace: monitor
   labels:
     app: jaeger-agent
 spec:
@@ -32,16 +34,12 @@ spec:
       labels:
         app: jaeger-agent
     spec:
-      initContainers:
-      - name: wait-for-jaeger-collector
-        image: curlimages/curl
-        command: ['sh', '-c', 'until curl http://jaeger-collector:14250; do echo Waiting for Jaeger Collector; sleep 2; done;']
       containers:
       - name: jaeger-agent-cont
         image: jaegertracing/jaeger-agent:REVISION_ID
         ports:
           - protocol: TCP
-            containerPort: 14721
+            containerPort: 14271
             name: tcp
           - protocol: UDP
             containerPort: 6831
@@ -52,11 +50,11 @@ spec:
         args: ["--reporter.grpc.host-port=jaeger-collector:14250"]
         livenessProbe:
           tcpSocket:
-            port: 14721
+            port: 14271
           initialDelaySeconds: 120
         readinessProbe:
           tcpSocket:
-            port: 14721
+            port: 14271
           initialDelaySeconds: 30
           periodSeconds: 2
 
@@ -66,6 +64,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jaeger-collector
+  namespace: monitor
   labels:
     app: jaeger-collector
 spec:
@@ -79,7 +78,8 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: tracing-pods-jaeger-collector
+  name: jaeger-collector-pod
+  namespace: monitor
   labels:
     app: jaeger-collector
 spec:
@@ -119,6 +119,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jaeger-query
+  namespace: monitor
   labels:
     app: jaeger-query
 spec:
@@ -139,7 +140,8 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: tracing-pods-jaeger-query
+  name: jaeger-query-pod
+  namespace: monitor
   labels:
     app: jaeger-query
 spec:

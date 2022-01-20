@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: elasticsearch
+  namespace: monitor
   labels:
     app: elasticsearch
 spec:
@@ -18,7 +19,8 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: logging-pods-elasticsearch
+  name: elasticsearch-pod
+  namespace: monitor
   labels:
     app: elasticsearch
 spec:
@@ -75,6 +77,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: local-disk-elasticsearch-claim
+  namespace: monitor
 spec:
   accessModes:
     - ReadWriteOnce
@@ -87,6 +90,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kibana
+  namespace: monitor
   labels:
     app: kibana
 spec:
@@ -102,7 +106,8 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: logging-pods-kibana
+  name: kibana-pod
+  namespace: monitor
   labels:
     app: kibana
 spec:

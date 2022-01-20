@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cassandra
+  namespace: data
   labels:
     app: cassandra
 spec:
@@ -16,7 +17,8 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: data-pods-cassandra
+  name: cassandra-pod
+  namespace: data
   labels:
     app: cassandra
 spec:
@@ -73,6 +75,7 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: cassandra-storage-claim
+      namespace: data
     spec:
       accessModes: 
         - ReadWriteOnce

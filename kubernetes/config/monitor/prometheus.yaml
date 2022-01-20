@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus
+  namespace: monitor
   labels:
     app: prometheus
 spec:
@@ -18,7 +19,8 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: monitoring-pods-prometheus
+  name: prometheus-pod
+  namespace: monitor
   labels:
     app: prometheus
 spec:

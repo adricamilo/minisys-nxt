@@ -1,10 +1,6 @@
 #!/bin/bash
 
-if [[ -z "$1" ]]; then
-    CMD="apply"
-else
-    CMD=$1
-fi
+if [[ -z "$1" ]]; then CMD="apply"; else CMD=$1; fi
 
 if [ "$CMD" == "delete" ]; then
     
@@ -15,8 +11,7 @@ if [ "$CMD" == "delete" ]; then
     
 else
 
-    cd ./config
-
+    cd ./volume
 
     NODES=$(kubectl get nodes -o name | sed 's#^node/##' | xargs)
     counter=0
