@@ -73,17 +73,3 @@ spec:
       volumes:
         - name: log-data
           emptyDir: {}
----
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: web-app-scaler
-  namespace: ui
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: web-app-pods
-  minReplicas: 1
-  maxReplicas: 2
-  targetCPUUtilizationPercentage: 70

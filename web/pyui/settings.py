@@ -170,6 +170,13 @@ HTTP_SAMPLE_DATA_TIMEOUT = 120
 LOG_FILE=os.environ.get('PYUI_LOG_FILE','./PyUi.log')
 LOG_LEVEL=os.environ.get('PYUI_LOG_LEVEL','INFO')
 
+PROMETHEUS_PORT=os.environ.get('PROMETHEUS_PORT','9090')
+JAEGER_PORT=os.environ.get('JAEGER_PORT','16686')
+KIBANA_PORT=os.environ.get('KIBANA_PORT','5601')
+RABBITMQ_PORT=os.environ.get('RABBITMQ_PORT','15672')
+
+JAEGER_AGENT_HOST=os.environ.get('JAEGER_AGENT_HOST','jaeger-agent')
+JAEGER_AGENT_PORT=os.environ.get('JAEGER_AGENT_PORT','6831')
 
 LOGGING = {
     'version': 1,
@@ -251,8 +258,8 @@ config = Config(
             'param': 1,
         },
         'local_agent': {
-            'reporting_host': 'jaeger-agent',
-            'reporting_port': '6831',
+            'reporting_host': JAEGER_AGENT_HOST,
+            'reporting_port': JAEGER_AGENT_PORT,
         },
         'logging': True,
     },

@@ -238,8 +238,12 @@ def data_page(request):
     return render(request, 'app/error.html',
                   {'message': 'Please login as Admin to access this page'})
 
+
 def monitoring_page(request):
-    return render(request, 'app/monitor.html', {'message': ''})
+    return render(request, 'app/monitor.html', {'message': '', 'ports':
+                                {'prometheus': settings.PROMETHEUS_PORT, 'jaeger': settings.JAEGER_PORT,
+                                 'kibana': settings.KIBANA_PORT, 'rabbitmq': settings.RABBITMQ_PORT}
+                                })
 
 
 def profile(request):
