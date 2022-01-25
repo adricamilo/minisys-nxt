@@ -16,11 +16,12 @@ spec:
     app: web-app
 #  type: LoadBalancer
   type: NodePort
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-app-pod
+  name: web-app-pods
   namespace: ui
 spec:
   replicas: 1

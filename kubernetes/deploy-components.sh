@@ -5,13 +5,27 @@
 
 ############### Arg Validations ###############
 
-if [ "$1" != "apply" ] && [ "$1" != "delete" ]; then
+if [ $# -gt 0 ] && [ "$1" != "apply" ] && [ "$1" != "delete" ]; then
     echo "First parameter should be apply or delete"; exit 1;
 fi
 
-if [ -n "$2" ] && [ ! -d "$2" ] && [ ! -f "$2" ]; then
+if [ $# -gt 1 ] && [ ! -d "$2" ] && [ ! -f "$2" ]; then
     echo "Second arg should be a relative dir or file path"; exit 1;
 fi
+
+if [ -z "$1" ]; then
+    CMD="apply"
+else
+    CMD=$1
+fi
+
+if [ -z "$2" ]; then
+    CONFIG_FILES_PATH="./config"
+else
+    CONFIG_FILES_PATH=$2
+fi
+
+############### Env Validations ###############
 
 if [ -z "${REVISION_ID}" ]; then
     REVISION_ID=latest
@@ -21,16 +35,6 @@ fi
 if [ -z "${REGISTRY_HOST}" ]; then
     REGISTRY_HOST="asia.gcr.io"
     echo "Image Registry Host set to: ${REGISTRY_HOST}"
-fi
-
-###############################################
-
-CMD=$1
-
-if [ -z "$2" ]; then
-    CONFIG_FILES_PATH="./config"
-else
-    CONFIG_FILES_PATH=$2
 fi
 
 PROJECT_NAME=$(gcloud config get-value project)

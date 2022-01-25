@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-web
+  namespace: ui
+spec:
+  defaultBackend:
+    service:
+      name: web-app
+      port:
+        number: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-spa
+  namespace: ui
+spec:
+  defaultBackend:
+    service:
+      name: spa-app
+      port:
+        number: 80

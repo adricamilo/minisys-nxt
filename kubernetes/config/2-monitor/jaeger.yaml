@@ -17,11 +17,17 @@ spec:
       name: udp
   selector:
     app: jaeger-agent
+  topologyKeys:
+    - "kubernetes.io/hostname"
+    - "topology.kubernetes.io/zone"
+    - "topology.kubernetes.io/region"
+    - "*"
+    
 ---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: jaeger-agent-pod
+  name: jaeger-agent-pods
   namespace: monitor
   labels:
     app: jaeger-agent

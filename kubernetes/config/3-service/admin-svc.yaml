@@ -14,11 +14,17 @@ spec:
   selector:
     app: admin-svc
   type: ClusterIP
+  topologyKeys:
+    - "kubernetes.io/hostname"
+    - "topology.kubernetes.io/zone"
+    - "topology.kubernetes.io/region"
+    - "*"
+    
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: admin-svc-pod
+  name: admin-svc-pods
   namespace: service
 spec:
   replicas: 1

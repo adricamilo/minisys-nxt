@@ -67,8 +67,8 @@ metadata:
   labels:
     app: cassandra
 data:
-  CASSANDRA_SEEDS: "cassandra-pod-0.cassandra.data.svc.cluster.local"
-  SCHEMA_SEED_INSTANCE: "cassandra-pod-0"
+  CASSANDRA_SEEDS: "cassandra-pods-0.cassandra.data.svc.cluster.local"
+  SCHEMA_SEED_INSTANCE: "cassandra-pods-0"
   REPLICATION_FACTOR: "3"
 
 ---
@@ -91,7 +91,20 @@ data:
     </source>
     
     
-    <match kubernetes.var.log.containers.**-svc-pod-**>
+    <match kubernetes.var.log.containers.**-svc-pods-**>
+      @type rewrite_tag_filter
+      <rule>
+        key message
+        pattern /time=\d{4}-\d{2}-\d{2}/
+        tag logger.${tag}
+      </rule>
+      <rule>
+        key message
+        pattern /^(?!time=\d{4}-\d{2}-\d{2}).*$/
+        tag unknown..${tag}
+      </rule>
+    </match>
+    <match kubernetes.var.log.containers.**-app-pods-**>
       @type rewrite_tag_filter
       <rule>
         key message

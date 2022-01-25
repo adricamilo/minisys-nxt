@@ -14,12 +14,17 @@ spec:
   selector:
     app: product-svc
   type: ClusterIP
+  topologyKeys:
+    - "kubernetes.io/hostname"
+    - "topology.kubernetes.io/zone"
+    - "topology.kubernetes.io/region"
+    - "*"
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-svc-pod
+  name: product-svc-pods
   namespace: service
 spec:
   replicas: 1
@@ -79,4 +84,4 @@ spec:
         whenUnsatisfiable: ScheduleAnyway
         labelSelector:
           matchLabels:
-            app: product-svc-pods
+            app: product-svc

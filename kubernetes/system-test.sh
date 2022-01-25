@@ -3,9 +3,7 @@
 #REGISTRY_HOST=eu.gcr.io
 #REVISION_ID=latest
 
-if [ "$1" = "clean" ] || [ "$1" = "delete" ]; then
-    CMD="delete"
-else
+if [ "$1" != "delete" ]; then
     CMD="create"
 fi
 
@@ -23,11 +21,19 @@ IMAGE_REGISTRY_PATH="${REGISTRY_HOST}\/${PROJECT_NAME}\/ntw"
 
 cd ./test
 
-sed 's/IMAGE_REGISTRY_PATH/'${IMAGE_REGISTRY_PATH}'/g' jmeter.yaml \
-    | sed 's/REVISION_ID/'${REVISION_ID}'/g' \
-    | kubectl $CMD -f -
+# Delete any jmeter pod already present from previous run
+POD_NAME=$(kubectl get pods --no-headers -o custom-columns=:metadata.name -l job-name=jmeter --namespace=test)
+if [ -n "$POD_NAME" ]; then
+    sed 's/IMAGE_REGISTRY_PATH/'${IMAGE_REGISTRY_PATH}'/g' jmeter.yaml \
+	| sed 's/REVISION_ID/'${REVISION_ID}'/g' \
+	| kubectl delete -f -
+fi
 
-if [ "$CMD" != "delete" ]; then
+if [ "$CMD" == "create" ]; then
+    sed 's/IMAGE_REGISTRY_PATH/'${IMAGE_REGISTRY_PATH}'/g' jmeter.yaml \
+	| sed 's/REVISION_ID/'${REVISION_ID}'/g' \
+	| kubectl create -f -
+
     POD_NAME=$(kubectl get pods --no-headers -o custom-columns=:metadata.name -l job-name=jmeter --namespace=test)
     echo "-- Jmeter test pod launched with name = $POD_NAME --"
     echo "-- Use the following command to check logs--"

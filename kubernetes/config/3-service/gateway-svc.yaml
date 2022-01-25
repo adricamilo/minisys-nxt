@@ -14,15 +14,21 @@ spec:
   selector:
     app: gateway-svc
   type: ClusterIP
+#  type: LoadBalancer
+  topologyKeys:
+    - "kubernetes.io/hostname"
+    - "topology.kubernetes.io/zone"
+    - "topology.kubernetes.io/region"
+    - "*"
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gateway-svc-pod
+  name: gateway-svc-pods
   namespace: service
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: gateway-svc
@@ -69,4 +75,4 @@ spec:
         whenUnsatisfiable: ScheduleAnyway
         labelSelector:
           matchLabels:
-            app: gateway-svc-pods
+            app: gateway-svc

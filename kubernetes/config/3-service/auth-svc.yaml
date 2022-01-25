@@ -14,12 +14,17 @@ spec:
   selector:
     app: auth-svc
   type: ClusterIP
+  topologyKeys:
+    - "kubernetes.io/hostname"
+    - "topology.kubernetes.io/zone"
+    - "topology.kubernetes.io/region"
+    - "*"
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-svc-pod
+  name: auth-svc-pods
   namespace: service
 spec:
   replicas: 1
@@ -79,4 +84,4 @@ spec:
         whenUnsatisfiable: ScheduleAnyway
         labelSelector:
           matchLabels:
-            app: auth-svc-pods
+            app: auth-svc
