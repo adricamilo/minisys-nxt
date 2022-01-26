@@ -8,6 +8,8 @@ metadata:
     app: services
 data:
   server.port: "8080"
+  server.threadPool.threads.minimum: "5"
+  server.threadPool.threads.maximum: "15"
   eureka.client.registerWithEureka: "false"
   eureka.client.fetchRegistry: "false"
   ribbon.eureka.enabled: "false"

@@ -4,25 +4,31 @@
 #REVISION_ID=latest
 
 ############### Arg Validations ###############
-
-if [ $# -gt 0 ] && [ "$1" != "apply" ] && [ "$1" != "delete" ]; then
-    echo "First parameter should be apply or delete"; exit 1;
-fi
-
-if [ $# -gt 1 ] && [ ! -d "$2" ] && [ ! -f "$2" ]; then
-    echo "Second arg should be a relative dir or file path"; exit 1;
-fi
-
-if [ -z "$1" ]; then
-    CMD="apply"
+                                                                                                                                                     
+if [ $# -gt 0 ] && [ ! -d "$1" ] && [ ! -f "$1" ]; then
+    echo "First arg should point to config dir or file"; exit 1;
 else
-    CMD=$1
+    CONFIG_FILES_PATH=$1
 fi
 
-if [ -z "$2" ]; then
+if [ $# -gt 1 ] && [ "$2" != "apply" ] && [ "$2" != "delete" ]; then
+    echo "Second parameter should be apply or delete"; exit 1;
+else
+    CMD=$2
+fi
+
+if [ $# -gt 2 ] && [ "$3" == "-i" ]; then
+    INTERACTIVE="true"
+else
+    INTERACTIVE="false"
+fi
+
+if [ -z "$CONFIG_FILES_PATH" ]; then
     CONFIG_FILES_PATH="./config"
-else
-    CONFIG_FILES_PATH=$2
+fi
+
+if [ -z "$CMD" ]; then
+    CMD="apply"
 fi
 
 ############### Env Validations ###############
@@ -52,13 +58,27 @@ fi
 
 function kube_execute {
     CONFIG_FILE=$1
-    echo "-- kubectl $CMD -f $CONFIG_FILE --"
+    echo "Executing: kubectl $CMD -f $CONFIG_FILE"
     sed 's/IMAGE_REGISTRY_PATH/'${IMAGE_REGISTRY_PATH}'/g' ${CONFIG_FILE} \
-	| sed 's/REVISION_ID/'${REVISION_ID}'/g' \
-	| kubectl ${CMD} -f -
+        | sed 's/REVISION_ID/'${REVISION_ID}'/g' \
+        | kubectl ${CMD} -f -
+}
+
+function kube_execute_interactive {
+    CONFIG_FILE=$1                                                                                                                                   
+    read -p "Execute $CMD for $CONFIG_FILE (y/n): " yn
+    case $yn in
+        [Yy]* ) kube_execute $CONFIG_FILE;;                                                                                                          
+        [Nn]* ) exit;;
+        * ) kube_execute $CONFIG_FILE;;
+    esac
 }
 
 for CONFIG_FILE in ${CONFIG_FILES}
 do
-    kube_execute $CONFIG_FILE
+    if [ "$INTERACTIVE" == "true" ]; then
+        kube_execute_interactive $CONFIG_FILE
+    else
+        kube_execute $CONFIG_FILE
+    fi
 done
