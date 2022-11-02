@@ -20,7 +20,7 @@ sudo apt-get install -y maven
 verify_success $? maven
 
 echo "-- Install NodeJS --"
-curl -sL https://deb.nodesource.com/setup_12.x | sudo bash - && \
+curl -sL https://deb.nodesource.com/setup_16.x | sudo bash - && \
 sudo apt-get install -y nodejs
 verify_success $? nodejs
 
