@@ -13,11 +13,6 @@ spec:
       name: default
   selector:
     app: cassandra
-  topologyKeys:
-    - "kubernetes.io/hostname"
-    - "topology.kubernetes.io/zone"
-    - "topology.kubernetes.io/region"
-    - "*"
     
 ---
 apiVersion: apps/v1

@@ -15,11 +15,6 @@ spec:
     app: gateway-svc
   type: ClusterIP
 #  type: LoadBalancer
-  topologyKeys:
-    - "kubernetes.io/hostname"
-    - "topology.kubernetes.io/zone"
-    - "topology.kubernetes.io/region"
-    - "*"
 
 ---
 apiVersion: apps/v1
