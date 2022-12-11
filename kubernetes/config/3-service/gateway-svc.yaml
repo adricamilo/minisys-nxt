@@ -6,6 +6,8 @@ metadata:
   namespace: service
   labels:
     app: gateway-svc
+  annotations:
+    service.kubernetes.io/topology-aware-hints: auto
 spec:
   ports:
     - protocol: TCP
@@ -23,7 +25,7 @@ metadata:
   name: gateway-svc-pods
   namespace: service
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: gateway-svc

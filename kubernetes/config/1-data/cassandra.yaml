@@ -6,6 +6,8 @@ metadata:
   namespace: data
   labels:
     app: cassandra
+  annotations:
+    service.kubernetes.io/topology-aware-hints: auto
 spec:
   clusterIP: None
   ports:

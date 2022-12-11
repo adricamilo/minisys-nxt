@@ -6,6 +6,8 @@ metadata:
   namespace: service
   labels:
     app: order-svc
+  annotations:
+    service.kubernetes.io/topology-aware-hints: auto
 spec:
   ports:
     - protocol: TCP
@@ -22,7 +24,7 @@ metadata:
   name: order-svc-pods
   namespace: service
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: order-svc

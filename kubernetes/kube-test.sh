@@ -38,4 +38,6 @@ if [ "$CMD" == "create" ]; then
     echo "-- Jmeter test pod launched with name = $POD_NAME --"
     echo "-- Use the following command to check logs--"
     echo "kubectl logs -f" $POD_NAME "--namespace=test"
+    for i in {1..8}; do printf "."; sleep 1; done;
+    kubectl logs -f $POD_NAME --namespace=test
 fi

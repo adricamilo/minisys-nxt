@@ -6,6 +6,8 @@ metadata:
   namespace: service
   labels:
     app: product-svc
+  annotations:
+    service.kubernetes.io/topology-aware-hints: auto
 spec:
   ports:
     - protocol: TCP
