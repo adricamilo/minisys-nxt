@@ -24,4 +24,16 @@ curl -sL https://deb.nodesource.com/setup_16.x | sudo bash - && \
 sudo apt-get install -y nodejs
 verify_success $? nodejs
 
+echo "-- Install python --"
+sudo apt-get install -y python3-pip
+verify_success $? python3-pip
+
+sudo pip3 install "django>=3.2,<4" gunicorn python-json-logger 
+verify_success $? "django and gunicorn"
+
+sudo pip3 install opentracing jaeger-client django-prometheus
+verify_success $? "jaeger tracing and prometheus"
+
 echo "-- Done --"
+
+./verify-build-tools.sh

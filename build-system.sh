@@ -17,6 +17,17 @@ function verify_success {
     fi
 }
 
+echo "--- Verify system and tools ---"
+
+./bin/verify-system.sh
+verify_success $? "operating system verification"
+
+./bin/verify-build-tools.sh
+verify_success $? "build tools installation verification"
+
+echo "--- Verification Done!! ---"
+
+
 ############################## Clean ####################################
 
 function do_clean {
