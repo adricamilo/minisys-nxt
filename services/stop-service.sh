@@ -30,4 +30,6 @@ elif [ "$1" == "gateway" ]; then
     stop_service gateway
 else
     echo "Incorrect service name $1"
+    echo "Use any one of the following as service name argument:"
+    echo "all, admin, auth, product, gateway, order, inventory" 
 fi

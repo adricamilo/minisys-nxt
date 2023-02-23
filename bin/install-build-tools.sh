@@ -9,6 +9,9 @@ function verify_success {
     fi
 }
 
+./verify-system.sh
+verify_success $? "operating system requirements"
+
 sudo apt-get update
 
 echo "-- Install JDK --"
