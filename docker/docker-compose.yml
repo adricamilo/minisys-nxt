@@ -94,7 +94,7 @@ services:
 
 
   jaeger-agent:
-    image: jaegertracing/jaeger-agent
+    image: jaegertracing/jaeger-agent:1.42
     container_name: jaeger-agent
     hostname: jaegar-agent
     networks:
@@ -110,7 +110,7 @@ services:
       - "jaeger-collector"
 
   jaeger-collector:
-    image: jaegertracing/jaeger-collector
+    image: jaegertracing/jaeger-collector:1.42
     container_name: jaeger-collector
     hostname: jaegar-collector
     networks:
@@ -130,7 +130,7 @@ services:
     restart: unless-stopped
     
   jaeger-query:
-    image: jaegertracing/jaeger-query
+    image: jaegertracing/jaeger-query:1.42
     container_name: jaeger-query
     hostname: jaeger-query
     networks:
@@ -151,7 +151,7 @@ services:
       - "jaeger-collector"
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v2.42.0
     container_name: prometheus
     hostname: prometheus
     networks:
@@ -166,7 +166,7 @@ services:
     restart: unless-stopped
 
   es-exporter:
-    image: prometheuscommunity/elasticsearch-exporter
+    image: prometheuscommunity/elasticsearch-exporter:v1.5.0
     container_name: es-exporter
     hostname: es-exporter
     networks:
@@ -178,7 +178,7 @@ services:
     restart: unless-stopped
 
   pg-exporter:
-    image: prometheuscommunity/postgres-exporter
+    image: prometheuscommunity/postgres-exporter:v0.11.1
     container_name: pg-exporter
     hostname: pg-exporter
     networks:
@@ -190,7 +190,7 @@ services:
     restart: unless-stopped
 
   redis-exporter:
-    image: oliver006/redis_exporter
+    image: oliver006/redis_exporter:v1.47.0
     container_name: redis-exporter
     hostname: redis-exporter
     networks:
@@ -243,7 +243,7 @@ services:
 
 
   rabbitmq:
-    image: rabbitmq:management
+    image: rabbitmq:3.11-management
     container_name: rabbitmq
     hostname: rabbitmq
     networks:
@@ -256,7 +256,7 @@ services:
       - rabbitmq-data:/var/lib/rabbitmq"
 
   redis:
-    image: redis
+    image: redis:7.0
     container_name: redis
     hostname: redis
     networks:

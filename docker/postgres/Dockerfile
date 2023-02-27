@@ -15,7 +15,7 @@
 ############################################################################
 
 # Set the base image to postgres
-FROM postgres
+FROM postgres:15.2
 
 # File Author / Maintainer
 MAINTAINER Anurag Yadav

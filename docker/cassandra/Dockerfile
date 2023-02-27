@@ -15,7 +15,7 @@
 ############################################################################
 
 # Set the base image to mongo
-FROM cassandra
+FROM cassandra:4.1
 
 # File Author / Maintainer
 MAINTAINER Anurag Yadav

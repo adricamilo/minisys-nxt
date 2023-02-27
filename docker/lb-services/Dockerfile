@@ -15,7 +15,7 @@
 ############################################################################
 
 # Set the base image to nginx
-FROM nginx
+FROM nginx:1.23
 
 # File Author / Maintainer
 MAINTAINER Anurag Yadav

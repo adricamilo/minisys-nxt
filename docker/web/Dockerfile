@@ -15,7 +15,7 @@
 ############################################################################
 
 # Set the base image to mongo
-FROM ubuntu
+FROM ubuntu:22.04
 
 # File Author / Maintainer
 MAINTAINER Anurag Yadav

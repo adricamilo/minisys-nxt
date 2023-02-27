@@ -15,7 +15,7 @@
 ############################################################################
 
 # Set the base image to ubuntu
-FROM ubuntu
+FROM ubuntu:22.04
 
 # File Author / Maintainer
 MAINTAINER Anurag Yadav
@@ -32,7 +32,7 @@ RUN apt install -y openjdk-11-jdk && \
     apt install -y firefox 
 
 RUN cd /usr/share && \
-    curl -LO http://apachemirror.wuchna.com//jmeter/binaries/apache-jmeter-5.3.tgz && \
+    curl -LO https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.5.tgz && \
     tar -zxf apache-jmeter-*.tgz && \
     rm -f apache-jmeter-*.tgz && \
     mv apache-jmeter-* jmeter && \
