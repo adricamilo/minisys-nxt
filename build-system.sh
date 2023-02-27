@@ -148,6 +148,9 @@ function do_images {
 	echo "Build failed -- Docker daemon not installed"
 	exit -1;
     fi
+
+    echo "-- Pull all build artifacts to staging area --"
+    do_stage
     
     echo "-- Pull artifacts from Staging to Docker images dir --"
     cd $OMS_ROOT/docker/bin
