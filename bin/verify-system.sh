@@ -6,8 +6,8 @@ if [ -f "/etc/os-release" ]; then
         ERROR_MESSAGE="WARNING: Unsupported OS. Recommended OS is Ubuntu."
     else
         echo "OS Name is $NAME"
-        if [ "$VERSION_ID" != "22.04" ]; then
-            ERROR_MESSAGE="WARNING: Unsupported OS version. Recommended version is 22.04"
+        if [ "$VERSION_ID" != "20.04" ] && [ "$VERSION_ID" != "22.04" ]; then
+            ERROR_MESSAGE="WARNING: Unsupported OS version. Recommended version are Ubuntu 20.04 and 22.04 only"
         else
             echo "$NAME version is $VERSION_ID"
         fi
