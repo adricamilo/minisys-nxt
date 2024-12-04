@@ -15,7 +15,7 @@
 ############################################################################
 
 # Set the base image to ubuntu
-FROM fluentd:v1.14-1
+FROM fluentd:v1.16-1
 
 # File Author / Maintainer
 MAINTAINER Anurag Yadav

@@ -39,7 +39,7 @@ WORKDIR /usr
 
 ######## Install JMeter ##########
 RUN cd /usr/share && \
-    curl -LO https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.5.tgz && \
+    curl -LO https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.5.tgz && \
     tar -zxf apache-jmeter-*.tgz && \
     rm -f apache-jmeter-*.tgz && \
     mv apache-jmeter-* jmeter && \
